@@ -1,0 +1,93 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isRegisteredAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'adamalice2221@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Categories
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isRegisteredAdmin();
+    }
+
+    // Products
+    match /products/{productId} {
+      allow get: if (resource != null && resource.data.published == true) || isRegisteredAdmin();
+      allow list: if (resource.data.published == true) || isRegisteredAdmin();
+      allow write: if isRegisteredAdmin();
+    }
+
+    // Inquiries - public customer submissions, private admin management
+    match /inquiries/{inquiryId} {
+      allow create: if (
+        incoming().customerName is string &&
+        incoming().customerName.size() > 0 &&
+        incoming().customerName.size() <= 150 &&
+        incoming().email is string &&
+        incoming().email.size() > 0 &&
+        incoming().email.size() <= 150 &&
+        incoming().items is list &&
+        incoming().items.size() > 0 &&
+        incoming().items.size() <= 50 &&
+        incoming().status in ['Ny', 'Kontaktad', 'Bekräftad', 'Under arbete', 'Klar', 'Avslutad', 'Avböjd']
+      );
+      allow read, update, delete: if isRegisteredAdmin();
+    }
+
+    // Site Settings
+    match /siteSettings/{settingId} {
+      allow read: if true;
+      allow write: if isRegisteredAdmin();
+    }
+
+    // Discounts
+    match /discounts/{discountId} {
+      // Public customers read/query discounts for cart & checkout validation
+      allow read: if true;
+
+      // Admin has full create and delete control
+      allow create, delete: if isRegisteredAdmin();
+
+      // Updates: Admin full control, or atomic usedCount increment during inquiry submission
+      allow update: if isRegisteredAdmin() || (
+        incoming().diff(existing()).affectedKeys().hasOnly(['usedCount', 'updatedAt']) &&
+        incoming().usedCount is number &&
+        incoming().usedCount == existing().usedCount + 1 &&
+        (existing().usageLimit == null || existing().usedCount < existing().usageLimit) &&
+        existing().active == true
+      );
+    }
+
+    // Admins metadata
+    match /admins/{adminUid} {
+      allow read: if isRegisteredAdmin();
+      allow write: if isRegisteredAdmin();
+    }
+  }
+}

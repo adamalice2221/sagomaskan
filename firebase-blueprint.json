@@ -1,0 +1,158 @@
+{
+  "entities": {
+    "Category": {
+      "title": "Category",
+      "description": "Product categories for hand-crocheted goods",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "description": { "type": "string", "maxLength": 500 },
+        "image": { "type": "string", "maxLength": 1000 },
+        "sortOrder": { "type": "number" },
+        "isActive": { "type": "boolean" },
+        "targetAgeGroups": { "type": "array" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["name", "isActive"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Hand-crocheted product model with storytelling and craft details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 150 },
+        "categoryId": { "type": "string", "maxLength": 128 },
+        "category": { "type": "string", "maxLength": 100 },
+        "ageGroup": { "type": "string", "enum": ["Barn", "Vuxen", "Baby", "Alla"] },
+        "shortDescription": { "type": "string", "maxLength": 300 },
+        "description": { "type": "string", "maxLength": 3000 },
+        "story": { "type": "string", "maxLength": 3000 },
+        "storyIdea": { "type": "string", "maxLength": 1000 },
+        "price": { "type": "number" },
+        "image": { "type": "string", "maxLength": 1000 },
+        "images": { "type": "array" },
+        "colors": { "type": "array" },
+        "sizes": { "type": "array" },
+        "material": { "type": "string", "maxLength": 500 },
+        "craftsmanship": { "type": "string", "maxLength": 500 },
+        "leadTime": { "type": "string", "maxLength": 200 },
+        "careInstructions": { "type": "string", "maxLength": 500 },
+        "recommendedAge": { "type": "string", "maxLength": 200 },
+        "safetyInformation": { "type": "string", "maxLength": 1000 },
+        "personality": { "type": "string", "maxLength": 100 },
+        "inspiration": { "type": "string", "maxLength": 1000 },
+        "stockStatus": { "type": "string", "enum": ["På beställning", "I lager", "Tillfälligt slut"] },
+        "madeToOrder": { "type": "boolean" },
+        "featured": { "type": "boolean" },
+        "newProduct": { "type": "boolean" },
+        "published": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["name", "price"]
+    },
+    "Inquiry": {
+      "title": "Inquiry",
+      "description": "Customer order inquiry for custom handmade products",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "inquiryNumber": { "type": "string", "maxLength": 50 },
+        "customerName": { "type": "string", "maxLength": 150 },
+        "email": { "type": "string", "maxLength": 150 },
+        "phone": { "type": "string", "maxLength": 50 },
+        "address": { "type": "string", "maxLength": 200 },
+        "postalCode": { "type": "string", "maxLength": 20 },
+        "city": { "type": "string", "maxLength": 100 },
+        "message": { "type": "string", "maxLength": 2000 },
+        "items": { "type": "array" },
+        "estimatedTotal": { "type": "number" },
+        "status": { "type": "string", "enum": ["Ny", "Kontaktad", "Bekräftad", "Under arbete", "Klar", "Avslutad", "Avböjd"] },
+        "adminNotes": { "type": "string", "maxLength": 3000 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["customerName", "email", "items", "status"]
+    },
+    "SiteSettings": {
+      "title": "SiteSettings",
+      "description": "Global website contact and header settings",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "maxLength": 150 },
+        "instagram": { "type": "string", "maxLength": 100 },
+        "heroTitle": { "type": "string", "maxLength": 200 },
+        "heroSubtitle": { "type": "string", "maxLength": 500 },
+        "heroImage": { "type": "string", "maxLength": 500000 },
+        "heroProductId": { "type": "string", "maxLength": 128 },
+        "heroProductBadge": { "type": "string", "maxLength": 100 },
+        "aboutText": { "type": "string", "maxLength": 2000 },
+        "updatedAt": { "type": "string" }
+      }
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Administrator metadata record",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "maxLength": 150 },
+        "role": { "type": "string", "enum": ["admin", "superadmin"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["email", "role"]
+    },
+    "Discount": {
+      "title": "Discount",
+      "description": "Discount codes for promotional offers and campaigns",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "code": { "type": "string", "maxLength": 50 },
+        "discountType": { "type": "string", "enum": ["percentage", "fixed"] },
+        "discountValue": { "type": "number" },
+        "active": { "type": "boolean" },
+        "validFrom": { "type": "string" },
+        "validUntil": { "type": "string" },
+        "minimumOrderAmount": { "type": "number" },
+        "usageLimit": { "type": "number" },
+        "usedCount": { "type": "number" },
+        "appliesTo": { "type": "string", "enum": ["all", "products", "categories"] },
+        "productIds": { "type": "array" },
+        "categories": { "type": "array" },
+        "notes": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["code", "discountType", "discountValue", "active"]
+    }
+  },
+  "firestore": {
+    "/categories/{categoryId}": {
+      "schema": "Category",
+      "description": "Collection of product categories"
+    },
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Collection of products"
+    },
+    "/inquiries/{inquiryId}": {
+      "schema": "Inquiry",
+      "description": "Customer inquiries and orders"
+    },
+    "/discounts/{discountId}": {
+      "schema": "Discount",
+      "description": "Collection of discount codes"
+    },
+    "/siteSettings/{settingId}": {
+      "schema": "SiteSettings",
+      "description": "Site wide settings"
+    },
+    "/admins/{adminUid}": {
+      "schema": "Admin",
+      "description": "Admin users list"
+    }
+  }
+}

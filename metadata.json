@@ -1,0 +1,8 @@
+{
+  "name": "Sagomaskan",
+  "description": "En modern, nordisk webbshop för handgjorda virkade produkter med varm och minimalistisk design.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
