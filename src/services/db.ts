@@ -741,7 +741,7 @@ export function subscribeSiteSettings(callback: (settings: SiteSettings) => void
       callback(DEFAULT_SETTINGS);
     }
   }, (error) => {
-    handleFirestoreError(error, OperationType.GET, `${SETTINGS_COLLECTION}/general`);
+    console.error('Error listening to siteSettings:', error);
     callback({ ...DEFAULT_SETTINGS });
   });
 }
