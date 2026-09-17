@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
-import { subscribeInquiries } from '../services/db';
+import { subscribeInquiries, seedInitialDataIfEmpty, seedInitialCategoriesIfEmpty } from '../services/db';
 import { Inquiry, AdminTab, Product, Discount } from '../types';
 import { subscribeDiscounts } from '../services/discountService';
 import { AdminLayout } from '../components/admin/AdminLayout';
@@ -45,6 +45,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onGoToShop }) => {
   // Subscribe to inquiries and discounts when admin is logged in
   useEffect(() => {
     if (isAdmin) {
+      seedInitialDataIfEmpty();
+      seedInitialCategoriesIfEmpty();
       const unsubInquiries = subscribeInquiries((items) => {
         setInquiries(items);
       });

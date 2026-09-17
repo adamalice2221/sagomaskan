@@ -194,9 +194,77 @@ export function sanitizeForFirestore<T>(data: T): T {
   return data;
 }
 
+export const INITIAL_CATEGORIES: Category[] = [
+  {
+    id: "Gosedjur",
+    name: "Gosedjur",
+    description: "Små vänner att älska, leka med och hålla nära.",
+    image: "https://upslkastyoncylaapcoq.supabase.co/storage/v1/object/public/sagomaskan-images/categories/1789217481859_00b270ed-ee97-4b83-887f-2c476600568a.webp",
+    sortOrder: 1,
+    isActive: true,
+    targetAgeGroups: ["Barn", "Vuxen", "Baby"],
+    createdAt: "2026-09-12T09:28:21.322Z",
+    updatedAt: "2026-09-12T12:51:23.099Z"
+  },
+  {
+    id: "Bitringar",
+    name: "Bitringar",
+    description: "Mjuka detaljer för små händer och stora upptäckter.",
+    image: "https://upslkastyoncylaapcoq.supabase.co/storage/v1/object/public/sagomaskan-images/categories/1789217915021_R_d_kanin.webp",
+    sortOrder: 2,
+    isActive: true,
+    targetAgeGroups: ["Barn", "Vuxen", "Baby"],
+    createdAt: "2026-09-12T09:47:37.254Z",
+    updatedAt: "2026-09-12T12:58:35.949Z"
+  },
+  {
+    id: "Skallror",
+    name: "Skallror",
+    description: "Handgjorda skallror skapade för lek och nyfikenhet.",
+    image: "https://upslkastyoncylaapcoq.supabase.co/storage/v1/object/public/sagomaskan-images/categories/1789217709019_7dc16917-1edf-42f0-8964-90d61553a818.webp",
+    sortOrder: 3,
+    isActive: true,
+    targetAgeGroups: ["Barn", "Vuxen", "Baby"],
+    createdAt: "2026-09-12T09:48:55.407Z",
+    updatedAt: "2026-09-12T12:55:09.992Z"
+  },
+  {
+    id: "Mössor",
+    name: "Mössor",
+    description: "Handgjorda mössor med unik känsla\noch tidlös charm.",
+    image: "https://upslkastyoncylaapcoq.supabase.co/storage/v1/object/public/sagomaskan-images/categories/1789218127711_536db819-5257-443f-8de0-27a1adc53621.webp",
+    sortOrder: 4,
+    isActive: true,
+    targetAgeGroups: ["Barn", "Vuxen", "Baby"],
+    createdAt: "2026-09-12T09:50:36.945Z",
+    updatedAt: "2026-09-12T13:02:10.210Z"
+  },
+  {
+    id: "Pannband",
+    name: "Pannband",
+    description: "En fin detalj för varje dag\nför både små och stora.",
+    image: "https://upslkastyoncylaapcoq.supabase.co/storage/v1/object/public/sagomaskan-images/categories/1789218369699_61772c5d-91df-4456-ba21-25632a52acbb.webp",
+    sortOrder: 5,
+    isActive: true,
+    targetAgeGroups: ["Barn", "Vuxen", "Baby"],
+    createdAt: "2026-09-12T09:55:18.544Z",
+    updatedAt: "2026-09-12T13:06:10.175Z"
+  },
+  {
+    id: "Mönster",
+    name: "Mönster",
+    description: "Inspirerande mönster för dig\nsom älskar att skapa.",
+    image: "",
+    sortOrder: 6,
+    isActive: true,
+    targetAgeGroups: ["Barn", "Vuxen", "Baby"],
+    createdAt: "2026-09-12T16:50:03.960Z",
+    updatedAt: "2026-09-12T16:50:03.960Z"
+  }
+];
+
 /**
  * ENSURE SITE SETTINGS EXIST IN FIRESTORE
- * (No hardcoded demo products or categories are re-seeded)
  */
 export async function seedInitialDataIfEmpty(): Promise<void> {
   try {
@@ -210,6 +278,23 @@ export async function seedInitialDataIfEmpty(): Promise<void> {
     }
   } catch (error) {
     console.warn('Initial settings check skipped or limited:', error);
+  }
+}
+
+/**
+ * ENSURE CATEGORIES EXIST IN FIRESTORE (Runs when Admin is authenticated)
+ */
+export async function seedInitialCategoriesIfEmpty(): Promise<void> {
+  try {
+    const catsSnap = await getDocs(collection(db, CATEGORIES_COLLECTION));
+    if (catsSnap.empty) {
+      for (const cat of INITIAL_CATEGORIES) {
+        await setDoc(doc(db, CATEGORIES_COLLECTION, cat.id), sanitizeForFirestore(cat));
+      }
+      console.log('Seeded initial categories successfully into Firestore');
+    }
+  } catch (error) {
+    console.warn('Initial categories check skipped or limited:', error);
   }
 }
 

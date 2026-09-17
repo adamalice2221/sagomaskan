@@ -14,7 +14,8 @@ import {
   updateCategory,
   deleteCategory,
   seedInitialDataIfEmpty,
-  DEFAULT_SETTINGS
+  DEFAULT_SETTINGS,
+  INITIAL_CATEGORIES
 } from '../services/db';
 import { useAuth } from './AuthContext';
 
@@ -82,7 +83,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, isAdmin);
 
     const unsubCategories = subscribeCategories((cats) => {
-      setCategories(cats);
+      setCategories(cats.length > 0 ? cats : INITIAL_CATEGORIES);
     });
 
     const unsubSettings = subscribeSiteSettings((sets) => {
