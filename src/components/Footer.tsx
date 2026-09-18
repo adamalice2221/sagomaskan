@@ -30,10 +30,21 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     { label: 'Kontakt', href: 'contact', enabled: true },
   ];
 
-  const infoLinks = settings.footerInfoLinks || [
+  const defaultInfoLinks = [
     { label: 'Frakt & leverans', href: 'shipping', enabled: true },
     { label: 'Köpvillkor', href: 'terms', enabled: true },
+    { label: 'Ångra köp', href: 'angra-kop', enabled: true },
+    { label: 'Reklamation', href: 'reklamation', enabled: true },
     { label: 'FAQ', href: 'faq', enabled: true },
+  ];
+
+  const configuredInfoLinks = settings.footerInfoLinks || defaultInfoLinks;
+  const hasReklamation = configuredInfoLinks.some((l) => l.href === 'reklamation');
+  const hasAngraKop = configuredInfoLinks.some((l) => l.href === 'angra-kop');
+  const infoLinks = [
+    ...configuredInfoLinks,
+    ...(!hasAngraKop ? [{ label: 'Ångra köp', href: 'angra-kop', enabled: true }] : []),
+    ...(!hasReklamation ? [{ label: 'Reklamation', href: 'reklamation', enabled: true }] : []),
   ];
 
   const instagramLabel = settings.footerInstagramLabel || 'Instagram';

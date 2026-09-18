@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { subscribeInquiries, seedInitialDataIfEmpty, seedInitialCategoriesIfEmpty } from '../services/db';
-import { Inquiry, AdminTab, Product, Discount } from '../types';
+import { Inquiry, AdminTab, Product, Discount, Claim, Withdrawal } from '../types';
 import { subscribeDiscounts } from '../services/discountService';
+import { subscribeClaims } from '../services/claimsService';
+import { subscribeWithdrawals } from '../services/withdrawalsService';
 import { AdminLayout } from '../components/admin/AdminLayout';
 import { AdminLogin } from '../components/admin/AdminLogin';
 import { AdminDashboard } from '../components/admin/AdminDashboard';
@@ -13,6 +15,8 @@ import { AdminCategories } from '../components/admin/AdminCategories';
 import { AdminDiscounts } from '../components/admin/AdminDiscounts';
 import { AdminInquiriesList } from '../components/admin/AdminInquiriesList';
 import { AdminInquiryDetail } from '../components/admin/AdminInquiryDetail';
+import { AdminClaimsList } from '../components/admin/AdminClaimsList';
+import { AdminWithdrawalsList } from '../components/admin/AdminWithdrawalsList';
 import { AdminSettings } from '../components/admin/AdminSettings';
 import { AlertCircle } from 'lucide-react';
 
@@ -41,8 +45,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onGoToShop }) => {
   const [selectedInquiryId, setSelectedInquiryId] = useState<string | null>(null);
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [discounts, setDiscounts] = useState<Discount[]>([]);
+  const [claims, setClaims] = useState<Claim[]>([]);
+  const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
 
-  // Subscribe to inquiries and discounts when admin is logged in
+  // Subscribe to inquiries, discounts, claims, and withdrawals when admin is logged in
   useEffect(() => {
     if (isAdmin) {
       seedInitialDataIfEmpty();
@@ -53,9 +59,17 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onGoToShop }) => {
       const unsubDiscounts = subscribeDiscounts((items) => {
         setDiscounts(items);
       });
+      const unsubClaims = subscribeClaims((items) => {
+        setClaims(items);
+      });
+      const unsubWithdrawals = subscribeWithdrawals((items) => {
+        setWithdrawals(items);
+      });
       return () => {
         unsubInquiries();
         unsubDiscounts();
+        unsubClaims();
+        unsubWithdrawals();
       };
     }
   }, [isAdmin]);
@@ -105,6 +119,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onGoToShop }) => {
       onSelectTab={handleNavigateTab}
       onGoToShop={onGoToShop}
       inquiries={inquiries}
+      claims={claims}
+      withdrawals={withdrawals}
       maintenanceMode={Boolean(settings.maintenanceMode)}
     >
       {/* 1. Dashboard */}
@@ -113,6 +129,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onGoToShop }) => {
           products={products}
           categories={categories}
           inquiries={inquiries}
+          claims={claims}
+          withdrawals={withdrawals}
           onNavigateTab={handleNavigateTab}
         />
       )}
@@ -220,7 +238,17 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onGoToShop }) => {
         />
       )}
 
-      {/* 8. Settings */}
+      {/* 8. Claims List */}
+      {currentTab === 'claims' && (
+        <AdminClaimsList claims={claims} />
+      )}
+
+      {/* 9. Withdrawals List */}
+      {currentTab === 'withdrawals' && (
+        <AdminWithdrawalsList withdrawals={withdrawals} />
+      )}
+
+      {/* 10. Settings */}
       {currentTab === 'settings' && (
         <AdminSettings
           settings={settings}

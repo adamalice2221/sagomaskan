@@ -60,6 +60,54 @@ service cloud.firestore {
       allow read, update, delete: if isRegisteredAdmin();
     }
 
+    // Claims - customer product defects / complaints, admin management
+    match /claims/{claimId} {
+      allow create: if (
+        incoming().orderNumber is string &&
+        incoming().orderNumber.size() > 0 &&
+        incoming().orderNumber.size() <= 100 &&
+        incoming().customerName is string &&
+        incoming().customerName.size() > 0 &&
+        incoming().customerName.size() <= 150 &&
+        incoming().email is string &&
+        incoming().email.size() > 0 &&
+        incoming().email.size() <= 150 &&
+        incoming().product is string &&
+        incoming().product.size() > 0 &&
+        incoming().product.size() <= 200 &&
+        incoming().description is string &&
+        incoming().description.size() > 0 &&
+        incoming().description.size() <= 3000 &&
+        incoming().discoveredAt is string &&
+        incoming().discoveredAt.size() > 0 &&
+        incoming().discoveredAt.size() <= 100 &&
+        incoming().status in ['Ny', 'Under behandling', 'Behöver mer information', 'Godkänd', 'Avslagen', 'Åtgärdad', 'Avslutad'] &&
+        incoming().imageUrls is list &&
+        incoming().imageUrls.size() <= 5
+      );
+      allow read, update, delete: if isRegisteredAdmin();
+    }
+
+    // Withdrawals (Ångerärenden) - customer right of withdrawal submissions, admin management
+    match /withdrawals/{withdrawalId} {
+      allow create: if (
+        incoming().orderNumber is string &&
+        incoming().orderNumber.size() > 0 &&
+        incoming().orderNumber.size() <= 100 &&
+        incoming().customerName is string &&
+        incoming().customerName.size() > 0 &&
+        incoming().customerName.size() <= 150 &&
+        incoming().email is string &&
+        incoming().email.size() > 0 &&
+        incoming().email.size() <= 150 &&
+        incoming().items is string &&
+        incoming().items.size() > 0 &&
+        incoming().items.size() <= 1000 &&
+        incoming().status in ['Ny', 'Behandlas', 'Retur inväntas', 'Återbetalning behandlas', 'Återbetald', 'Avslutad']
+      );
+      allow read, update, delete: if isRegisteredAdmin();
+    }
+
     // Site Settings
     match /siteSettings/{settingId} {
       allow read: if true;

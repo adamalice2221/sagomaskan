@@ -725,6 +725,151 @@ app.post("/api/resend/send-inquiry-email", async (req: Request, res: Response) =
   }
 });
 
+// Resend Withdrawal Acknowledgement Email Endpoint (Mottagningsbevis för ångeranmälan)
+app.post("/api/resend/send-withdrawal-acknowledgement", async (req: Request, res: Response) => {
+  try {
+    const payload = req.body;
+    if (!payload || typeof payload !== "object") {
+      return res.status(400).json({ success: false, error: "Ingen data skickades." });
+    }
+
+    const {
+      orderNumber = "",
+      customerName = "Kund",
+      email,
+      phone = "",
+      items = "",
+      submittedAt = new Date().toLocaleString("sv-SE")
+    } = payload;
+
+    if (!email || typeof email !== "string" || !email.includes("@")) {
+      return res.status(400).json({ success: false, error: "En giltig e-postadress krävs." });
+    }
+
+    const cleanEmail = email.trim();
+    const resend = getResend();
+
+    if (!resend) {
+      console.warn(
+        `[/api/resend/send-withdrawal-acknowledgement] RESEND_API_KEY saknas på servern. Simulerar utskick till ${cleanEmail} för order ${orderNumber}.`
+      );
+      return res.status(200).json({
+        success: true,
+        simulated: true,
+        message: "Mejlutskick simulerades eftersom RESEND_API_KEY inte är konfigurerad på servern.",
+      });
+    }
+
+    const emailSubject = `Mottagningsbevis: Ångeranmälan för beställning ${orderNumber || ""} – Sagomaskan`.trim();
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #F4F1EA; margin: 0; padding: 30px 15px; color: #242D27; }
+    .container { max-width: 580px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; border: 1px solid #E6DFD3; overflow: hidden; }
+    .header { background: #242D27; color: #FAF8F5; padding: 28px 32px; text-align: center; }
+    .header h1 { margin: 0; font-size: 22px; font-weight: 500; letter-spacing: 0.05em; }
+    .badge { display: inline-block; background: #344038; color: #E8EFEA; padding: 4px 12px; border-radius: 12px; font-size: 11px; margin-top: 8px; }
+    .content { padding: 32px; line-height: 1.6; font-size: 14px; }
+    .box { background: #FBF9F5; border: 1px solid #E6DFD3; border-radius: 12px; padding: 18px 20px; margin: 20px 0; }
+    .box-title { font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #66726A; margin-bottom: 8px; }
+    .detail-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; }
+    .detail-label { color: #66726A; }
+    .detail-value { font-weight: 500; color: #242D27; }
+    .notice { background: #F0F5F2; border-left: 3px solid #6B8E7B; padding: 14px 16px; border-radius: 0 8px 8px 0; font-size: 13px; color: #2C3E33; margin: 20px 0; }
+    .footer { background: #FBF9F5; padding: 20px 32px; text-align: center; font-size: 12px; color: #8F9992; border-top: 1px solid #E6DFD3; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Mottagningsbevis</h1>
+      <div class="badge">Bekräftelse på mottagen ångeranmälan</div>
+    </div>
+    <div class="content">
+      <p>Hej ${customerName},</p>
+      <p>Vi bekräftar härmed att vi har tagit emot ditt meddelande om att du önskar utöva din lagstadgade ångerrätt.</p>
+      
+      <div class="box">
+        <div class="box-title">Uppgifter för anmälan</div>
+        <div class="detail-row"><span class="detail-label">Ordernummer:</span> <span class="detail-value">${orderNumber || "Ej angivet"}</span></div>
+        <div class="detail-row"><span class="detail-label">Mottaget datum:</span> <span class="detail-value">${submittedAt}</span></div>
+        <div class="detail-row"><span class="detail-label">Kund:</span> <span class="detail-value">${customerName}</span></div>
+        <div class="detail-row"><span class="detail-label">E-post:</span> <span class="detail-value">${cleanEmail}</span></div>
+        ${phone ? `<div class="detail-row"><span class="detail-label">Telefon:</span> <span class="detail-value">${phone}</span></div>` : ""}
+        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #E6DFD3;">
+          <span class="detail-label">Produkter som ångras:</span>
+          <p style="margin: 4px 0 0 0; font-weight: 500; white-space: pre-line;">${items}</p>
+        </div>
+      </div>
+
+      <div class="notice">
+        <strong>Vad händer nu?</strong><br>
+        Vi går igenom din anmälan och återkommer inom kort via e-post med instruktioner och returadress. Observera att ångeranmälan och eventuell återbetalning är separata steg – återbetalning sker i enlighet med våra köpvillkor när varan har returnerats och kontrollerats.
+      </div>
+
+      <p>Tveka inte att svara på detta mejl om du har några frågor under tiden.</p>
+      <p style="margin-top: 24px;">Varma hälsningar,<br><strong>Sagomaskan</strong><br><span style="color: #66726A; font-size: 13px;">Handgjorda virkade alster</span></p>
+    </div>
+    <div class="footer">
+      Detta är ett automatiskt genererat mottagningsbevis från Sagomaskan (www.sagomaskan.se).
+    </div>
+  </div>
+</body>
+</html>
+    `;
+
+    const textContent = `
+Mottagningsbevis – Ångeranmälan
+Sagomaskan
+
+Hej ${customerName},
+
+Vi bekräftar härmed att vi har tagit emot ditt meddelande om att du önskar utöva din ångerrätt.
+
+Uppgifter:
+- Ordernummer: ${orderNumber || "Ej angivet"}
+- Mottaget datum: ${submittedAt}
+- Kund: ${customerName}
+- E-post: ${cleanEmail}
+${phone ? `- Telefon: ${phone}\n` : ""}
+- Produkter som ångras:
+${items}
+
+Vad händer nu?
+Vi går igenom din anmälan och återkommer inom kort via e-post med returadress och information. Observera att detta meddelande är en bekräftelse på att vi har mottagit din anmälan. Återbetalning hanteras separat efter att eventuell retur mottagits och kontrollerats.
+
+Varma hälsningar,
+Sagomaskan
+info@sagomaskan.se
+    `.trim();
+
+    const data = await resend.emails.send({
+      from: "Sagomaskan <info@sagomaskan.se>",
+      to: [cleanEmail],
+      replyTo: "info@sagomaskan.se",
+      subject: emailSubject,
+      text: textContent,
+      html: htmlContent,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Mottagningsbevis har skickats via e-post.",
+      id: (data as any)?.data?.id || (data as any)?.id || "sent",
+    });
+  } catch (error: any) {
+    console.error("[/api/resend/send-withdrawal-acknowledgement] Fel vid mejlsändning:", error);
+    return res.status(200).json({
+      success: false,
+      error: error?.message || "Ett internt serverfel uppstod vid sändning av mottagningsbevis.",
+    });
+  }
+});
+
 
 // Poetic, tailored fallback story generator adhering to Sagomaskan guidelines (60–120 words)
 function generateFallbackStory(params: {

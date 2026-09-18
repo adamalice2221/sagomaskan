@@ -26,6 +26,8 @@ import { TermsPage } from './pages/TermsPage';
 import { WishlistPage } from './pages/WishlistPage';
 import { AdminPage } from './pages/AdminPage';
 import { MaintenancePage } from './pages/MaintenancePage';
+import { ClaimPage } from './pages/ClaimPage';
+import { WithdrawalPage } from './pages/WithdrawalPage';
 import { useAuth } from './context/AuthContext';
 
 function AppContent() {
@@ -195,6 +197,20 @@ function AppContent() {
         return <TermsPage onNavigate={handleNavigate} />;
       case 'wishlist':
         return <WishlistPage products={products} onNavigate={handleNavigate} />;
+      case 'reklamation':
+        return (
+          <ClaimPage
+            onNavigateHome={() => handleNavigate('home')}
+            onNavigateShop={() => handleNavigate('shop')}
+          />
+        );
+      case 'angra-kop':
+        return (
+          <WithdrawalPage
+            onNavigateHome={() => handleNavigate('home')}
+            onNavigateShop={() => handleNavigate('shop')}
+          />
+        );
       default:
         return (
           <HomePage

@@ -10,14 +10,17 @@ import {
   CheckCircle2,
   AlertCircle,
   EyeOff,
-  ChevronRight
+  ChevronRight,
+  RotateCcw
 } from 'lucide-react';
-import { Product, Category, Inquiry, AdminTab } from '../../types';
+import { Product, Category, Inquiry, Claim, Withdrawal, AdminTab } from '../../types';
 
 interface AdminDashboardProps {
   products: Product[];
   categories: Category[];
   inquiries: Inquiry[];
+  claims?: Claim[];
+  withdrawals?: Withdrawal[];
   onNavigateTab: (tab: AdminTab, contextId?: string) => void;
 }
 
@@ -25,12 +28,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   products,
   categories,
   inquiries,
+  claims = [],
+  withdrawals = [],
   onNavigateTab
 }) => {
   const newInquiries = inquiries.filter((i) => i.status === 'Ny');
   const ongoingInquiries = inquiries.filter((i) =>
     ['Kontaktad', 'Bekräftad', 'Under arbete'].includes(i.status)
   );
+  const newClaims = claims.filter((c) => c.status === 'Ny');
+  const newWithdrawals = withdrawals.filter((w) => w.status === 'Ny');
   const unpublishedProducts = products.filter((p) => !p.published);
   const recentInquiries = inquiries.slice(0, 5);
   const recentProducts = [...products]
@@ -152,6 +159,61 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
         </div>
 
+      </div>
+
+      {/* Customer Service & Post-Purchase Cases */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div
+          onClick={() => onNavigateTab('claims')}
+          className="p-4 rounded-2xl bg-[#FBF9F5] border border-[#E6DFD3] hover:border-[#6B8E7B] transition-all cursor-pointer group flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-[#EFF4F1] text-[#526E5F] flex items-center justify-center shrink-0">
+              <AlertCircle className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xs text-[#66726A] font-medium">Reklamationer</div>
+              <div className="text-xl font-serif font-medium text-[#242D27] flex items-center gap-2">
+                <span>{claims.length}</span>
+                {newClaims.length > 0 && (
+                  <span className="text-[11px] font-sans px-2 py-0.5 rounded-full bg-[#EBF3EE] text-[#526E5F] font-semibold">
+                    {newClaims.length} nya
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="text-xs text-[#6B8E7B] group-hover:underline flex items-center gap-1 font-medium">
+            <span>Hantera reklamationer</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </div>
+        </div>
+
+        <div
+          onClick={() => onNavigateTab('withdrawals')}
+          className="p-4 rounded-2xl bg-[#FBF9F5] border border-[#E6DFD3] hover:border-[#6B8E7B] transition-all cursor-pointer group flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-[#EFF4F1] text-[#526E5F] flex items-center justify-center shrink-0">
+              <RotateCcw className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xs text-[#66726A] font-medium">Ångerärenden</div>
+              <div className="text-xl font-serif font-medium text-[#242D27] flex items-center gap-2">
+                <span>{withdrawals.length}</span>
+                {newWithdrawals.length > 0 && (
+                  <span className="text-[11px] font-sans px-2 py-0.5 rounded-full bg-[#EBF3EE] text-[#526E5F] font-semibold">
+                    {newWithdrawals.length} nya
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="text-xs text-[#6B8E7B] group-hover:underline flex items-center gap-1 font-medium">
+            <span>Hantera ångeranmälningar</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </div>
+        </div>
       </div>
 
       {/* Main 2-column layout for Recent Inquiries & Recent Products */}

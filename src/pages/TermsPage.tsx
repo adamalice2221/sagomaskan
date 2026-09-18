@@ -81,6 +81,41 @@ export const TermsPage: React.FC<TermsPageProps> = ({ onNavigate }) => {
         </p>
       </div>
 
+      {/* Customer Service Fast Links for Claims & Right of Withdrawal */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+        <div className="p-6 rounded-2xl bg-[#FAF8F5] border border-[#E6DFD3] space-y-3">
+          <h3 className="font-serif text-lg font-medium text-[#242D27]">
+            Ångerrätt (14 dagar)
+          </h3>
+          <p className="text-xs text-[#66726A] font-light leading-relaxed">
+            Som konsument har du 14 dagars lagstadgad ångerrätt från mottagandet utan att behöva ange någon anledning. Gäller färdiga produkter (ej varor som specialtillverkats med personlig prägel).
+          </p>
+          <button
+            type="button"
+            onClick={() => onNavigate('angra-kop')}
+            className="text-xs font-medium text-[#6B8E7B] hover:underline flex items-center gap-1 cursor-pointer"
+          >
+            <span>Gå till ångeranmälan &rarr;</span>
+          </button>
+        </div>
+
+        <div className="p-6 rounded-2xl bg-[#FAF8F5] border border-[#E6DFD3] space-y-3">
+          <h3 className="font-serif text-lg font-medium text-[#242D27]">
+            Reklamation (3 år)
+          </h3>
+          <p className="text-xs text-[#66726A] font-light leading-relaxed">
+            Du har 3 års lagstadgad reklamationsrätt för ursprungliga fel enligt konsumentköplagen. Reklamation inom 2 månader från att felet upptäcktes räknas alltid som lämnad i rätt tid.
+          </p>
+          <button
+            type="button"
+            onClick={() => onNavigate('reklamation')}
+            className="text-xs font-medium text-[#6B8E7B] hover:underline flex items-center gap-1 cursor-pointer"
+          >
+            <span>Gå till reklamationsformulär &rarr;</span>
+          </button>
+        </div>
+      </div>
+
     </div>
   );
 };

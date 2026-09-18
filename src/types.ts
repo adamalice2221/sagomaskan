@@ -278,6 +278,8 @@ export type PageRoute =
   | 'shipping'
   | 'terms'
   | 'wishlist'
+  | 'claim' // Reklamation
+  | 'withdrawal' // Ångra köp
   | 'admin';
 
 export type AdminTab =
@@ -289,8 +291,60 @@ export type AdminTab =
   | 'discounts'
   | 'inquiries'
   | 'view-inquiry'
+  | 'claims'
+  | 'view-claim'
+  | 'withdrawals'
+  | 'view-withdrawal'
   | 'content'
   | 'settings';
+
+export type ClaimStatus =
+  | 'Ny'
+  | 'Under behandling'
+  | 'Behöver mer information'
+  | 'Godkänd'
+  | 'Avslagen'
+  | 'Åtgärdad'
+  | 'Avslutad';
+
+export interface Claim {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  email: string;
+  phone?: string;
+  product: string;
+  description: string;
+  discoveredAt: string;
+  imageUrls: string[];
+  additionalInfo?: string;
+  status: ClaimStatus;
+  createdAt: string;
+  updatedAt?: string;
+  internalNotes?: string;
+}
+
+export type WithdrawalStatus =
+  | 'Ny'
+  | 'Behandlas'
+  | 'Retur inväntas'
+  | 'Återbetalning behandlas'
+  | 'Återbetald'
+  | 'Avslutad';
+
+export interface Withdrawal {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  email: string;
+  phone?: string;
+  items: string;
+  status: WithdrawalStatus;
+  submittedAt: string;
+  updatedAt?: string;
+  acknowledgementSentAt?: string | null;
+  internalNotes?: string;
+}
 
 export interface FaqItem {
   id: string;

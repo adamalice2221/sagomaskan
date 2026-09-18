@@ -127,6 +127,53 @@
         "updatedAt": { "type": "string" }
       },
       "required": ["code", "discountType", "discountValue", "active"]
+    },
+    "Claim": {
+      "title": "Claim",
+      "description": "Customer product claims and defect reports",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "orderNumber": { "type": "string", "maxLength": 100 },
+        "customerName": { "type": "string", "maxLength": 150 },
+        "email": { "type": "string", "maxLength": 150 },
+        "phone": { "type": "string", "maxLength": 50 },
+        "product": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 3000 },
+        "discoveredAt": { "type": "string", "maxLength": 100 },
+        "imageUrls": { "type": "array" },
+        "additionalInfo": { "type": "string", "maxLength": 2000 },
+        "status": {
+          "type": "string",
+          "enum": ["Ny", "Under behandling", "Behöver mer information", "Godkänd", "Avslagen", "Åtgärdad", "Avslutad"]
+        },
+        "internalNotes": { "type": "string", "maxLength": 3000 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["orderNumber", "customerName", "email", "product", "description", "discoveredAt", "status", "createdAt"]
+    },
+    "Withdrawal": {
+      "title": "Withdrawal",
+      "description": "Customer right of withdrawal notifications (ångerärenden)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "orderNumber": { "type": "string", "maxLength": 100 },
+        "customerName": { "type": "string", "maxLength": 150 },
+        "email": { "type": "string", "maxLength": 150 },
+        "phone": { "type": "string", "maxLength": 50 },
+        "items": { "type": "string", "maxLength": 1000 },
+        "status": {
+          "type": "string",
+          "enum": ["Ny", "Behandlas", "Retur inväntas", "Återbetalning behandlas", "Återbetald", "Avslutad"]
+        },
+        "internalNotes": { "type": "string", "maxLength": 3000 },
+        "acknowledgementSentAt": { "type": "string" },
+        "submittedAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["orderNumber", "customerName", "email", "items", "status", "submittedAt"]
     }
   },
   "firestore": {
@@ -145,6 +192,14 @@
     "/discounts/{discountId}": {
       "schema": "Discount",
       "description": "Collection of discount codes"
+    },
+    "/claims/{claimId}": {
+      "schema": "Claim",
+      "description": "Customer claims for defective or damaged items"
+    },
+    "/withdrawals/{withdrawalId}": {
+      "schema": "Withdrawal",
+      "description": "Customer statutory right of withdrawal notifications"
     },
     "/siteSettings/{settingId}": {
       "schema": "SiteSettings",

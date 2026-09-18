@@ -45,6 +45,10 @@ export function getPageUrl(
       return '/kopvillkor';
     case 'wishlist':
       return '/onskelista';
+    case 'claim':
+      return '/reklamation';
+    case 'withdrawal':
+      return '/angra-kop';
     case 'admin':
       return '/admin';
     default:
@@ -119,6 +123,16 @@ export function parseLocation(pathname: string, search: string, hash: string): N
     case 'wishlist':
     case 'favoriter':
       return { page: 'wishlist' };
+    case 'reklamation':
+    case 'claim':
+    case 'claims':
+      return { page: 'claim' };
+    case 'angra-kop':
+    case 'angra':
+    case 'angerratt':
+    case 'withdrawal':
+    case 'withdrawals':
+      return { page: 'withdrawal' };
     default:
       return { page: 'home' };
   }
