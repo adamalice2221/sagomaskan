@@ -24,10 +24,14 @@ import { FaqPage } from './pages/FaqPage';
 import { ShippingPage } from './pages/ShippingPage';
 import { TermsPage } from './pages/TermsPage';
 import { WishlistPage } from './pages/WishlistPage';
+import { ClaimPage } from './pages/ClaimPage';
 import { AdminPage } from './pages/AdminPage';
+import { MaintenancePage } from './pages/MaintenancePage';
+import { useAuth } from './context/AuthContext';
 
 function AppContent() {
   const { products, categories, settings, loading: dataLoading } = useData();
+  const { isAdmin } = useAuth();
 
   // Initialize state from current URL
   const initialLoc = parseLocation(
@@ -120,6 +124,11 @@ function AppContent() {
     return <AdminPage onGoToShop={() => handleNavigate('home')} />;
   }
 
+  // If maintenance mode is active and current user is not an admin, show MaintenancePage
+  if (settings.maintenanceMode && !isAdmin) {
+    return <MaintenancePage onAdminLogin={() => handleNavigate('admin')} />;
+  }
+
   // Render appropriate active page view
   const renderCurrentPage = () => {
     switch (currentPage) {
@@ -178,7 +187,7 @@ function AppContent() {
       case 'about':
         return <AboutPage onNavigate={handleNavigate} />;
       case 'contact':
-        return <ContactPage />;
+        return <ContactPage onNavigate={handleNavigate} />;
       case 'faq':
         return <FaqPage onNavigate={handleNavigate} />;
       case 'shipping':
@@ -187,6 +196,8 @@ function AppContent() {
         return <TermsPage onNavigate={handleNavigate} />;
       case 'wishlist':
         return <WishlistPage products={products} onNavigate={handleNavigate} />;
+      case 'claim':
+        return <ClaimPage onNavigate={handleNavigate} />;
       default:
         return (
           <HomePage
@@ -200,6 +211,23 @@ function AppContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#242D27] font-sans antialiased selection:bg-[#6B8E7B]/20 selection:text-[#242D27]">
+      {/* Admin Maintenance Preview Banner */}
+      {settings.maintenanceMode && isAdmin && (
+        <div className="bg-[#8C5248] text-white text-xs px-4 py-2.5 flex items-center justify-between sticky top-0 z-50 shadow-xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+            <span className="font-semibold">🔴 Underhållsläge aktivt:</span>
+            <span>Webbplatsen är stängd för kunder. Du ser butiken eftersom du är inloggad som administratör.</span>
+          </div>
+          <button
+            onClick={() => handleNavigate('admin')}
+            className="underline font-medium hover:text-white/80 cursor-pointer ml-4 whitespace-nowrap"
+          >
+            Gå till Adminpanelen →
+          </button>
+        </div>
+      )}
+
       {/* Persistent Sticky Header */}
       <Header
         currentPage={currentPage}

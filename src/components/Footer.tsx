@@ -34,6 +34,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     { label: 'Frakt & leverans', href: 'shipping', enabled: true },
     { label: 'Köpvillkor', href: 'terms', enabled: true },
     { label: 'FAQ', href: 'faq', enabled: true },
+    { label: 'Reklamation', href: 'claim', enabled: true },
   ];
 
   const instagramLabel = settings.footerInstagramLabel || 'Instagram';

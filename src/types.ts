@@ -215,6 +215,9 @@ export interface SiteSettings {
   aboutText?: string;
   updatedAt?: string;
 
+  // Webbplatsstatus & Underhållsläge
+  maintenanceMode?: boolean;
+
   // Fas 2: Innehållssidor & FAQ
   aboutStoryParagraphs?: string[];
   shippingSections?: InfoSection[];
@@ -275,7 +278,8 @@ export type PageRoute =
   | 'shipping'
   | 'terms'
   | 'wishlist'
-  | 'admin';
+  | 'admin'
+  | 'claim'; // Reklamationsformulär
 
 export type AdminTab =
   | 'dashboard'
@@ -286,8 +290,83 @@ export type AdminTab =
   | 'discounts'
   | 'inquiries'
   | 'view-inquiry'
+  | 'claims' // Inkomna reklamationer
+  | 'view-claim' // Detaljvy för reklamation
   | 'content'
   | 'settings';
+
+// ----------------------------------------------------------------------------
+// REKLAMATION (CLAIMS) MODELL
+// ----------------------------------------------------------------------------
+
+export type ClaimType =
+  | 'Defekt/skadad produkt'
+  | 'Felaktig produkt'
+  | 'Produkt saknas'
+  | 'Fel på tjänst'
+  | 'Försenad leverans'
+  | 'Annat';
+
+export type ClaimResolutionPreference =
+  | 'Reparation'
+  | 'Ersättningsprodukt'
+  | 'Prisavdrag'
+  | 'Återbetalning'
+  | 'Annat';
+
+export type ClaimStatus =
+  | 'Ny'
+  | 'Under behandling'
+  | 'Väntar på kund'
+  | 'Godkänd'
+  | 'Avslutad';
+
+export interface ClaimAttachment {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  dataUrl: string;
+  category: 'product_damage' | 'receipt_invoice' | 'other';
+  uploadedAt: string;
+}
+
+export interface Claim {
+  id: string;
+  claimNumber: string; // Exempel: "REK-2026-0001"
+  createdAt: string;
+  updatedAt?: string;
+  status: ClaimStatus;
+  adminNotes?: string;
+
+  // 1. Kunduppgifter
+  firstName: string;
+  lastName: string;
+  company?: string;
+  email: string;
+  phone: string;
+  address: string;
+  postalCode: string;
+  city: string;
+
+  // 2. Order-/köpuppgifter
+  orderNumber: string;
+  purchaseDate: string; // YYYY-MM-DD
+  productName: string;
+  articleNumber?: string;
+
+  // 3. Reklamation
+  claimType: ClaimType;
+  description: string;
+  discoveredDate: string;
+  desiredResolution: ClaimResolutionPreference;
+
+  // 4. Bilagor
+  attachments: ClaimAttachment[];
+
+  // 5. Bekräftelse
+  confirmedAccurate: boolean;
+}
 
 export interface FaqItem {
   id: string;

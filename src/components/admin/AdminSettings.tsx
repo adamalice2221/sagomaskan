@@ -1,10 +1,11 @@
-import React, { useState, useRef, ReactNode } from 'react';
-import { Settings, Save, Check, Mail, Instagram, Type, Image as ImageIcon, Upload, Trash2, RefreshCw, AlertCircle, Layout, Link as LinkIcon, ShieldAlert, Plus, ChevronUp, ChevronDown, BookOpen, Truck, FileText, HelpCircle, Tag, ShoppingBag } from 'lucide-react';
+import React, { useState, useRef, ReactNode, useEffect } from 'react';
+import { Settings, Save, Check, Mail, Instagram, Type, Image as ImageIcon, Upload, Trash2, RefreshCw, AlertCircle, Layout, Link as LinkIcon, ShieldAlert, Plus, ChevronUp, ChevronDown, BookOpen, Truck, FileText, HelpCircle, Tag, ShoppingBag, Power, CheckCircle2 } from 'lucide-react';
 import { SiteSettings, FooterLink, Product, InfoSection, FaqSettingItem } from '../../types';
 import { uploadHeroImage, uploadLogoImage, normalizeHeroImageUrl } from '../../services/storage';
 import { DEFAULT_SETTINGS } from '../../services/db';
 
 type SettingsTab =
+  | 'status'
   | 'hero'
   | 'about'
   | 'info'
@@ -24,9 +25,10 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
   products = [],
   onSaveSettings
 }) => {
-  const [activeTab, setActiveTab] = useState<SettingsTab>('hero');
+  const [activeTab, setActiveTab] = useState<SettingsTab>('status');
 
   const tabs: { id: SettingsTab; label: string; icon: ReactNode }[] = [
+    { id: 'status', label: 'Webbplatsstatus', icon: <Power className="w-4 h-4" /> },
     { id: 'hero', label: 'Startsida & Hero', icon: <Type className="w-4 h-4" /> },
     { id: 'about', label: 'Om hantverket', icon: <BookOpen className="w-4 h-4" /> },
     { id: 'info', label: 'Informationssidor', icon: <FileText className="w-4 h-4" /> },
@@ -35,6 +37,22 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
     { id: 'footer', label: 'Footer', icon: <Layout className="w-4 h-4" /> },
     { id: 'orders', label: 'Beställningar & meddelanden', icon: <ShoppingBag className="w-4 h-4" /> },
   ];
+
+  // Webbplatsstatus & Underhållsläge
+  const [maintenanceMode, setMaintenanceMode] = useState<boolean>(() => Boolean(settings.maintenanceMode));
+  const [showStatusConfirmModal, setShowStatusConfirmModal] = useState<boolean>(false);
+  const [statusConfirmTarget, setStatusConfirmTarget] = useState<boolean>(false);
+  const [isSavingStatus, setIsSavingStatus] = useState<boolean>(false);
+
+  useEffect(() => {
+    setMaintenanceMode(Boolean(settings.maintenanceMode));
+  }, [settings.maintenanceMode]);
+
+  const handleInitiateStatusChange = (newTarget: boolean) => {
+    setStatusConfirmTarget(newTarget);
+    setShowStatusConfirmModal(true);
+  };
+
   const [email, setEmail] = useState(settings.email || 'hello@sagomaskan.se');
   const [instagram, setInstagram] = useState(settings.instagram || '@sagomaskan');
   const [heroTitle, setHeroTitle] = useState(settings.heroTitle || 'Handgjorda virkade produkter med kärlek');
@@ -281,6 +299,26 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
+  const handleConfirmStatusChange = async () => {
+    setIsSavingStatus(true);
+    try {
+      await onSaveSettings({ maintenanceMode: statusConfirmTarget });
+      setMaintenanceMode(statusConfirmTarget);
+      setShowStatusConfirmModal(false);
+      setNotice(
+        statusConfirmTarget
+          ? 'Webbplatsen är nu stängd för kunder (underhållsläge aktivt).'
+          : 'Webbplatsen är nu öppen för kunder.'
+      );
+      setTimeout(() => setNotice(null), 4000);
+    } catch (err) {
+      console.error('Kunde inte uppdatera webbplatsstatus:', err);
+      setNotice('Ett fel uppstod när webbplatsstatusen skulle sparas.');
+    } finally {
+      setIsSavingStatus(false);
+    }
+  };
+
   const handlePageLinkChange = (index: number, field: keyof FooterLink, value: any) => {
     setFooterPageLinks((prev) => {
       const next = [...prev];
@@ -434,6 +472,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
         heroProductId: heroProductId.trim(),
         heroProductBadge: heroProductBadge.trim(),
         aboutText: aboutText.trim(),
+        maintenanceMode: Boolean(maintenanceMode),
 
         // Fas 2: Innehållssidor & FAQ
         aboutStoryParagraphs: aboutStoryParagraphs.map(p => p.trim()).filter(Boolean),
@@ -528,6 +567,149 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
         <div className="flex-1 min-w-0">
           <form onSubmit={handleSubmit} noValidate className="space-y-8">
         
+        {/* Webbplatsstatus */}
+        {activeTab === 'status' && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            <div className="bg-[#FBF9F5] border border-[#E6DFD3] rounded-3xl p-6 sm:p-8 space-y-6">
+              <div className="pb-4 border-b border-[#E6DFD3] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="font-serif text-2xl text-[#242D27] font-medium flex items-center gap-2.5">
+                    <Power className="w-5 h-5 text-[#6B8E7B]" />
+                    <span>Webbplatsstatus</span>
+                  </h2>
+                  <p className="text-xs text-[#66726A] font-light mt-1">
+                    Styr om Sagomaskan är öppen för besökare eller om underhållsläget är aktivt.
+                  </p>
+                </div>
+
+                {/* Statusindikator */}
+                <div
+                  className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold border ${
+                    maintenanceMode
+                      ? 'bg-[#FDF3F2] text-[#8C5248] border-[#E8C5C0]'
+                      : 'bg-[#EBF3EE] text-[#526E5F] border-[#CDE0D4]'
+                  }`}
+                >
+                  <span
+                    className={`w-2.5 h-2.5 rounded-full ${
+                      maintenanceMode ? 'bg-[#8C5248] animate-pulse' : 'bg-[#526E5F]'
+                    }`}
+                  />
+                  <span>{maintenanceMode ? '🔴 Underhållsläge' : '🟢 Webbplats öppen'}</span>
+                </div>
+              </div>
+
+              {/* Statuskort */}
+              <div
+                className={`p-6 sm:p-7 rounded-2xl border transition-all ${
+                  maintenanceMode
+                    ? 'bg-[#FCF5F4] border-[#EAC9C5]'
+                    : 'bg-[#F3F8F5] border-[#CFE1D6]'
+                }`}
+              >
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
+                  <div className="space-y-1.5">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-[#66726A]">
+                      Aktuell status
+                    </div>
+                    <h3 className="font-serif text-xl sm:text-2xl text-[#242D27] font-semibold">
+                      {maintenanceMode
+                        ? 'Webbplatsen är stängd för kunder.'
+                        : 'Webbplatsen är öppen för kunder.'}
+                    </h3>
+                    <p className="text-xs text-[#526057] font-light leading-relaxed max-w-xl">
+                      {maintenanceMode
+                        ? 'Besökare ser den svenska underhållssidan ("Vi arbetar just nu med vår webbplats..."). Produkter, kategorier, kundvagn och kassa är dolda för allmänheten. Du som inloggad administratör kan fortfarande administrera butiken.'
+                        : 'Webbplatsen är i full drift. Kunder kan se och beställa handgjorda virkade alster som vanligt.'}
+                    </p>
+                  </div>
+
+                  {/* Snabbknapp för ändring */}
+                  <button
+                    type="button"
+                    onClick={() => handleInitiateStatusChange(!maintenanceMode)}
+                    className={`flex-shrink-0 inline-flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-semibold transition-all shadow-xs cursor-pointer ${
+                      maintenanceMode
+                        ? 'bg-[#526E5F] hover:bg-[#41584C] text-[#FAF8F5]'
+                        : 'bg-[#8C5248] hover:bg-[#78433A] text-[#FAF8F5]'
+                    }`}
+                  >
+                    <Power className="w-4 h-4" />
+                    <span>
+                      {maintenanceMode ? '🟢 Öppna webbplatsen' : '🔴 Stäng webbplatsen (Underhåll)'}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Tydlig Toggle */}
+              <div className="space-y-3 pt-2">
+                <label className="block text-xs font-medium text-[#242D27]">
+                  Välj läge
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl">
+                  {/* Toggle: Webbplats öppen */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (maintenanceMode) handleInitiateStatusChange(false);
+                    }}
+                    className={`flex items-start gap-3 p-4 rounded-xl border text-left transition-all cursor-pointer ${
+                      !maintenanceMode
+                        ? 'bg-[#EBF3EE] border-[#6B8E7B] ring-2 ring-[#6B8E7B]/20 shadow-xs'
+                        : 'bg-[#FAF8F5] border-[#E6DFD3] hover:border-[#6B8E7B]/50'
+                    }`}
+                  >
+                    <span className="text-lg leading-none mt-0.5">🟢</span>
+                    <div>
+                      <div className="text-xs font-semibold text-[#242D27]">
+                        Webbplats öppen
+                      </div>
+                      <div className="text-[11px] text-[#66726A] font-light mt-0.5">
+                        Webbplatsen är öppen och tillgänglig för alla besökare och kunder.
+                      </div>
+                    </div>
+                  </button>
+
+                  {/* Toggle: Underhållsläge */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!maintenanceMode) handleInitiateStatusChange(true);
+                    }}
+                    className={`flex items-start gap-3 p-4 rounded-xl border text-left transition-all cursor-pointer ${
+                      maintenanceMode
+                        ? 'bg-[#FDF3F2] border-[#8C5248] ring-2 ring-[#8C5248]/20 shadow-xs'
+                        : 'bg-[#FAF8F5] border-[#E6DFD3] hover:border-[#8C5248]/50'
+                    }`}
+                  >
+                    <span className="text-lg leading-none mt-0.5">🔴</span>
+                    <div>
+                      <div className="text-xs font-semibold text-[#242D27]">
+                        Underhållsläge
+                      </div>
+                      <div className="text-[11px] text-[#66726A] font-light mt-0.5">
+                        Webbplatsen är stängd för kunder. Underhållssidan visas.
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Information & säkerhet */}
+              <div className="p-4 rounded-xl bg-[#FAF8F5] border border-[#E6DFD3] text-xs text-[#66726A] space-y-1">
+                <div className="font-semibold text-[#242D27] flex items-center gap-1.5">
+                  <ShieldAlert className="w-3.5 h-3.5 text-[#6B8E7B]" />
+                  <span>Permanent lagring & administratörsåtkomst</span>
+                </div>
+                <p className="font-light leading-relaxed">
+                  Statusen sparas direkt i Firestore (både under <code>siteSettings/general</code> och <code>siteSettings/maintenance</code>) så att den aktiveras omedelbart i realtid utan omstart eller kodändring. Som inloggad administratör har du alltid åtkomst till adminpanelen och butiken.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeTab === 'contact' && (
         <div className="space-y-8 animate-in fade-in duration-300">
         {/* Kontaktuppgifter */}
@@ -1564,6 +1746,59 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
       </form>
         </div>
       </div>
+
+      {/* Bekräftelsemodal för ändring av webbplatsstatus */}
+      {showStatusConfirmModal && (
+        <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#FAF8F5] border border-[#E6DFD3] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-200 space-y-5">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto shadow-xs border bg-[#F3EFE8]">
+              {statusConfirmTarget ? (
+                <AlertCircle className="w-6 h-6 text-[#8C5248]" />
+              ) : (
+                <CheckCircle2 className="w-6 h-6 text-[#526E5F]" />
+              )}
+            </div>
+
+            <div className="text-center space-y-2">
+              <h3 className="font-serif text-2xl text-[#242D27] font-semibold">
+                {statusConfirmTarget ? 'Stäng webbplatsen för kunder?' : 'Öppna webbplatsen?'}
+              </h3>
+              <p className="text-xs text-[#66726A] font-light leading-relaxed">
+                {statusConfirmTarget
+                  ? 'Besökare kommer att se underhållssidan tills du öppnar webbplatsen igen.'
+                  : 'Webbplatsen blir nu synlig för kunder.'}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                disabled={isSavingStatus}
+                onClick={() => setShowStatusConfirmModal(false)}
+                className="w-full py-2.5 px-4 rounded-xl border border-[#E6DFD3] text-xs font-medium text-[#242D27] hover:bg-[#F3EFE8] transition-colors cursor-pointer disabled:opacity-50"
+              >
+                Avbryt
+              </button>
+              <button
+                type="button"
+                disabled={isSavingStatus}
+                onClick={handleConfirmStatusChange}
+                className={`w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-white transition-all shadow-xs cursor-pointer disabled:opacity-50 ${
+                  statusConfirmTarget
+                    ? 'bg-[#8C5248] hover:bg-[#78433A]'
+                    : 'bg-[#526E5F] hover:bg-[#41584C]'
+                }`}
+              >
+                {isSavingStatus
+                  ? 'Uppdaterar...'
+                  : statusConfirmTarget
+                  ? 'Stäng webbplatsen'
+                  : 'Öppna webbplatsen'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

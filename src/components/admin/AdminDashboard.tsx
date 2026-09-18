@@ -10,14 +10,16 @@ import {
   CheckCircle2,
   AlertCircle,
   EyeOff,
-  ChevronRight
+  ChevronRight,
+  FileText
 } from 'lucide-react';
-import { Product, Category, Inquiry, AdminTab } from '../../types';
+import { Product, Category, Inquiry, Claim, AdminTab } from '../../types';
 
 interface AdminDashboardProps {
   products: Product[];
   categories: Category[];
   inquiries: Inquiry[];
+  claims?: Claim[];
   onNavigateTab: (tab: AdminTab, contextId?: string) => void;
 }
 
@@ -25,9 +27,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   products,
   categories,
   inquiries,
+  claims = [],
   onNavigateTab
 }) => {
   const newInquiries = inquiries.filter((i) => i.status === 'Ny');
+  const newClaims = claims.filter((c) => c.status === 'Ny');
   const ongoingInquiries = inquiries.filter((i) =>
     ['Kontaktad', 'Bekräftad', 'Under arbete'].includes(i.status)
   );
@@ -67,7 +71,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       </div>
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         
         {/* Nya förfrågningar */}
         <div
@@ -86,6 +90,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="text-[11px] text-[#6B8E7B] mt-1 font-medium group-hover:underline inline-flex items-center gap-1">
             <span>Se nya</span>
             <ChevronRight className="w-3 h-3" />
+          </div>
+        </div>
+
+        {/* Reklamationer */}
+        <div
+          onClick={() => onNavigateTab('claims')}
+          className="p-5 rounded-2xl bg-[#FBF9F5] border border-[#E6DFD3] hover:border-[#6B8E7B] transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-medium text-[#66726A]">Reklamationer</span>
+            <div className="w-8 h-8 rounded-full bg-[#FDF3F2] text-[#8C5248] flex items-center justify-center">
+              <FileText className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="text-3xl font-serif font-medium text-[#242D27]">
+            {claims.length}
+          </div>
+          <div className="text-[11px] mt-1 font-medium group-hover:underline inline-flex items-center gap-1">
+            {newClaims.length > 0 ? (
+              <span className="text-[#8C5248] font-semibold">{newClaims.length} nya</span>
+            ) : (
+              <span className="text-[#66726A]">Alla hanterade</span>
+            )}
+            <ChevronRight className="w-3 h-3 text-[#66726A]" />
           </div>
         </div>
 

@@ -10,9 +10,10 @@ import {
   ExternalLink,
   Store,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  FileText
 } from 'lucide-react';
-import { AdminTab, Inquiry } from '../../types';
+import { AdminTab, Inquiry, Claim } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 
 interface AdminLayoutProps {
@@ -20,6 +21,8 @@ interface AdminLayoutProps {
   onSelectTab: (tab: AdminTab) => void;
   onGoToShop: () => void;
   inquiries: Inquiry[];
+  claims?: Claim[];
+  maintenanceMode?: boolean;
   children: React.ReactNode;
 }
 
@@ -28,10 +31,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
   onSelectTab,
   onGoToShop,
   inquiries,
+  claims = [],
+  maintenanceMode = false,
   children
 }) => {
   const { user, logout } = useAuth();
   const newInquiriesCount = inquiries.filter((i) => i.status === 'Ny').length;
+  const newClaimsCount = claims.filter((c) => c.status === 'Ny').length;
 
   const navItems: { tab: AdminTab; label: string; icon: React.FC<{ className?: string }>; badge?: number }[] = [
     { tab: 'dashboard', label: 'Översikt', icon: LayoutDashboard },
@@ -44,6 +50,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
       icon: Inbox,
       badge: newInquiriesCount > 0 ? newInquiriesCount : undefined
     },
+    {
+      tab: 'claims',
+      label: 'Reklamationer',
+      icon: FileText,
+      badge: newClaimsCount > 0 ? newClaimsCount : undefined
+    },
     { tab: 'settings', label: 'Inställningar', icon: Settings }
   ];
 
@@ -52,7 +64,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
       
       {/* Top Bar */}
       <header className="bg-[#FBF9F5] border-b border-[#E6DFD3] sticky top-0 z-40 px-4 sm:px-8 py-3.5 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           <button
             onClick={() => onSelectTab('dashboard')}
             className="flex items-center gap-2 group text-left cursor-pointer"
@@ -63,6 +75,21 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
             <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-[#EBF3EE] text-[#526E5F] border border-[#CDE0D4]">
               Admin
             </span>
+          </button>
+
+          {/* Webbplatsstatus indikator */}
+          <button
+            type="button"
+            onClick={() => onSelectTab('settings')}
+            title="Klicka för att hantera webbplatsstatus i inställningar"
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all cursor-pointer ${
+              maintenanceMode
+                ? 'bg-[#FDF3F2] text-[#8C5248] border-[#E8C5C0] hover:bg-[#FBE8E6]'
+                : 'bg-[#EBF3EE] text-[#526E5F] border-[#CDE0D4] hover:bg-[#E0EFE5]'
+            }`}
+          >
+            <span className={`w-2 h-2 rounded-full ${maintenanceMode ? 'bg-[#8C5248] animate-pulse' : 'bg-[#526E5F]'}`} />
+            <span className="font-semibold">{maintenanceMode ? '🔴 Underhåll' : '🟢 Öppen'}</span>
           </button>
         </div>
 

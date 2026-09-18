@@ -40,6 +40,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   heroProductId: '',
   heroProductBadge: 'Unikt hantverk',
   aboutText: 'Sagomaskan är en liten svensk hantverksateljé som skapar personliga och tidlösa virkade produkter för hand med stor omsorg och glädje.',
+  maintenanceMode: false,
 
   // Fas 2: Om hantverket
   aboutStoryParagraphs: [
@@ -715,14 +716,29 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   try {
     const docRef = doc(db, SETTINGS_COLLECTION, 'general');
     const snap = await getDoc(docRef);
+    let maintMode: boolean | undefined = undefined;
+    try {
+      const maintDocRef = doc(db, SETTINGS_COLLECTION, 'maintenance');
+      const maintSnap = await getDoc(maintDocRef);
+      if (maintSnap.exists()) {
+        maintMode = maintSnap.data()?.maintenanceMode;
+      }
+    } catch {
+      // ignore
+    }
+
     if (snap.exists()) {
       const data = snap.data() as SiteSettings;
       if (data.heroImage) {
         data.heroImage = normalizeHeroImageUrl(data.heroImage);
       }
-      return { ...DEFAULT_SETTINGS, ...data };
+      return {
+        ...DEFAULT_SETTINGS,
+        ...data,
+        maintenanceMode: data.maintenanceMode !== undefined ? Boolean(data.maintenanceMode) : (maintMode ?? false)
+      };
     }
-    return DEFAULT_SETTINGS;
+    return { ...DEFAULT_SETTINGS, maintenanceMode: maintMode ?? false };
   } catch (error) {
     return DEFAULT_SETTINGS;
   }
@@ -736,7 +752,11 @@ export function subscribeSiteSettings(callback: (settings: SiteSettings) => void
       if (data.heroImage) {
         data.heroImage = normalizeHeroImageUrl(data.heroImage);
       }
-      callback({ ...DEFAULT_SETTINGS, ...data });
+      callback({
+        ...DEFAULT_SETTINGS,
+        ...data,
+        maintenanceMode: Boolean(data.maintenanceMode)
+      });
     } else {
       callback(DEFAULT_SETTINGS);
     }
@@ -755,7 +775,24 @@ export async function updateSiteSettings(settings: Partial<SiteSettings>): Promi
     }
     const rawData = { ...settingsCopy, updatedAt: new Date().toISOString() };
     await setDoc(docRef, sanitizeForFirestore(rawData), { merge: true });
+
+    // Also persist to siteSettings/maintenance doc for explicit status separation
+    if (settings.maintenanceMode !== undefined) {
+      try {
+        const maintDocRef = doc(db, SETTINGS_COLLECTION, 'maintenance');
+        await setDoc(maintDocRef, {
+          maintenanceMode: Boolean(settings.maintenanceMode),
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+      } catch (maintErr) {
+        console.warn('Failed to update siteSettings/maintenance doc:', maintErr);
+      }
+    }
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, `${SETTINGS_COLLECTION}/general`);
   }
+}
+
+export async function setMaintenanceMode(maintenanceMode: boolean): Promise<void> {
+  await updateSiteSettings({ maintenanceMode });
 }
