@@ -10,10 +10,9 @@ import {
   ExternalLink,
   Store,
   Sparkles,
-  ChevronRight,
-  FileText
+  ChevronRight
 } from 'lucide-react';
-import { AdminTab, Inquiry, Claim } from '../../types';
+import { AdminTab, Inquiry } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 
 interface AdminLayoutProps {
@@ -21,7 +20,6 @@ interface AdminLayoutProps {
   onSelectTab: (tab: AdminTab) => void;
   onGoToShop: () => void;
   inquiries: Inquiry[];
-  claims?: Claim[];
   maintenanceMode?: boolean;
   children: React.ReactNode;
 }
@@ -31,13 +29,11 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
   onSelectTab,
   onGoToShop,
   inquiries,
-  claims = [],
   maintenanceMode = false,
   children
 }) => {
   const { user, logout } = useAuth();
   const newInquiriesCount = inquiries.filter((i) => i.status === 'Ny').length;
-  const newClaimsCount = claims.filter((c) => c.status === 'Ny').length;
 
   const navItems: { tab: AdminTab; label: string; icon: React.FC<{ className?: string }>; badge?: number }[] = [
     { tab: 'dashboard', label: 'Översikt', icon: LayoutDashboard },
@@ -49,12 +45,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
       label: 'Förfrågningar',
       icon: Inbox,
       badge: newInquiriesCount > 0 ? newInquiriesCount : undefined
-    },
-    {
-      tab: 'claims',
-      label: 'Reklamationer',
-      icon: FileText,
-      badge: newClaimsCount > 0 ? newClaimsCount : undefined
     },
     { tab: 'settings', label: 'Inställningar', icon: Settings }
   ];

@@ -24,7 +24,6 @@ import { FaqPage } from './pages/FaqPage';
 import { ShippingPage } from './pages/ShippingPage';
 import { TermsPage } from './pages/TermsPage';
 import { WishlistPage } from './pages/WishlistPage';
-import { ClaimPage } from './pages/ClaimPage';
 import { AdminPage } from './pages/AdminPage';
 import { MaintenancePage } from './pages/MaintenancePage';
 import { useAuth } from './context/AuthContext';
@@ -187,7 +186,7 @@ function AppContent() {
       case 'about':
         return <AboutPage onNavigate={handleNavigate} />;
       case 'contact':
-        return <ContactPage onNavigate={handleNavigate} />;
+        return <ContactPage />;
       case 'faq':
         return <FaqPage onNavigate={handleNavigate} />;
       case 'shipping':
@@ -196,8 +195,6 @@ function AppContent() {
         return <TermsPage onNavigate={handleNavigate} />;
       case 'wishlist':
         return <WishlistPage products={products} onNavigate={handleNavigate} />;
-      case 'claim':
-        return <ClaimPage onNavigate={handleNavigate} />;
       default:
         return (
           <HomePage

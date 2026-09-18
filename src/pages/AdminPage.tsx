@@ -2,14 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { subscribeInquiries, seedInitialDataIfEmpty, seedInitialCategoriesIfEmpty } from '../services/db';
-import { Inquiry, AdminTab, Product, Discount, Claim, ClaimStatus } from '../types';
+import { Inquiry, AdminTab, Product, Discount } from '../types';
 import { subscribeDiscounts } from '../services/discountService';
-import {
-  subscribeClaims,
-  updateClaimStatus,
-  updateClaimNotes,
-  deleteClaim
-} from '../services/claimsService';
 import { AdminLayout } from '../components/admin/AdminLayout';
 import { AdminLogin } from '../components/admin/AdminLogin';
 import { AdminDashboard } from '../components/admin/AdminDashboard';
@@ -19,8 +13,6 @@ import { AdminCategories } from '../components/admin/AdminCategories';
 import { AdminDiscounts } from '../components/admin/AdminDiscounts';
 import { AdminInquiriesList } from '../components/admin/AdminInquiriesList';
 import { AdminInquiryDetail } from '../components/admin/AdminInquiryDetail';
-import { AdminClaimsList } from '../components/admin/AdminClaimsList';
-import { AdminClaimDetail } from '../components/admin/AdminClaimDetail';
 import { AdminSettings } from '../components/admin/AdminSettings';
 import { AlertCircle } from 'lucide-react';
 
@@ -47,12 +39,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onGoToShop }) => {
   const [currentTab, setCurrentTab] = useState<AdminTab>('dashboard');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [selectedInquiryId, setSelectedInquiryId] = useState<string | null>(null);
-  const [selectedClaimId, setSelectedClaimId] = useState<string | null>(null);
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [discounts, setDiscounts] = useState<Discount[]>([]);
-  const [claims, setClaims] = useState<Claim[]>([]);
 
-  // Subscribe to inquiries, discounts, and claims when admin is logged in
+  // Subscribe to inquiries and discounts when admin is logged in
   useEffect(() => {
     if (isAdmin) {
       seedInitialDataIfEmpty();
@@ -63,13 +53,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onGoToShop }) => {
       const unsubDiscounts = subscribeDiscounts((items) => {
         setDiscounts(items);
       });
-      const unsubClaims = subscribeClaims((items) => {
-        setClaims(items);
-      });
       return () => {
         unsubInquiries();
         unsubDiscounts();
-        unsubClaims();
       };
     }
   }, [isAdmin]);
@@ -81,8 +67,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onGoToShop }) => {
       setSelectedProductId(null);
     } else if (tab === 'view-inquiry' && contextId) {
       setSelectedInquiryId(contextId);
-    } else if (tab === 'view-claim' && contextId) {
-      setSelectedClaimId(contextId);
     }
     setCurrentTab(tab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -115,18 +99,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onGoToShop }) => {
     ? inquiries.find((i) => i.id === selectedInquiryId) || null
     : null;
 
-  // Claim currently being viewed
-  const viewingClaim = selectedClaimId
-    ? claims.find((c) => c.id === selectedClaimId) || null
-    : null;
-
   return (
     <AdminLayout
       currentTab={currentTab}
       onSelectTab={handleNavigateTab}
       onGoToShop={onGoToShop}
       inquiries={inquiries}
-      claims={claims}
       maintenanceMode={Boolean(settings.maintenanceMode)}
     >
       {/* 1. Dashboard */}
@@ -135,7 +113,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onGoToShop }) => {
           products={products}
           categories={categories}
           inquiries={inquiries}
-          claims={claims}
           onNavigateTab={handleNavigateTab}
         />
       )}
@@ -243,35 +220,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onGoToShop }) => {
         />
       )}
 
-      {/* 8. Claims List */}
-      {currentTab === 'claims' && (
-        <AdminClaimsList
-          claims={claims}
-          onSelectClaim={(id) => handleNavigateTab('view-claim', id)}
-          onUpdateClaimStatus={async (id, status) => {
-            await updateClaimStatus(id, status);
-          }}
-        />
-      )}
-
-      {/* 9. View Claim Detail */}
-      {currentTab === 'view-claim' && viewingClaim && (
-        <AdminClaimDetail
-          claim={viewingClaim}
-          onBack={() => handleNavigateTab('claims')}
-          onUpdateStatus={async (id, status) => {
-            await updateClaimStatus(id, status);
-          }}
-          onSaveNotes={async (id, notes) => {
-            await updateClaimNotes(id, notes);
-          }}
-          onDeleteClaim={async (id) => {
-            await deleteClaim(id);
-          }}
-        />
-      )}
-
-      {/* 10. Settings */}
+      {/* 8. Settings */}
       {currentTab === 'settings' && (
         <AdminSettings
           settings={settings}

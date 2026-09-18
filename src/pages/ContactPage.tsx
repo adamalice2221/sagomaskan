@@ -1,13 +1,8 @@
 import React, { useState } from 'react';
-import { Mail, Instagram, Send, CheckCircle2, MessageSquare, FileText, ArrowRight } from 'lucide-react';
+import { Mail, Instagram, Send, CheckCircle2, MessageSquare } from 'lucide-react';
 import { useData } from '../context/DataContext';
-import { PageRoute } from '../types';
 
-interface ContactPageProps {
-  onNavigate?: (page: PageRoute) => void;
-}
-
-export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
+export const ContactPage: React.FC = () => {
   const { settings, settingsLoaded } = useData();
   const [formData, setFormData] = useState({
     name: '',
@@ -101,26 +96,6 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
               Skriv gärna i formuläret om du undrar över garnval, storlekar eller har särskilda önskemål kring en beställning.
             </p>
           </div>
-
-          {onNavigate && (
-            <div className="p-6 rounded-2xl bg-[#FAF8F5] border border-[#E6DFD3] space-y-3 text-xs">
-              <div className="flex items-center gap-2 text-[#526E5F] font-semibold">
-                <FileText className="w-4 h-4" />
-                <span>Gäller ärendet en reklamation?</span>
-              </div>
-              <p className="text-[#66726A] font-light leading-relaxed">
-                Om du vill reklamera en skadad produkt eller felexpedition, använd vårt officiella reklamationsformulär för snabbare handläggning och ärendenummer.
-              </p>
-              <button
-                type="button"
-                onClick={() => onNavigate('claim')}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#242D27] hover:text-[#526E5F] transition-colors cursor-pointer group"
-              >
-                <span>Till reklamationsformuläret</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Right: Contact Form (7 cols) */}
