@@ -330,15 +330,6 @@ export const HomePage: React.FC<HomePageProps> = ({
                       <p className="text-sm font-medium">Handgjort hantverk</p>
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                  <div className="absolute bottom-4 left-4 right-4 text-white">
-                    <p className="font-serif italic text-base">
-                      "Att virka är att skapa något unikt, maska för maska."
-                    </p>
-                    <p className="text-xs opacity-85 mt-1 font-light">
-                      — Sagomaskan
-                    </p>
-                  </div>
                 </div>
               </div>
             </div>
