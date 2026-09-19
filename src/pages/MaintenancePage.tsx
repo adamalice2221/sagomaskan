@@ -49,9 +49,10 @@ export const MaintenancePage: React.FC<MaintenancePageProps> = ({ onAdminLogin }
         </h1>
 
         {/* Subheading */}
-        <p className="text-[16px] sm:text-lg text-[#55625A] font-light max-w-lg leading-snug sm:leading-relaxed mb-6 sm:mb-10">
-          Jag gör just nu de sista detaljerna. Tack för att du väntar!
-        </p>
+        <div className="text-[16px] sm:text-lg text-[#55625A] font-light max-w-lg leading-snug sm:leading-relaxed space-y-1.5 sm:space-y-2 mb-6 sm:mb-10">
+          <p>Jag gör just nu de sista detaljerna.</p>
+          <p>Tack för att du väntar!</p>
+        </div>
 
         {/* Contact & Social Section Card */}
         <div className="w-full max-w-md p-4 sm:p-6 rounded-2xl bg-[#F4F0E8] border border-[#E6DFD3] space-y-3 sm:space-y-4 shadow-xs">
