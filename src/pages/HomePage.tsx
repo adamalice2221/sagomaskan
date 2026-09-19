@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ArrowRight, Sparkles, Heart, MessageSquare, Clock, Scissors, Info, Tag } from 'lucide-react';
+import { ArrowRight, Heart, MessageSquare, Clock, Scissors, Info, Tag } from 'lucide-react';
 import { Product, PageRoute, ProductCategory, Category } from '../types';
 import { ProductCard } from '../components/ProductCard';
 import { useData } from '../context/DataContext';
@@ -90,11 +90,6 @@ export const HomePage: React.FC<HomePageProps> = ({
             
             {/* Left Column: Typography & CTAs */}
             <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F3EFE8] border border-[#E6DFD3] text-[#526E5F] text-xs font-medium tracking-wide">
-                <Sparkles className="w-3.5 h-3.5 text-[#6B8E7B]" />
-                <span>Handvirkat med omsorg</span>
-              </div>
-
               <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl text-[#242D27] leading-[1.15] font-medium tracking-tight min-h-[2.3em] flex flex-col justify-center">
                 {settingsLoaded ? (
                   <span>{settings?.heroTitle || 'Handgjorda virkade produkter med kärlek'}</span>
