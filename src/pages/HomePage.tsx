@@ -118,20 +118,6 @@ export const HomePage: React.FC<HomePageProps> = ({
                 >
                   <span>Utforska shoppen →</span>
                 </a>
-
-                <a
-                  id="hero-about-btn"
-                  href={getPageUrl('about')}
-                  onClick={(e) => {
-                    if (!isModifiedClick(e)) {
-                      e.preventDefault();
-                      onNavigate('about');
-                    }
-                  }}
-                  className="w-full sm:w-auto px-7 py-4 rounded-xl bg-[#FAF8F5] border border-[#E6DFD3] text-[#242D27] text-sm font-medium hover:bg-[#F3EFE8] transition-colors flex items-center justify-center cursor-pointer"
-                >
-                  Om hantverket
-                </a>
               </div>
 
               {/* Informational reassurance banner about beställningsförfrågan */}

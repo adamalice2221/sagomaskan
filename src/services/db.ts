@@ -40,6 +40,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   heroProductId: '',
   heroProductBadge: 'Unikt hantverk',
   aboutText: 'Sagomaskan är en liten svensk hantverksateljé som skapar personliga och tidlösa virkade produkter för hand med stor omsorg och glädje.',
+  aboutImageUrl: '',
   maintenanceMode: false,
 
   // Fas 2: Om hantverket
@@ -732,6 +733,9 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       if (data.heroImage) {
         data.heroImage = normalizeHeroImageUrl(data.heroImage);
       }
+      if (data.aboutImageUrl) {
+        data.aboutImageUrl = normalizeHeroImageUrl(data.aboutImageUrl);
+      }
       return {
         ...DEFAULT_SETTINGS,
         ...data,
@@ -751,6 +755,9 @@ export function subscribeSiteSettings(callback: (settings: SiteSettings) => void
       const data = snap.data() as SiteSettings;
       if (data.heroImage) {
         data.heroImage = normalizeHeroImageUrl(data.heroImage);
+      }
+      if (data.aboutImageUrl) {
+        data.aboutImageUrl = normalizeHeroImageUrl(data.aboutImageUrl);
       }
       callback({
         ...DEFAULT_SETTINGS,
@@ -772,6 +779,9 @@ export async function updateSiteSettings(settings: Partial<SiteSettings>): Promi
     const settingsCopy = { ...settings };
     if (settingsCopy.heroImage !== undefined) {
       settingsCopy.heroImage = normalizeHeroImageUrl(settingsCopy.heroImage);
+    }
+    if (settingsCopy.aboutImageUrl !== undefined) {
+      settingsCopy.aboutImageUrl = normalizeHeroImageUrl(settingsCopy.aboutImageUrl);
     }
     const rawData = { ...settingsCopy, updatedAt: new Date().toISOString() };
     await setDoc(docRef, sanitizeForFirestore(rawData), { merge: true });

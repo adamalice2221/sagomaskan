@@ -321,6 +321,10 @@ export async function uploadLogoImage(file: File): Promise<string> {
   return await uploadToSupabaseStorage(file, 'hero', 'logo');
 }
 
+export async function uploadAboutImage(file: File): Promise<string> {
+  return await uploadToSupabaseStorage(file, 'hero', 'about_craft');
+}
+
 /**
  * Legacy wrapper: reroutes any call to the secure Supabase storage function.
  */

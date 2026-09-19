@@ -1,7 +1,7 @@
 import React, { useState, useRef, ReactNode, useEffect } from 'react';
 import { Settings, Save, Check, Mail, Instagram, Type, Image as ImageIcon, Upload, Trash2, RefreshCw, AlertCircle, Layout, Link as LinkIcon, ShieldAlert, Plus, ChevronUp, ChevronDown, BookOpen, Truck, FileText, HelpCircle, Tag, ShoppingBag, Power, CheckCircle2 } from 'lucide-react';
 import { SiteSettings, FooterLink, Product, InfoSection, FaqSettingItem } from '../../types';
-import { uploadHeroImage, uploadLogoImage, normalizeHeroImageUrl } from '../../services/storage';
+import { uploadHeroImage, uploadLogoImage, uploadAboutImage, normalizeHeroImageUrl } from '../../services/storage';
 import { DEFAULT_SETTINGS } from '../../services/db';
 
 type SettingsTab =
@@ -76,6 +76,18 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
     const raw = settings.heroImage || '';
     return isExternalWebUrl(raw) ? raw : '';
   });
+
+  // Om hantverket-bild (startsida & om mig)
+  const [aboutImageUrl, setAboutImageUrl] = useState(() => normalizeHeroImageUrl(settings.aboutImageUrl || ''));
+  const [aboutExternalUrlInput, setAboutExternalUrlInput] = useState(() => {
+    const raw = settings.aboutImageUrl || '';
+    return isExternalWebUrl(raw) ? raw : '';
+  });
+  const [uploadingAboutImage, setUploadingAboutImage] = useState(false);
+  const [aboutUploadError, setAboutUploadError] = useState<string | null>(null);
+  const [isDraggingAbout, setIsDraggingAbout] = useState(false);
+  const aboutFileInputRef = useRef<HTMLInputElement>(null);
+
   const [aboutText, setAboutText] = useState(settings.aboutText || '');
 
   // --- FAS 2 STATE ---
@@ -458,11 +470,89 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
     }
   };
 
+  const handleAboutFileProcess = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      setAboutUploadError('Vänligen välj en giltig bildfil (JPG, PNG, WebP).');
+      return;
+    }
+
+    setAboutUploadError(null);
+    setUploadingAboutImage(true);
+
+    const safetyTimeout = setTimeout(() => {
+      setUploadingAboutImage((current) => {
+        if (current) {
+          setAboutUploadError('Uppladdningen tog för lång tid. Försök med en mindre bildfil eller ange bild-URL manuellt.');
+          return false;
+        }
+        return current;
+      });
+    }, 10000);
+
+    try {
+      const url = await uploadAboutImage(file);
+      clearTimeout(safetyTimeout);
+      const cleanUrl = normalizeHeroImageUrl(url);
+      setAboutImageUrl(cleanUrl);
+      setAboutExternalUrlInput('');
+      setNotice('Bilden för "Om hantverket" har bearbetats! Klicka på "Spara ändringar" nedan för att publicera den.');
+      setTimeout(() => setNotice(null), 5000);
+    } catch (err: any) {
+      clearTimeout(safetyTimeout);
+      console.error('About image upload failed:', err);
+      setAboutUploadError(err?.message || 'Kunde inte ladda upp bilden. Försök igen eller ange bild-URL manuellt.');
+    } finally {
+      clearTimeout(safetyTimeout);
+      setUploadingAboutImage(false);
+      if (aboutFileInputRef.current) {
+        aboutFileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleAboutExternalUrlChange = (val: string) => {
+    setAboutExternalUrlInput(val);
+    if (val.trim()) {
+      setAboutImageUrl(val.trim());
+    } else if (!aboutImageUrl || isExternalWebUrl(aboutImageUrl)) {
+      setAboutImageUrl('');
+    }
+  };
+
+  const handleRemoveAboutImage = () => {
+    setAboutImageUrl('');
+    setAboutExternalUrlInput('');
+  };
+
+  const handleAboutFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      handleAboutFileProcess(e.target.files[0]);
+    }
+  };
+
+  const handleAboutDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingAbout(true);
+  };
+
+  const handleAboutDragLeave = () => {
+    setIsDraggingAbout(false);
+  };
+
+  const handleAboutDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingAbout(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleAboutFileProcess(e.dataTransfer.files[0]);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
       const finalHero = normalizeHeroImageUrl(heroImage.trim() || externalUrlInput.trim());
+      const finalAboutImage = normalizeHeroImageUrl(aboutImageUrl.trim() || aboutExternalUrlInput.trim());
       await onSaveSettings({
         email: email.trim(),
         instagram: instagram.trim(),
@@ -472,6 +562,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
         heroProductId: heroProductId.trim(),
         heroProductBadge: heroProductBadge.trim(),
         aboutText: aboutText.trim(),
+        aboutImageUrl: finalAboutImage,
         maintenanceMode: Boolean(maintenanceMode),
 
         // Fas 2: Innehållssidor & FAQ
@@ -921,6 +1012,113 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
                 </div>
               </div>
             </div>
+
+            {/* Bild för sektionen "Om hantverket" på startsidan & om mig */}
+            <div className="pt-5 border-t border-[#E6DFD3] space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="block text-xs font-medium text-[#242D27]">
+                    Bild: Sektionen "Om hantverket" (Startsida & Om mig)
+                  </label>
+                  <p className="text-[11px] text-[#66726A] font-light">
+                    Bilden som visas i sektionen "Varje maska är handgjord" på startsidan samt bredvid berättelsen på sidan "Om mig".
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('about')}
+                  className="text-xs text-[#6B8E7B] hover:underline flex items-center gap-1 shrink-0 font-medium cursor-pointer"
+                >
+                  <span>Öppna i "Om hantverket"</span>
+                  <span>&rarr;</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-start">
+                <div className="sm:col-span-5 relative group rounded-2xl overflow-hidden border border-[#E6DFD3] bg-[#FAF8F5] aspect-4/3 flex items-center justify-center">
+                  {aboutImageUrl ? (
+                    <>
+                      <img
+                        src={aboutImageUrl}
+                        alt="Om hantverket förhandsvisning"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 z-10">
+                        <button
+                          type="button"
+                          onClick={handleRemoveAboutImage}
+                          className="p-2 rounded-full bg-white/90 text-red-600 hover:bg-white text-xs flex items-center gap-1 shadow-md cursor-pointer"
+                          title="Ta bort bild"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          <span>Ta bort</span>
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="p-6 text-center text-[#66726A] space-y-1">
+                      <ImageIcon className="w-8 h-8 mx-auto text-[#A5B7AC]" />
+                      <p className="text-[11px] font-medium">Standardikon/platshållare aktiv</p>
+                      <p className="text-[10px] text-[#8C9890]">Ladda upp en egen bild för att visa den här.</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="sm:col-span-7 space-y-3">
+                  <div
+                    onDragOver={handleAboutDragOver}
+                    onDragLeave={handleAboutDragLeave}
+                    onDrop={handleAboutDrop}
+                    onClick={() => aboutFileInputRef.current?.click()}
+                    className={`border-2 border-dashed rounded-2xl p-4 text-center cursor-pointer transition-colors ${
+                      isDraggingAbout
+                        ? 'border-[#6B8E7B] bg-[#EBF3EE]'
+                        : 'border-[#D4CBBF] hover:border-[#6B8E7B] bg-[#FAF8F5]'
+                    }`}
+                  >
+                    <input
+                      type="file"
+                      ref={aboutFileInputRef}
+                      onChange={handleAboutFileInputChange}
+                      accept="image/jpeg,image/png,image/webp,image/jpg"
+                      className="hidden"
+                    />
+                    {uploadingAboutImage ? (
+                      <div className="py-3 flex flex-col items-center gap-2 text-xs text-[#526E5F]">
+                        <RefreshCw className="w-5 h-5 animate-spin text-[#6B8E7B]" />
+                        <span>Laddar upp och optimerar bild...</span>
+                      </div>
+                    ) : (
+                      <div className="py-2 flex flex-col items-center gap-1.5 text-[#526E5F]">
+                        <Upload className="w-5 h-5 text-[#6B8E7B]" />
+                        <p className="text-xs font-medium">Klicka för att välja bild eller dra och släpp här</p>
+                        <p className="text-[10px] text-[#8C9890]">Stödjer JPG, PNG, WebP (optimeras automatiskt)</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {aboutUploadError && (
+                    <div className="text-[11px] text-red-600 flex items-center gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{aboutUploadError}</span>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-[11px] text-[#66726A] mb-1">
+                      Eller klistra in en extern bild-URL:
+                    </label>
+                    <input
+                      type="text"
+                      value={aboutExternalUrlInput}
+                      onChange={(e) => handleAboutExternalUrlChange(e.target.value)}
+                      placeholder="https://images.unsplash.com/..."
+                      className="w-full bg-[#FAF8F5] border border-[#E6DFD3] rounded-xl px-3 py-2 text-xs text-[#242D27] focus:outline-none focus:ring-2 focus:ring-[#6B8E7B]"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -960,6 +1158,110 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
 
         {activeTab === 'about' && (
         <div className="space-y-8 animate-in fade-in duration-300">
+        {/* Bild för Om hantverket (Startsida & Om mig) */}
+        <div className="bg-[#FBF9F5] border border-[#E6DFD3] rounded-3xl p-6 sm:p-8 space-y-5">
+          <div className="pb-2 border-b border-[#E6DFD3]">
+            <h2 className="font-serif text-xl text-[#242D27] font-medium flex items-center gap-2">
+              <ImageIcon className="w-4 h-4 text-[#6B8E7B]" />
+              <span>Bild för Om hantverket</span>
+            </h2>
+            <p className="text-xs text-[#66726A] font-light mt-1">
+              Denna bild visas i sektionen "Om hantverket" (Varje maska är handgjord) på startsidan samt bredvid hantverksberättelsen på sidan "Om mig".
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-5 items-start">
+            {/* Image Preview */}
+            <div className="sm:col-span-5 relative group rounded-2xl overflow-hidden border border-[#E6DFD3] bg-[#FAF8F5] aspect-4/3 flex items-center justify-center">
+              {aboutImageUrl ? (
+                <>
+                  <img
+                    src={aboutImageUrl}
+                    alt="Om hantverket förhandsvisning"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 z-10">
+                    <button
+                      type="button"
+                      onClick={handleRemoveAboutImage}
+                      className="px-3 py-1.5 rounded-xl bg-white/90 text-red-600 hover:bg-white text-xs font-medium flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
+                      title="Ta bort bild"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Ta bort bild</span>
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="p-6 text-center text-[#66726A] space-y-2">
+                  <div className="w-12 h-12 rounded-full bg-[#F3EFE8] mx-auto flex items-center justify-center text-[#6B8E7B]">
+                    <ImageIcon className="w-6 h-6" />
+                  </div>
+                  <p className="text-xs font-medium text-[#242D27]">Ingen bild vald</p>
+                  <p className="text-[11px] text-[#8C9890]">Ladda upp en bild eller ange en bildadress nedan.</p>
+                </div>
+              )}
+            </div>
+
+            {/* Upload Controls */}
+            <div className="sm:col-span-7 space-y-3">
+              <div
+                onDragOver={handleAboutDragOver}
+                onDragLeave={handleAboutDragLeave}
+                onDrop={handleAboutDrop}
+                onClick={() => aboutFileInputRef.current?.click()}
+                className={`border-2 border-dashed rounded-2xl p-5 text-center cursor-pointer transition-colors ${
+                  isDraggingAbout
+                    ? 'border-[#6B8E7B] bg-[#EBF3EE]'
+                    : 'border-[#D4CBBF] hover:border-[#6B8E7B] bg-[#FAF8F5]'
+                }`}
+              >
+                <input
+                  type="file"
+                  ref={aboutFileInputRef}
+                  onChange={handleAboutFileInputChange}
+                  accept="image/jpeg,image/png,image/webp,image/jpg"
+                  className="hidden"
+                />
+                <Upload className="w-6 h-6 mx-auto text-[#6B8E7B] mb-2" />
+                <p className="text-xs font-medium text-[#242D27]">
+                  {uploadingAboutImage ? 'Laddar upp bild...' : 'Dra och släpp en bildfil här'}
+                </p>
+                <p className="text-[11px] text-[#66726A] mt-1 font-light">
+                  eller klicka för att välja från datorn (WebP, JPG, PNG)
+                </p>
+              </div>
+
+              {uploadingAboutImage && (
+                <div className="flex items-center gap-2 text-xs text-[#6B8E7B] bg-[#EBF3EE] px-3 py-2 rounded-xl">
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>Optimerar och laddar upp bild...</span>
+                </div>
+              )}
+
+              {aboutUploadError && (
+                <div className="flex items-center gap-2 text-xs text-red-700 bg-red-50 border border-red-200 px-3 py-2 rounded-xl">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span>{aboutUploadError}</span>
+                </div>
+              )}
+
+              <div className="pt-2">
+                <label className="block text-[11px] font-medium text-[#242D27] mb-1">
+                  Eller ange bild-URL direkt:
+                </label>
+                <input
+                  type="url"
+                  value={aboutExternalUrlInput}
+                  onChange={(e) => handleAboutExternalUrlChange(e.target.value)}
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full bg-[#FAF8F5] border border-[#E6DFD3] rounded-xl px-3.5 py-2 text-xs text-[#242D27] focus:outline-none focus:ring-2 focus:ring-[#6B8E7B]"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Om mig / Om hantverket */}
         <div className="bg-[#FBF9F5] border border-[#E6DFD3] rounded-3xl p-6 sm:p-8 space-y-5">
           <div className="flex items-center justify-between pb-2 border-b border-[#E6DFD3]">

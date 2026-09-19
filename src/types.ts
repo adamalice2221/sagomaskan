@@ -213,6 +213,7 @@ export interface SiteSettings {
   heroProductId?: string;
   heroProductBadge?: string;
   aboutText?: string;
+  aboutImageUrl?: string;
   updatedAt?: string;
 
   // Webbplatsstatus & Underhållsläge
