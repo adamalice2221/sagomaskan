@@ -91,16 +91,16 @@ export const Header: React.FC<HeaderProps> = ({
                 handleNavClick('home');
               }
             }}
-            className="group flex flex-col items-center lg:items-start text-left focus:outline-none cursor-pointer"
+            className="group flex flex-col items-center lg:items-start text-center lg:text-left focus:outline-none cursor-pointer min-w-0"
           >
             {settings?.logoImageUrl ? (
-              <img src={settings.logoImageUrl} alt="Sagomaskan Logo" className="h-10 sm:h-12 object-contain" />
+              <img src={settings.logoImageUrl} alt="Sagomaskan Logo" className="h-8 sm:h-10 lg:h-12 object-contain" />
             ) : (
-              <span className="font-serif text-2xl sm:text-3xl font-medium tracking-[0.2em] text-[#242D27] uppercase transition-colors group-hover:text-[#6B8E7B]">
+              <span className="font-serif text-xl sm:text-2xl lg:text-3xl font-medium tracking-[0.16em] sm:tracking-[0.2em] text-[#242D27] uppercase transition-colors group-hover:text-[#6B8E7B] truncate">
                 SAGOMASKAN
               </span>
             )}
-            <span className="text-[10px] tracking-[0.28em] text-[#66726A] font-medium uppercase -mt-0.5">
+            <span className="text-[9px] sm:text-[10px] tracking-[0.22em] sm:tracking-[0.28em] text-[#66726A] font-medium uppercase -mt-0.5 truncate">
               {settings?.logoTagline ?? 'VIRKADE PRODUKTER'}
             </span>
           </a>
@@ -232,26 +232,26 @@ export const Header: React.FC<HeaderProps> = ({
           />
 
           {/* Drawer Content */}
-          <div className="fixed inset-y-0 left-0 max-w-xs w-full bg-[#FAF8F5] shadow-xl p-6 flex flex-col justify-between border-r border-[#E6DFD3] z-10 animate-in slide-in-from-left duration-200">
+          <div className="fixed inset-y-0 left-0 max-w-[280px] sm:max-w-xs w-full bg-[#FAF8F5] shadow-xl p-5 sm:p-6 flex flex-col justify-between border-r border-[#E6DFD3] z-10 animate-in slide-in-from-left duration-200">
             <div>
               {/* Drawer Header */}
-              <div className="flex items-center justify-between pb-6 border-b border-[#E6DFD3]">
-                <div className="text-left">
+              <div className="flex items-center justify-between pb-5 border-b border-[#E6DFD3]">
+                <div className="text-left min-w-0 pr-2">
                   {settings?.logoImageUrl ? (
-                    <img src={settings.logoImageUrl} alt="Sagomaskan Logo" className="h-8 object-contain mb-1" />
+                    <img src={settings.logoImageUrl} alt="Sagomaskan Logo" className="h-7 sm:h-8 object-contain mb-1" />
                   ) : (
-                    <span className="font-serif text-xl font-medium tracking-[0.18em] text-[#242D27] uppercase block">
+                    <span className="font-serif text-lg sm:text-xl font-medium tracking-[0.16em] sm:tracking-[0.18em] text-[#242D27] uppercase block truncate">
                       SAGOMASKAN
                     </span>
                   )}
-                  <p className="text-[9px] tracking-[0.22em] text-[#66726A] uppercase">
+                  <p className="text-[8px] sm:text-[9px] tracking-[0.2em] sm:tracking-[0.22em] text-[#66726A] uppercase truncate">
                     {settings?.logoTagline ?? 'VIRKADE PRODUKTER'}
                   </p>
                 </div>
                 <button
                   id="close-mobile-menu-btn"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 rounded-lg text-[#242D27] hover:bg-[#F3EFE8] cursor-pointer"
+                  className="p-2 rounded-lg text-[#242D27] hover:bg-[#F3EFE8] cursor-pointer shrink-0"
                   aria-label="Stäng meny"
                 >
                   <X className="w-5 h-5" />

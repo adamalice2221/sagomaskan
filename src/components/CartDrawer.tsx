@@ -42,25 +42,25 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {
         onClick={() => setIsCartOpen(false)}
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-4 sm:pl-10">
         <div
           id="cart-drawer-panel"
           className="w-screen max-w-md bg-[#FAF8F5] border-l border-[#E6DFD3] shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300"
         >
           {/* Drawer Header */}
-          <div className="p-6 border-b border-[#E6DFD3] flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <ShoppingBag className="w-5 h-5 text-[#242D27]" />
-              <h2 className="font-serif text-xl font-medium text-[#242D27]">
+          <div className="p-4 sm:p-6 border-b border-[#E6DFD3] flex items-center justify-between">
+            <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+              <ShoppingBag className="w-5 h-5 text-[#242D27] shrink-0" />
+              <h2 className="font-serif text-lg sm:text-xl font-medium text-[#242D27] truncate">
                 Din förfrågelista
               </h2>
-              <span className="text-xs text-[#66726A] bg-[#F3EFE8] px-2.5 py-0.5 rounded-full font-medium">
+              <span className="text-xs text-[#66726A] bg-[#F3EFE8] px-2 py-0.5 rounded-full font-medium shrink-0">
                 {items.reduce((acc, i) => acc + i.quantity, 0)} st
               </span>
             </div>
             <button
               onClick={() => setIsCartOpen(false)}
-              className="p-1.5 rounded-lg text-[#66726A] hover:text-[#242D27] hover:bg-[#F3EFE8] transition-colors"
+              className="p-1.5 rounded-lg text-[#66726A] hover:text-[#242D27] hover:bg-[#F3EFE8] transition-colors shrink-0"
               aria-label="Stäng förfrågelista"
             >
               <X className="w-5 h-5" />
@@ -76,7 +76,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {
           </div>
 
           {/* Items List */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-5">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-5">
             {items.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4">
                 <div className="w-16 h-16 rounded-full bg-[#F3EFE8] flex items-center justify-center text-[#66726A]">
@@ -249,7 +249,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {
 
           {/* Drawer Footer / Summary */}
           {items.length > 0 && (
-            <div className="p-6 border-t border-[#E6DFD3] bg-[#FAF8F5] space-y-4">
+            <div className="p-4 sm:p-6 border-t border-[#E6DFD3] bg-[#FAF8F5] space-y-4">
               <div className="space-y-1.5">
                 {appliedCode && discountResult?.valid && discountResult.discountAmount > 0 ? (
                   <>
