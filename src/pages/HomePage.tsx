@@ -75,10 +75,8 @@ export const HomePage: React.FC<HomePageProps> = ({
     return customSettingImage || '';
   }, [heroProduct, settings?.heroImage]);
 
-  const heroCategoryName = heroProduct?.category || 'Handvirkat';
   const heroProductName = heroProduct?.name || 'Virkad produkt';
-  const heroProductPrice = heroProduct ? `${heroProduct.price} kr` : '';
-  const heroBadgeText = settings?.heroProductBadge || 'Unikt hantverk';
+  const heroBadgeText = settings?.heroProductBadge || 'Skapat med fantasi';
 
   return (
     <div className="space-y-16 sm:space-y-24">
@@ -147,14 +145,11 @@ export const HomePage: React.FC<HomePageProps> = ({
               </div>
             </div>
 
-            {/* Right Column: Large Hero Image Area */}
+            {/* Right Column: Hero Image Area */}
             <div className="lg:col-span-5 relative">
               <div className="relative mx-auto max-w-md lg:max-w-none">
-                {/* Decorative background shape */}
-                <div className="absolute -inset-4 bg-[#F3EFE8] rounded-3xl -rotate-2 transform transition-transform" />
-                
-                {/* Main Hero Card */}
-                <div className="relative rounded-2xl overflow-hidden shadow-xl border border-[#E6DFD3] bg-[#FAF8F5] h-[420px] sm:h-[480px] flex items-center justify-center">
+                {/* Clean Hero Image Container */}
+                <div className="relative rounded-2xl overflow-hidden shadow-sm border border-[#E6DFD3] bg-[#FAF8F5] h-[420px] sm:h-[480px] flex items-center justify-center">
                   {!settingsLoaded ? (
                     <div className="w-full h-full bg-[#E6DFD3]/30 animate-pulse rounded-2xl flex items-center justify-center" />
                   ) : heroImageSrc ? (
@@ -171,7 +166,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                       <img
                         src={heroImageSrc}
                         alt={heroProductName}
-                        className="relative z-1 w-full h-full object-contain object-center p-1 sm:p-2 transform hover:scale-102 transition-transform duration-700 max-h-full max-w-full"
+                        className="relative z-1 w-full h-full object-contain object-center p-2 sm:p-4 transform hover:scale-102 transition-transform duration-700 max-h-full max-w-full"
                       />
                     </>
                   ) : (
@@ -186,52 +181,15 @@ export const HomePage: React.FC<HomePageProps> = ({
                     </div>
                   )}
                   
-                  {/* Floating badge and product card inside hero */}
-                  <div className="absolute bottom-4 left-4 right-4 sm:bottom-5 sm:left-5 sm:right-5 z-10 flex flex-col items-start gap-2.5 pointer-events-none">
-                    {/* Subtle side badge */}
+                  {/* Subtle badge positioned naturally near bottom edge */}
+                  <div className="absolute bottom-4 left-4 sm:bottom-5 sm:left-5 z-10 pointer-events-none">
                     {!settingsLoaded ? (
                       <div className="h-7 w-28 bg-[#242D27]/80 animate-pulse rounded-lg" />
                     ) : (
-                      <div className="flex items-center gap-2 bg-[#242D27] text-[#FAF8F5] px-4 py-2 rounded-lg text-xs font-light shadow-md pointer-events-auto">
+                      <div className="flex items-center gap-2 bg-[#242D27] text-[#FAF8F5] px-3.5 py-1.5 rounded-lg text-xs font-light shadow-md pointer-events-auto">
                         <Heart className="w-3.5 h-3.5 text-[#6B8E7B] fill-[#6B8E7B]" />
                         <span>{heroBadgeText}</span>
                       </div>
-                    )}
-
-                    {/* Product card inside hero */}
-                    {!settingsLoaded ? (
-                      <div className="w-full p-4 rounded-xl bg-[#FAF8F5]/90 backdrop-blur-md border border-[#E6DFD3] shadow-md flex items-center justify-between pointer-events-auto">
-                        <div className="space-y-1">
-                          <div className="h-3 w-16 bg-[#E6DFD3]/60 animate-pulse rounded" />
-                          <div className="h-5 w-28 bg-[#E6DFD3]/80 animate-pulse rounded" />
-                        </div>
-                        <div className="h-5 w-12 bg-[#E6DFD3]/80 animate-pulse rounded" />
-                      </div>
-                    ) : (
-                      <a
-                        href={heroProduct ? getPageUrl('product', { productId: heroProduct.id }) : getPageUrl('shop')}
-                        onClick={(e) => {
-                          if (heroProduct && !isModifiedClick(e)) {
-                            e.preventDefault();
-                            onNavigate('product', heroProduct.id);
-                          }
-                        }}
-                        className={`w-full p-4 rounded-xl bg-[#FAF8F5]/90 backdrop-blur-md border border-[#E6DFD3] shadow-md flex items-center justify-between pointer-events-auto cursor-pointer hover:bg-[#FAF8F5] transition-colors block text-left`}
-                      >
-                        <div>
-                          <p className="text-xs text-[#66726A] uppercase tracking-wider font-medium">
-                            {heroCategoryName}
-                          </p>
-                          <p className="font-serif text-base font-semibold text-[#242D27]">
-                            {heroProductName}
-                          </p>
-                        </div>
-                        {heroProductPrice && (
-                          <span className="text-sm font-bold text-[#242D27]">
-                            {heroProductPrice}
-                          </span>
-                        )}
-                      </a>
                     )}
                   </div>
                 </div>
