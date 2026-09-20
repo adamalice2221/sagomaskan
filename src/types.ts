@@ -219,6 +219,9 @@ export interface SiteSettings {
   // Webbplatsstatus & Underhållsläge
   maintenanceMode?: boolean;
 
+  // Tillfälliga säsongsteman
+  halloweenEnabled?: boolean;
+
   // Fas 2: Innehållssidor & FAQ
   aboutStoryParagraphs?: string[];
   shippingSections?: InfoSection[];
