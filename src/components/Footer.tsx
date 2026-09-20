@@ -66,7 +66,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     return (
       <footer id="main-footer" className="bg-[#F3EFE8] text-[#242D27] border-t border-[#E6DFD3] pt-16 pb-12 mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12 mb-16">
+          <div className="footer-main-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12 mb-16">
             <div className="lg:col-span-2 space-y-4">
               <div className="h-8 bg-[#E6DFD3]/50 animate-pulse rounded-md w-48" />
               <div className="h-4 bg-[#E6DFD3]/40 animate-pulse rounded-md w-64" />
@@ -97,7 +97,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Main Grid: 4 columns (Brand + 3 specified link columns) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12 mb-16">
+        <div className="footer-main-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12 mb-16">
           
           {/* Brand Presentation (2 cols on desktop, 1 on tablet) */}
           <div className="lg:col-span-2 space-y-4">
@@ -248,7 +248,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-[#E6DFD3] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#66726A]">
+        <div className="footer-bottom-bar pt-8 border-t border-[#E6DFD3] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#66726A]">
           <div className="flex items-center gap-4">
             <p>{copyright}</p>
             {showAdminLink && (
