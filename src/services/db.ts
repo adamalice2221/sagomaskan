@@ -42,7 +42,6 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   aboutText: 'Sagomaskan är en liten svensk hantverksateljé som skapar personliga och tidlösa virkade produkter för hand med stor omsorg och glädje.',
   aboutImageUrl: '',
   maintenanceMode: false,
-  halloweenEnabled: false,
 
   // Fas 2: Om hantverket
   aboutStoryParagraphs: [
@@ -729,17 +728,6 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       // ignore
     }
 
-    let halloweenEnabledVal: boolean | undefined = undefined;
-    try {
-      const halDocRef = doc(db, SETTINGS_COLLECTION, 'halloween');
-      const halSnap = await getDoc(halDocRef);
-      if (halSnap.exists()) {
-        halloweenEnabledVal = halSnap.data()?.enabled;
-      }
-    } catch {
-      // ignore
-    }
-
     if (snap.exists()) {
       const data = snap.data() as SiteSettings;
       if (data.heroImage) {
@@ -751,15 +739,10 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       return {
         ...DEFAULT_SETTINGS,
         ...data,
-        maintenanceMode: data.maintenanceMode !== undefined ? Boolean(data.maintenanceMode) : (maintMode ?? false),
-        halloweenEnabled: data.halloweenEnabled !== undefined ? Boolean(data.halloweenEnabled) : (halloweenEnabledVal ?? false)
+        maintenanceMode: data.maintenanceMode !== undefined ? Boolean(data.maintenanceMode) : (maintMode ?? false)
       };
     }
-    return {
-      ...DEFAULT_SETTINGS,
-      maintenanceMode: maintMode ?? false,
-      halloweenEnabled: halloweenEnabledVal ?? false
-    };
+    return { ...DEFAULT_SETTINGS, maintenanceMode: maintMode ?? false };
   } catch (error) {
     return DEFAULT_SETTINGS;
   }
@@ -779,8 +762,7 @@ export function subscribeSiteSettings(callback: (settings: SiteSettings) => void
       callback({
         ...DEFAULT_SETTINGS,
         ...data,
-        maintenanceMode: Boolean(data.maintenanceMode),
-        halloweenEnabled: Boolean(data.halloweenEnabled)
+        maintenanceMode: Boolean(data.maintenanceMode)
       });
     } else {
       callback(DEFAULT_SETTINGS);
@@ -816,19 +798,6 @@ export async function updateSiteSettings(settings: Partial<SiteSettings>): Promi
         console.warn('Failed to update siteSettings/maintenance doc:', maintErr);
       }
     }
-
-    // Also persist to siteSettings/halloween doc for seasonal theme separation
-    if (settings.halloweenEnabled !== undefined) {
-      try {
-        const halDocRef = doc(db, SETTINGS_COLLECTION, 'halloween');
-        await setDoc(halDocRef, {
-          enabled: Boolean(settings.halloweenEnabled),
-          updatedAt: new Date().toISOString()
-        }, { merge: true });
-      } catch (halErr) {
-        console.warn('Failed to update siteSettings/halloween doc:', halErr);
-      }
-    }
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, `${SETTINGS_COLLECTION}/general`);
   }
@@ -836,8 +805,4 @@ export async function updateSiteSettings(settings: Partial<SiteSettings>): Promi
 
 export async function setMaintenanceMode(maintenanceMode: boolean): Promise<void> {
   await updateSiteSettings({ maintenanceMode });
-}
-
-export async function setHalloweenEnabled(enabled: boolean): Promise<void> {
-  await updateSiteSettings({ halloweenEnabled: Boolean(enabled) });
 }

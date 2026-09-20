@@ -10,7 +10,6 @@ import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
 import { SearchModal } from './components/SearchModal';
 import { Toast } from './components/Toast';
-import { HalloweenDecorations } from './components/HalloweenDecorations';
 
 // Pages
 import { HomePage } from './pages/HomePage';
@@ -225,9 +224,6 @@ function AppContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#242D27] font-sans antialiased selection:bg-[#6B8E7B]/20 selection:text-[#242D27]">
-      {/* Tillfälligt dekorationslager för Halloween */}
-      {settings.halloweenEnabled && <HalloweenDecorations />}
-
       {/* Admin Maintenance Preview Banner */}
       {settings.maintenanceMode && isAdmin && (
         <div className="bg-[#8C5248] text-white text-xs px-4 py-2.5 flex items-center justify-between sticky top-0 z-50 shadow-xs">
