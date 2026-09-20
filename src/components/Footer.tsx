@@ -33,9 +33,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const defaultInfoLinks = [
     { label: 'Frakt & leverans', href: 'shipping', enabled: true },
     { label: 'Köpvillkor', href: 'terms', enabled: true },
-    { label: 'FAQ', href: 'faq', enabled: true },
     { label: 'Ångra köp', href: 'angra-kop', enabled: true },
     { label: 'Reklamation', href: 'reklamation', enabled: true },
+    { label: 'FAQ', href: 'faq', enabled: true },
   ];
 
   const configuredInfoLinks = settings.footerInfoLinks || defaultInfoLinks;
@@ -66,23 +66,21 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     return (
       <footer id="main-footer" className="bg-[#F3EFE8] text-[#242D27] border-t border-[#E6DFD3] pt-16 pb-12 mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="footer-main-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12 mb-16">
             <div className="lg:col-span-2 space-y-4">
               <div className="h-8 bg-[#E6DFD3]/50 animate-pulse rounded-md w-48" />
               <div className="h-4 bg-[#E6DFD3]/40 animate-pulse rounded-md w-64" />
             </div>
-            <div className="w-full max-w-xs mx-auto grid grid-cols-2 gap-x-6 sm:gap-x-8 md:contents">
-              <div className="space-y-3">
-                <div className="h-5 bg-[#E6DFD3]/50 animate-pulse rounded-md w-24" />
-                <div className="h-4 bg-[#E6DFD3]/30 animate-pulse rounded-md w-32" />
-                <div className="h-4 bg-[#E6DFD3]/30 animate-pulse rounded-md w-28" />
-              </div>
-              <div className="space-y-3">
-                <div className="h-5 bg-[#E6DFD3]/50 animate-pulse rounded-md w-24" />
-                <div className="h-4 bg-[#E6DFD3]/30 animate-pulse rounded-md w-32" />
-              </div>
+            <div className="space-y-3">
+              <div className="h-5 bg-[#E6DFD3]/50 animate-pulse rounded-md w-24" />
+              <div className="h-4 bg-[#E6DFD3]/30 animate-pulse rounded-md w-32" />
+              <div className="h-4 bg-[#E6DFD3]/30 animate-pulse rounded-md w-28" />
             </div>
-            <div className="hidden md:block space-y-3">
+            <div className="space-y-3">
+              <div className="h-5 bg-[#E6DFD3]/50 animate-pulse rounded-md w-24" />
+              <div className="h-4 bg-[#E6DFD3]/30 animate-pulse rounded-md w-32" />
+            </div>
+            <div className="space-y-3">
               <div className="h-5 bg-[#E6DFD3]/50 animate-pulse rounded-md w-24" />
               <div className="h-4 bg-[#E6DFD3]/30 animate-pulse rounded-md w-32" />
             </div>
@@ -92,14 +90,16 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     );
   }
 
+  const instagramHandle = settings.instagram || '@sagomaskan';
+
   return (
     <footer id="main-footer" className="bg-[#F3EFE8] text-[#242D27] border-t border-[#E6DFD3] pt-16 pb-12 mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Main Grid: 4 columns (Brand + 3 specified link columns) */}
-        <div className="footer-main-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12 mb-16">
           
-          {/* Brand Presentation (2 cols on desktop, 1 on tablet) */}
+          {/* Brand Presentation (2 cols) */}
           <div className="lg:col-span-2 space-y-4">
             <a
               href={getPageUrl('home')}
@@ -130,77 +130,102 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 {description}
               </p>
             )}
-          </div>
 
-          {/* Kolumn 1 & 2: Sidor & Information (balanserad 2-kolumnscontainer på mobil, upplöst på tablet & desktop via md:contents) */}
-          <div className="w-full max-w-xs mx-auto grid grid-cols-2 gap-x-6 sm:gap-x-8 md:contents">
-            {/* Kolumn 1 - Sidor */}
-            <div className="space-y-4">
-              <h4 className="text-xs tracking-widest uppercase font-semibold text-[#242D27]">
-                Sidor
-              </h4>
-              <ul className="space-y-2.5 text-sm">
-                {pageLinks
-                  .filter((link) => link.enabled !== false)
-                  .map((link, idx) => {
-                    const resolved = resolveLinkUrl(link.href);
-                    return (
-                      <li key={idx}>
-                        <a
-                          href={resolved.url}
-                          target={resolved.isExternal ? '_blank' : undefined}
-                          rel={resolved.isExternal ? 'noreferrer' : undefined}
-                          onClick={(e) => {
-                            if (!resolved.isExternal && resolved.route && !isModifiedClick(e)) {
-                              e.preventDefault();
-                              onNavigate(resolved.route);
-                            }
-                          }}
-                          className="text-[#66726A] hover:text-[#242D27] transition-colors focus:outline-none cursor-pointer inline-block py-0.5 sm:py-0"
-                        >
-                          {link.label}
-                        </a>
-                      </li>
-                    );
-                  })}
-              </ul>
-            </div>
-
-            {/* Kolumn 2 - Information */}
-            <div className="space-y-4">
-              <h4 className="text-xs tracking-widest uppercase font-semibold text-[#242D27]">
-                Information
-              </h4>
-              <ul className="space-y-2.5 text-sm">
-                {infoLinks
-                  .filter((link) => link.enabled !== false)
-                  .map((link, idx) => {
-                    const resolved = resolveLinkUrl(link.href);
-                    return (
-                      <li key={idx}>
-                        <a
-                          href={resolved.url}
-                          target={resolved.isExternal ? '_blank' : undefined}
-                          rel={resolved.isExternal ? 'noreferrer' : undefined}
-                          onClick={(e) => {
-                            if (!resolved.isExternal && resolved.route && !isModifiedClick(e)) {
-                              e.preventDefault();
-                              onNavigate(resolved.route);
-                            }
-                          }}
-                          className="text-[#66726A] hover:text-[#242D27] transition-colors focus:outline-none cursor-pointer inline-block py-0.5 sm:py-0"
-                        >
-                          {link.label}
-                        </a>
-                      </li>
-                    );
-                  })}
-              </ul>
+            <div className="flex items-center space-x-4 pt-1">
+              {instagramEnabled && (
+                <a
+                  href={instagramUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-2 rounded-full bg-[#FAF8F5] text-[#242D27] hover:text-[#6B8E7B] hover:bg-[#FAF8F5]/80 transition-colors shadow-xs"
+                  aria-label={`Följ ${brandName} på Instagram`}
+                >
+                  <Instagram className="w-4 h-4" />
+                </a>
+              )}
+              {emailAddress && (
+                <a
+                  href={`mailto:${emailAddress}`}
+                  className="p-2 rounded-full bg-[#FAF8F5] text-[#242D27] hover:text-[#6B8E7B] hover:bg-[#FAF8F5]/80 transition-colors shadow-xs"
+                  aria-label={`Skicka e-post till ${brandName}`}
+                >
+                  <Mail className="w-4 h-4" />
+                </a>
+              )}
+              {instagramHandle && (
+                <span className="text-xs text-[#66726A] font-light">
+                  {instagramHandle}
+                </span>
+              )}
             </div>
           </div>
 
-          {/* Kolumn 3 - Kontakt & Följ (dold på mobil, visas på tablet/desktop) */}
-          <div className="hidden md:block space-y-4">
+          {/* Kolumn 1 - Sidor */}
+          <div className="space-y-4">
+            <h4 className="text-xs tracking-widest uppercase font-semibold text-[#242D27]">
+              Sidor
+            </h4>
+            <ul className="space-y-2.5 text-sm">
+              {pageLinks
+                .filter((link) => link.enabled !== false)
+                .map((link, idx) => {
+                  const resolved = resolveLinkUrl(link.href);
+                  return (
+                    <li key={idx}>
+                      <a
+                        href={resolved.url}
+                        target={resolved.isExternal ? '_blank' : undefined}
+                        rel={resolved.isExternal ? 'noreferrer' : undefined}
+                        onClick={(e) => {
+                          if (!resolved.isExternal && resolved.route && !isModifiedClick(e)) {
+                            e.preventDefault();
+                            onNavigate(resolved.route);
+                          }
+                        }}
+                        className="text-[#66726A] hover:text-[#242D27] transition-colors focus:outline-none cursor-pointer"
+                      >
+                        {link.label}
+                      </a>
+                    </li>
+                  );
+                })}
+            </ul>
+          </div>
+
+          {/* Kolumn 2 - Information */}
+          <div className="space-y-4">
+            <h4 className="text-xs tracking-widest uppercase font-semibold text-[#242D27]">
+              Information
+            </h4>
+            <ul className="space-y-2.5 text-sm">
+              {infoLinks
+                .filter((link) => link.enabled !== false)
+                .map((link, idx) => {
+                  const resolved = resolveLinkUrl(link.href);
+                  return (
+                    <li key={idx}>
+                      <a
+                        href={resolved.url}
+                        target={resolved.isExternal ? '_blank' : undefined}
+                        rel={resolved.isExternal ? 'noreferrer' : undefined}
+                        onClick={(e) => {
+                          if (!resolved.isExternal && resolved.route && !isModifiedClick(e)) {
+                            e.preventDefault();
+                            onNavigate(resolved.route);
+                          }
+                        }}
+                        className="text-[#66726A] hover:text-[#242D27] transition-colors focus:outline-none cursor-pointer"
+                      >
+                        {link.label}
+                      </a>
+                    </li>
+                  );
+                })}
+            </ul>
+          </div>
+
+          {/* Kolumn 3 - Kontakt & Följ */}
+          <div className="space-y-4">
             <h4 className="text-xs tracking-widest uppercase font-semibold text-[#242D27]">
               Kontakt & Följ
             </h4>
@@ -248,7 +273,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="footer-bottom-bar pt-8 border-t border-[#E6DFD3] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#66726A]">
+        <div className="pt-8 border-t border-[#E6DFD3] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#66726A]">
           <div className="flex items-center gap-4">
             <p>{copyright}</p>
             {showAdminLink && (
