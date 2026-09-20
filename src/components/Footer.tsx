@@ -92,8 +92,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     );
   }
 
-  const instagramHandle = settings.instagram || '@sagomaskan';
-
   return (
     <footer id="main-footer" className="bg-[#F3EFE8] text-[#242D27] border-t border-[#E6DFD3] pt-16 pb-12 mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -132,34 +130,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 {description}
               </p>
             )}
-
-            <div className="flex items-center space-x-4 pt-1">
-              {instagramEnabled && (
-                <a
-                  href={instagramUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-2 rounded-full bg-[#FAF8F5] text-[#242D27] hover:text-[#6B8E7B] hover:bg-[#FAF8F5]/80 transition-colors shadow-xs"
-                  aria-label={`Följ ${brandName} på Instagram`}
-                >
-                  <Instagram className="w-4 h-4" />
-                </a>
-              )}
-              {emailAddress && (
-                <a
-                  href={`mailto:${emailAddress}`}
-                  className="p-2 rounded-full bg-[#FAF8F5] text-[#242D27] hover:text-[#6B8E7B] hover:bg-[#FAF8F5]/80 transition-colors shadow-xs"
-                  aria-label={`Skicka e-post till ${brandName}`}
-                >
-                  <Mail className="w-4 h-4" />
-                </a>
-              )}
-              {instagramHandle && (
-                <span className="text-xs text-[#66726A] font-light">
-                  {instagramHandle}
-                </span>
-              )}
-            </div>
           </div>
 
           {/* Kolumn 1 & 2: Sidor & Information (balanserad 2-kolumnscontainer på mobil, upplöst på tablet & desktop via md:contents) */}
