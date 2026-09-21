@@ -66,23 +66,23 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     return (
       <footer id="main-footer" className="bg-[#F3EFE8] text-[#242D27] border-t border-[#E6DFD3] pt-16 pb-12 mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12 mb-16">
-            <div className="lg:col-span-2 space-y-4">
-              <div className="h-8 bg-[#E6DFD3]/50 animate-pulse rounded-md w-48" />
-              <div className="h-4 bg-[#E6DFD3]/40 animate-pulse rounded-md w-64" />
+          <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-5 gap-x-3 sm:gap-x-6 md:gap-x-10 lg:gap-x-12 gap-y-10 lg:gap-y-12 mb-16">
+            <div className="col-span-3 md:col-span-1 lg:col-span-2 space-y-4">
+              <div className="h-8 bg-[#E6DFD3]/50 animate-pulse rounded-md w-48 max-w-full" />
+              <div className="h-4 bg-[#E6DFD3]/40 animate-pulse rounded-md w-64 max-w-full" />
             </div>
-            <div className="space-y-3">
-              <div className="h-5 bg-[#E6DFD3]/50 animate-pulse rounded-md w-24" />
-              <div className="h-4 bg-[#E6DFD3]/30 animate-pulse rounded-md w-32" />
-              <div className="h-4 bg-[#E6DFD3]/30 animate-pulse rounded-md w-28" />
+            <div className="col-span-1 space-y-3 min-w-0">
+              <div className="h-5 bg-[#E6DFD3]/50 animate-pulse rounded-md w-16 max-w-full" />
+              <div className="h-4 bg-[#E6DFD3]/30 animate-pulse rounded-md w-20 max-w-full" />
+              <div className="h-4 bg-[#E6DFD3]/30 animate-pulse rounded-md w-14 max-w-full" />
             </div>
-            <div className="space-y-3">
-              <div className="h-5 bg-[#E6DFD3]/50 animate-pulse rounded-md w-24" />
-              <div className="h-4 bg-[#E6DFD3]/30 animate-pulse rounded-md w-32" />
+            <div className="col-span-1 space-y-3 min-w-0">
+              <div className="h-5 bg-[#E6DFD3]/50 animate-pulse rounded-md w-16 max-w-full" />
+              <div className="h-4 bg-[#E6DFD3]/30 animate-pulse rounded-md w-20 max-w-full" />
             </div>
-            <div className="space-y-3">
-              <div className="h-5 bg-[#E6DFD3]/50 animate-pulse rounded-md w-24" />
-              <div className="h-4 bg-[#E6DFD3]/30 animate-pulse rounded-md w-32" />
+            <div className="col-span-1 space-y-3 min-w-0">
+              <div className="h-5 bg-[#E6DFD3]/50 animate-pulse rounded-md w-16 max-w-full" />
+              <div className="h-4 bg-[#E6DFD3]/30 animate-pulse rounded-md w-20 max-w-full" />
             </div>
           </div>
         </div>
@@ -96,11 +96,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     <footer id="main-footer" className="bg-[#F3EFE8] text-[#242D27] border-t border-[#E6DFD3] pt-16 pb-12 mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Main Grid: 4 columns (Brand + 3 specified link columns) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12 mb-16">
+        {/* Main Grid: Mobile (Brand full-width, then 3 columns), Tablet (2 cols), Desktop (5 cols) */}
+        <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-5 gap-x-3 sm:gap-x-6 md:gap-x-10 lg:gap-x-12 gap-y-10 lg:gap-y-12 mb-16">
           
-          {/* Brand Presentation (2 cols) */}
-          <div className="lg:col-span-2 space-y-4">
+          {/* Brand Presentation (full width on mobile, 1 col on md, 2 cols on lg) */}
+          <div className="col-span-3 md:col-span-1 lg:col-span-2 space-y-4">
             <a
               href={getPageUrl('home')}
               onClick={(e) => {
@@ -161,7 +161,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           </div>
 
           {/* Kolumn 1 - Sidor */}
-          <div className="space-y-4">
+          <div className="col-span-1 space-y-4 min-w-0">
             <h4 className="text-xs tracking-widest uppercase font-semibold text-[#242D27]">
               Sidor
             </h4>
@@ -182,7 +182,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                             onNavigate(resolved.route);
                           }
                         }}
-                        className="text-[#66726A] hover:text-[#242D27] transition-colors focus:outline-none cursor-pointer"
+                        className="text-[#66726A] hover:text-[#242D27] transition-colors focus:outline-none cursor-pointer block leading-snug"
                       >
                         {link.label}
                       </a>
@@ -193,7 +193,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           </div>
 
           {/* Kolumn 2 - Information */}
-          <div className="space-y-4">
+          <div className="col-span-1 space-y-4 min-w-0">
             <h4 className="text-xs tracking-widest uppercase font-semibold text-[#242D27]">
               Information
             </h4>
@@ -214,7 +214,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                             onNavigate(resolved.route);
                           }
                         }}
-                        className="text-[#66726A] hover:text-[#242D27] transition-colors focus:outline-none cursor-pointer"
+                        className="text-[#66726A] hover:text-[#242D27] transition-colors focus:outline-none cursor-pointer block leading-snug"
                       >
                         {link.label}
                       </a>
@@ -225,7 +225,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           </div>
 
           {/* Kolumn 3 - Kontakt & Följ */}
-          <div className="space-y-4">
+          <div className="col-span-1 space-y-4 min-w-0">
             <h4 className="text-xs tracking-widest uppercase font-semibold text-[#242D27]">
               Kontakt & Följ
             </h4>
@@ -236,10 +236,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                     href={instagramUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-[#66726A] hover:text-[#242D27] transition-colors inline-flex items-center gap-1.5"
+                    className="text-[#66726A] hover:text-[#242D27] transition-colors inline-flex items-center gap-1.5 min-w-0"
                   >
-                    <Instagram className="w-3.5 h-3.5" />
-                    <span>{instagramLabel}</span>
+                    <Instagram className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">{instagramLabel}</span>
                   </a>
                 </li>
               )}
@@ -253,18 +253,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                         onNavigate('contact');
                       }
                     }}
-                    className="text-[#66726A] hover:text-[#242D27] transition-colors focus:outline-none inline-flex items-center gap-1.5 cursor-pointer"
+                    className="text-[#66726A] hover:text-[#242D27] transition-colors focus:outline-none inline-flex items-center gap-1.5 cursor-pointer min-w-0"
                   >
-                    <Mail className="w-3.5 h-3.5" />
-                    <span>{contactLabel}</span>
+                    <Mail className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">{contactLabel}</span>
                   </a>
-                </li>
-              )}
-              {emailAddress && (
-                <li>
-                  <p className="text-xs text-[#66726A] pt-2 font-light">
-                    {emailLabel}: <a href={`mailto:${emailAddress}`} className="hover:underline">{emailAddress}</a>
-                  </p>
                 </li>
               )}
             </ul>
