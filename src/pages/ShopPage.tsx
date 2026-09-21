@@ -177,17 +177,17 @@ export const ShopPage: React.FC<ShopPageProps> = ({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8 sm:space-y-10">
       
-      {/* Page Header */}
-      <div className="text-center max-w-2xl mx-auto space-y-3">
-        <h1 className="font-serif text-4xl sm:text-5xl text-[#242D27] font-medium tracking-tight">
+      {/* Page Header (Clean, airy, elegant with consistent brand details) */}
+      <div className="text-center max-w-2xl mx-auto space-y-3 pt-2">
+        <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-[#242D27] font-medium tracking-tight">
           Shop
         </h1>
-        <p className="text-base sm:text-lg text-[#66726A] font-light leading-relaxed">
+        <p className="text-sm sm:text-base text-[#66726A] font-light leading-relaxed">
           Handgjorda virkade alster för små och stora.
         </p>
-        <div className="inline-block pt-1">
+        <div className="inline-block pt-0.5">
           <p className="text-xs text-[#526E5F] bg-[#EFF4F1] border border-[#6B8E7B]/25 rounded-full px-4 py-1.5 font-light">
             Detta är en beställningsförfrågan. Ingen betalning sker här på hemsidan.
           </p>
@@ -195,7 +195,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
       </div>
 
       {/* Category Pills Navigation (Hämtas dynamiskt från Firestore) */}
-      <div className="flex items-center justify-start sm:justify-center overflow-x-auto no-scrollbar py-2 gap-2 border-b border-[#E6DFD3] pb-6">
+      <div className="flex items-center justify-start sm:justify-center overflow-x-auto no-scrollbar py-2 gap-2 border-b border-[#E6DFD3] pb-5">
         {categoryTabs.map((cat) => {
           const isActive =
             activeCategory === cat.name ||
@@ -216,10 +216,10 @@ export const ShopPage: React.FC<ShopPageProps> = ({
                   onSelectCategory(cat.name);
                 }
               }}
-              className={`px-4 py-2 rounded-full text-xs font-medium tracking-wide whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-[#6B8E7B] cursor-pointer inline-block ${
+              className={`px-4 py-2 rounded-full text-xs font-medium tracking-wide whitespace-nowrap transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#6B8E7B] cursor-pointer inline-block border ${
                 isActive
-                  ? 'bg-[#242D27] text-[#FAF8F5] shadow-xs'
-                  : 'bg-[#F3EFE8] text-[#66726A] hover:bg-[#E6DFD3] hover:text-[#242D27]'
+                  ? 'bg-[#242D27] text-[#FAF8F5] border-[#242D27] shadow-xs'
+                  : 'bg-[#FAF8F5] border-[#E6DFD3] text-[#66726A] hover:bg-[#F3EFE8] hover:text-[#242D27] hover:border-[#6B8E7B]/40'
               }`}
             >
               {cat.label}
@@ -229,7 +229,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
       </div>
 
       {/* Filter and Sorting Control Bar */}
-      <div className="bg-[#FAF8F5] border border-[#E6DFD3] rounded-2xl p-4 sm:p-5 space-y-4">
+      <div className="bg-[#FAF8F5] border border-[#E6DFD3] rounded-2xl sm:rounded-3xl p-4 sm:p-5 space-y-4 shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           
           {/* Målgrupp / Åldersfilter */}
@@ -237,7 +237,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
             <span className="text-xs text-[#66726A] font-medium tracking-wide">
               Målgrupp:
             </span>
-            <div className="inline-flex rounded-xl bg-[#F3EFE8] p-1 gap-1">
+            <div className="inline-flex rounded-xl bg-[#F3EFE8] p-1 gap-1 border border-[#E6DFD3]/60">
               {availableAgeGroups.map((ag) => {
                 const isActive = effectiveAge === ag;
                 return (
@@ -245,7 +245,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
                     key={ag}
                     id={`shop-age-filter-${ag}`}
                     onClick={() => setSelectedAge(ag as any)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
                       isActive
                         ? 'bg-[#FAF8F5] text-[#242D27] shadow-xs font-semibold'
                         : 'text-[#66726A] hover:text-[#242D27]'
@@ -274,12 +274,12 @@ export const ShopPage: React.FC<ShopPageProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Sök i sortimentet..."
-                className="w-full pl-8 pr-7 py-2 rounded-xl bg-[#F3EFE8] border border-transparent focus:border-[#6B8E7B] text-xs text-[#242D27] placeholder-[#66726A]/60 focus:outline-none"
+                className="w-full pl-8 pr-7 py-2 rounded-xl bg-[#F3EFE8] border border-transparent focus:border-[#6B8E7B] text-xs text-[#242D27] placeholder-[#66726A]/60 focus:outline-none transition-colors"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#66726A] hover:text-[#242D27]"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#66726A] hover:text-[#242D27] cursor-pointer"
                   aria-label="Rensa sökning"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -326,7 +326,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
           {hasActiveFilters && (
             <button
               onClick={handleResetFilters}
-              className="text-[#6B8E7B] hover:text-[#242D27] underline transition-colors"
+              className="text-[#6B8E7B] hover:text-[#242D27] underline transition-colors cursor-pointer"
             >
               Återställ filter
             </button>
@@ -336,7 +336,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
 
       {/* Product Grid */}
       {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6 lg:gap-7">
           {filteredProducts.map((product) => (
             <ProductCard
               key={product.id}
@@ -347,8 +347,8 @@ export const ShopPage: React.FC<ShopPageProps> = ({
         </div>
       ) : (
         /* Empty State */
-        <div className="bg-[#FAF8F5] border border-[#E6DFD3] rounded-2xl py-16 px-6 text-center space-y-4 max-w-lg mx-auto">
-          <p className="font-serif text-2xl text-[#242D27]">
+        <div className="bg-[#FAF8F5] border border-[#E6DFD3] rounded-2xl sm:rounded-3xl py-14 sm:py-16 px-6 text-center space-y-4 max-w-lg mx-auto shadow-xs">
+          <p className="font-serif text-2xl text-[#242D27] font-medium">
             {products.length === 0 ? 'Inga produkter publicerade än' : 'Inga produkter matchade dina filter'}
           </p>
           <p className="text-sm text-[#66726A] font-light leading-relaxed">
@@ -359,7 +359,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
           {products.length > 0 && (
             <button
               onClick={handleResetFilters}
-              className="px-6 py-2.5 rounded-xl bg-[#242D27] text-[#FAF8F5] text-xs font-medium hover:bg-[#6B8E7B] transition-colors"
+              className="px-6 py-2.5 rounded-xl bg-[#242D27] text-[#FAF8F5] text-xs font-medium hover:bg-[#6B8E7B] transition-colors cursor-pointer shadow-xs"
             >
               Visa alla produkter
             </button>
