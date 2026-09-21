@@ -46,9 +46,11 @@ export const HomePage: React.FC<HomePageProps> = ({
   };
 
   // Dynamiskt val av Hero-produkt från siteSettings/products
+  const isHeroProductEnabled = settings?.heroProductEnabled !== undefined ? settings.heroProductEnabled : true;
   const selectedProductId = settings?.heroProductId;
 
   const heroProduct = useMemo(() => {
+    if (!isHeroProductEnabled) return null;
     if (!allProducts || allProducts.length === 0) return null;
 
     if (selectedProductId) {
@@ -60,7 +62,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
     // Fallback till första publicerade produkten
     return allProducts.find((p) => p.isPublished !== false) || allProducts[0] || null;
-  }, [allProducts, selectedProductId]);
+  }, [allProducts, selectedProductId, isHeroProductEnabled]);
 
   const heroImageSrc = useMemo(() => {
     if (heroProduct) {

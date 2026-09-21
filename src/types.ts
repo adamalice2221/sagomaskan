@@ -212,6 +212,7 @@ export interface SiteSettings {
   heroImage?: string;
   heroProductId?: string;
   heroProductBadge?: string;
+  heroProductEnabled?: boolean;
   aboutText?: string;
   aboutImageUrl?: string;
   updatedAt?: string;

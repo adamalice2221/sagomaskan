@@ -89,6 +89,7 @@
         "heroImage": { "type": "string", "maxLength": 500000 },
         "heroProductId": { "type": "string", "maxLength": 128 },
         "heroProductBadge": { "type": "string", "maxLength": 100 },
+        "heroProductEnabled": { "type": "boolean" },
         "aboutText": { "type": "string", "maxLength": 2000 },
         "updatedAt": { "type": "string" }
       }
