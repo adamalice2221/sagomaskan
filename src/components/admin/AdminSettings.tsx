@@ -55,8 +55,8 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
 
   const [email, setEmail] = useState(settings.email || 'hello@sagomaskan.se');
   const [instagram, setInstagram] = useState(settings.instagram || '@sagomaskan');
-  const [heroTitle, setHeroTitle] = useState(settings.heroTitle || 'Handgjorda virkade produkter med kärlek');
-  const [heroSubtitle, setHeroSubtitle] = useState(settings.heroSubtitle || 'Mjuka detaljer för både stora och små i nordisk, minimalistisk design.');
+  const [heroTitle, setHeroTitle] = useState(settings.heroTitle || 'Där garn blir till små berättelser');
+  const [heroSubtitle, setHeroSubtitle] = useState(settings.heroSubtitle || 'Mjuk design, färg och fantasi – skapat för hand.');
   const [heroProductId, setHeroProductId] = useState(settings.heroProductId || '');
   const [heroProductBadge, setHeroProductBadge] = useState(settings.heroProductBadge || 'Unikt hantverk');
   const [heroProductEnabled, setHeroProductEnabled] = useState<boolean>(() =>

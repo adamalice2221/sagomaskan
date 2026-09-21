@@ -34,8 +34,8 @@ const SETTINGS_COLLECTION = 'siteSettings';
 export const DEFAULT_SETTINGS: SiteSettings = {
   email: 'hello@sagomaskan.se',
   instagram: '@sagomaskan',
-  heroTitle: 'Handgjorda virkade produkter med kärlek',
-  heroSubtitle: 'Mjuka detaljer för både stora och små i nordisk, minimalistisk design.',
+  heroTitle: 'Där garn blir till små berättelser',
+  heroSubtitle: 'Mjuk design, färg och fantasi – skapat för hand.',
   heroImage: '',
   heroProductId: '',
   heroProductBadge: 'Unikt hantverk',

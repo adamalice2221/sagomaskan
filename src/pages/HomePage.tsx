@@ -83,97 +83,105 @@ export const HomePage: React.FC<HomePageProps> = ({
   return (
     <div className="space-y-16 sm:space-y-24">
       
-      {/* 1. HERO SECTION */}
-      <section id="hero-section" className="relative pt-4 sm:pt-6 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative rounded-3xl overflow-hidden border border-[#E6DFD3] min-h-[500px] sm:min-h-[560px] lg:min-h-[620px] flex items-center shadow-xs bg-[#FAF8F5]">
-            {/* Background image layer covering the entire hero box */}
-            {heroImageSrc ? (
-              <div className="absolute inset-0 z-0">
-                <img
-                  src={heroImageSrc}
-                  alt={heroProductName}
-                  className="w-full h-full object-cover object-center lg:object-right"
-                />
-                {/* Subtle gradient & wash overlay for flawless legibility and airy boutique warmth */}
-                <div
-                  className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-[#FAF8F5]/95 via-[#FAF8F5]/85 sm:via-[#FAF8F5]/80 to-[#FAF8F5]/30"
-                  aria-hidden="true"
-                />
-              </div>
-            ) : (
-              <div className="absolute inset-0 z-0 bg-[#F3EFE8]/70 flex items-center justify-center">
-                <div className="text-center text-[#66726A] p-6">
-                  <Scissors className="w-10 h-10 text-[#6B8E7B] mx-auto mb-2 opacity-60" />
-                  <p className="text-sm font-medium">Välkommen till Sagomaskan</p>
-                </div>
+      {/* 1. HERO SECTION - FULL-WIDTH EDGE-TO-EDGE */}
+      <section id="hero-section" className="relative w-full overflow-hidden flex items-center min-h-[500px] sm:min-h-[540px] lg:min-h-[580px] bg-[#FAF8F5]">
+        {/* Background image layer covering the entire viewport width */}
+        {heroImageSrc ? (
+          <div className="absolute inset-0 z-0 w-full h-full">
+            <img
+              src={heroImageSrc}
+              alt={heroProductName}
+              className="w-full h-full object-cover object-[75%_center] sm:object-[right_center] lg:object-right"
+            />
+            {/* Subtle soft transparent gradient overlay on the left for effortless text contrast while keeping the right-hand motif clear */}
+            <div
+              className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-[#FAF8F5]/95 via-[#FAF8F5]/85 sm:via-[#FAF8F5]/75 via-45% sm:via-50% to-transparent"
+              aria-hidden="true"
+            />
+          </div>
+        ) : (
+          <div className="absolute inset-0 z-0 bg-[#F3EFE8]/70 flex items-center justify-center">
+            <div className="text-center text-[#66726A] p-6">
+              <Scissors className="w-10 h-10 text-[#6B8E7B] mx-auto mb-2 opacity-60" />
+              <p className="text-sm font-medium">Välkommen till Sagomaskan</p>
+            </div>
+          </div>
+        )}
+
+        {/* Content overlay container aligned within max-w-7xl */}
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+          <div className="max-w-xl lg:max-w-2xl text-left">
+            {/* Optional badge */}
+            {isHeroProductEnabled && heroBadgeText && (
+              <div className="inline-flex items-center gap-2 bg-[#242D27]/90 backdrop-blur-xs text-[#FAF8F5] px-3.5 py-1.5 rounded-full text-xs font-light mb-5 sm:mb-6 shadow-xs">
+                <Heart className="w-3.5 h-3.5 text-[#6B8E7B] fill-[#6B8E7B]" />
+                <span>{heroBadgeText}</span>
               </div>
             )}
 
-            {/* Content overlay container (primarily positioned on the left) */}
-            <div className="relative z-10 w-full px-6 py-12 sm:px-12 sm:py-16 lg:px-16 max-w-2xl text-left">
-              {/* Optional badge */}
-              {heroBadgeText && (
-                <div className="inline-flex items-center gap-2 bg-[#242D27]/90 backdrop-blur-xs text-[#FAF8F5] px-3.5 py-1.5 rounded-full text-xs font-light mb-6 shadow-xs">
-                  <Heart className="w-3.5 h-3.5 text-[#6B8E7B] fill-[#6B8E7B]" />
-                  <span>{heroBadgeText}</span>
-                </div>
+            <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[#242D27] leading-[1.18] font-medium tracking-tight">
+              {settingsLoaded ? (
+                <span>
+                  {settings?.heroTitle && settings.heroTitle !== 'Handgjorda virkade produkter med kärlek'
+                    ? settings.heroTitle
+                    : 'Där garn blir till små berättelser'}
+                </span>
+              ) : (
+                <span className="inline-block w-full max-w-md h-12 sm:h-16 bg-[#E6DFD3]/40 animate-pulse rounded-xl" />
               )}
+            </h1>
 
-              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[#242D27] leading-[1.18] font-medium tracking-tight">
-                {settingsLoaded ? (
-                  <span>{settings?.heroTitle || 'Handgjorda virkade produkter med kärlek'}</span>
-                ) : (
-                  <span className="inline-block w-full max-w-md h-12 sm:h-16 bg-[#E6DFD3]/40 animate-pulse rounded-xl" />
-                )}
-              </h1>
+            <p className="mt-4 sm:mt-5 text-base sm:text-lg text-[#526056] font-normal max-w-xl leading-relaxed">
+              {settingsLoaded ? (
+                <span>
+                  {settings?.heroSubtitle &&
+                  settings.heroSubtitle !== 'Mjuka detaljer för både stora och små i nordisk, minimalistisk design.' &&
+                  settings.heroSubtitle !== 'Unika virkade produkter, skapade för hand med omsorg och glädje.'
+                    ? settings.heroSubtitle
+                    : 'Mjuk design, färg och fantasi – skapat för hand.'}
+                </span>
+              ) : (
+                <span className="inline-block w-full max-w-sm h-6 bg-[#E6DFD3]/35 animate-pulse rounded-lg" />
+              )}
+            </p>
 
-              <p className="mt-5 text-base sm:text-lg text-[#526056] font-normal max-w-xl leading-relaxed">
-                {settingsLoaded ? (
-                  <span>{settings?.heroSubtitle || 'Unika virkade produkter, skapade för hand med omsorg och glädje.'}</span>
-                ) : (
-                  <span className="inline-block w-full max-w-sm h-6 bg-[#E6DFD3]/35 animate-pulse rounded-lg" />
-                )}
-              </p>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 sm:gap-4 pt-6">
+              <a
+                id="hero-explore-shop-btn"
+                href={getPageUrl('shop')}
+                onClick={(e) => {
+                  if (!isModifiedClick(e)) {
+                    e.preventDefault();
+                    onNavigate('shop');
+                  }
+                }}
+                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#242D27] text-[#FAF8F5] text-sm font-medium tracking-wide hover:bg-[#6B8E7B] transition-all flex items-center justify-center gap-3 shadow-md hover:shadow-lg group cursor-pointer"
+              >
+                <span>Utforska shoppen →</span>
+              </a>
 
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-6">
-                <a
-                  id="hero-explore-shop-btn"
-                  href={getPageUrl('shop')}
-                  onClick={(e) => {
-                    if (!isModifiedClick(e)) {
-                      e.preventDefault();
-                      onNavigate('shop');
-                    }
-                  }}
-                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#242D27] text-[#FAF8F5] text-sm font-medium tracking-wide hover:bg-[#6B8E7B] transition-all flex items-center justify-center gap-3 shadow-md hover:shadow-lg group cursor-pointer"
-                >
-                  <span>Utforska shoppen →</span>
-                </a>
+              <a
+                id="hero-about-craft-btn"
+                href={getPageUrl('about')}
+                onClick={(e) => {
+                  if (!isModifiedClick(e)) {
+                    e.preventDefault();
+                    onNavigate('about');
+                  }
+                }}
+                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#FAF8F5]/90 hover:bg-[#FAF8F5] border border-[#D5CDC0] text-[#242D27] text-sm font-medium tracking-wide transition-all flex items-center justify-center gap-2 hover:border-[#6B8E7B] cursor-pointer shadow-xs"
+              >
+                <span>Om hantverket</span>
+              </a>
+            </div>
 
-                <a
-                  id="hero-about-craft-btn"
-                  href={getPageUrl('about')}
-                  onClick={(e) => {
-                    if (!isModifiedClick(e)) {
-                      e.preventDefault();
-                      onNavigate('about');
-                    }
-                  }}
-                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#FAF8F5]/90 hover:bg-[#FAF8F5] border border-[#D5CDC0] text-[#242D27] text-sm font-medium tracking-wide transition-all flex items-center justify-center gap-2 hover:border-[#6B8E7B] cursor-pointer shadow-xs"
-                >
-                  <span>Om hantverket</span>
-                </a>
-              </div>
-
-              {/* Informational reassurance banner about beställningsförfrågan */}
-              <div className="pt-6">
-                <div className="p-3.5 rounded-xl bg-[#FAF8F5]/90 backdrop-blur-xs border border-[#6B8E7B]/30 text-xs text-[#445A4D] flex items-start gap-2.5 max-w-xl shadow-xs">
-                  <Info className="w-4 h-4 text-[#6B8E7B] shrink-0 mt-0.5" />
-                  <p className="leading-relaxed">
-                    <strong>En beställningsförfrågan innebär ingen betalning.</strong> Jag återkommer personligen med information om produkten, pris, eventuell frakt och betalning.
-                  </p>
-                </div>
+            {/* Informational reassurance banner about beställningsförfrågan */}
+            <div className="pt-6">
+              <div className="p-3.5 rounded-xl bg-[#FAF8F5]/90 backdrop-blur-xs border border-[#6B8E7B]/30 text-xs text-[#445A4D] flex items-start gap-2.5 max-w-xl shadow-xs">
+                <Info className="w-4 h-4 text-[#6B8E7B] shrink-0 mt-0.5" />
+                <p className="leading-relaxed">
+                  <strong>En beställningsförfrågan innebär ingen betalning.</strong> Jag återkommer personligen med information om produkten, pris, eventuell frakt och betalning.
+                </p>
               </div>
             </div>
           </div>
