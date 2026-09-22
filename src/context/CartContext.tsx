@@ -132,7 +132,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
 
     // Exakt feedback som efterfrågas i kraven
-    showToast('Tillagd i förfrågelistan');
+    showToast('Tillagd i önskelistan');
   };
 
   const removeFromCart = (productId: string, color?: string, size?: string) => {
