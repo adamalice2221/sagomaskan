@@ -88,9 +88,9 @@ export const HomePage: React.FC<HomePageProps> = ({
             
             {/* Left Column: Typography & CTAs */}
             <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-center lg:text-left">
-              <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl text-[#242D27] leading-[1.15] font-medium tracking-tight min-h-[2.3em] flex flex-col justify-center">
+              <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl text-[#3B2F2F] leading-[1.15] font-medium tracking-tight min-h-[2.3em] flex flex-col justify-center">
                 {settingsLoaded ? (
-                  <span>{settings?.heroTitle || 'Handgjorda virkade produkter med kärlek'}</span>
+                  <span>{settings?.heroTitle || 'Där garn blir till små berättelser'}</span>
                 ) : (
                   <span className="inline-block w-full max-w-xl h-12 sm:h-16 bg-[#E6DFD3]/40 animate-pulse rounded-xl mx-auto lg:mx-0" />
                 )}
