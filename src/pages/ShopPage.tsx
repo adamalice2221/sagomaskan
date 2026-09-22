@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { SlidersHorizontal, ArrowUpDown, Search, X, Tag } from 'lucide-react';
+import { SlidersHorizontal, ArrowUpDown, Search, X } from 'lucide-react';
 import { Product, ProductCategory, SortOption, AgeGroup, Category } from '../types';
 import { ProductCard } from '../components/ProductCard';
 import { useData } from '../context/DataContext';
@@ -35,13 +35,11 @@ export const ShopPage: React.FC<ShopPageProps> = ({
       .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
 
     return [
-      { id: 'Alla', name: 'Alla', label: 'Alla', image: undefined, description: undefined, targetAgeGroups: undefined },
+      { id: 'Alla', name: 'Alla', label: 'Alla', targetAgeGroups: undefined },
       ...activeCats.map((c) => ({
         id: c.id,
         name: c.name,
         label: c.name,
-        image: c.image,
-        description: c.description,
         targetAgeGroups: c.targetAgeGroups
       }))
     ];
@@ -196,92 +194,39 @@ export const ShopPage: React.FC<ShopPageProps> = ({
         </div>
       </div>
 
-      {/* Category Section: Utforska efter kategori (Exakt samma bildbaserade kort som på startsidan) */}
-      {categoryTabs.length > 0 && (
-        <section id="categories-section" className="space-y-6">
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <p className="text-xs uppercase tracking-[0.2em] text-[#6B8E7B] font-semibold">
-              Kollektionen
-            </p>
-            <h2 className="font-serif text-3xl sm:text-4xl text-[#242D27]">
-              Utforska efter kategori
-            </h2>
-            <p className="text-sm text-[#66726A] font-light">
-              Välj bland våra handvirkade produkter i tidlösa modeller och lugna färgskalor.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 lg:gap-5 pb-2">
-            {categoryTabs
-              .filter((category) => category.id !== 'Alla' && category.name !== 'Alla')
-              .map((category) => {
-              const categoryKey = category.name || category.id;
-              const isActive =
-                activeCategory === category.name ||
-                activeCategory === category.id ||
-                (activeCategory !== 'Alla' && (
-                  activeCategory.toLowerCase() === (category.name || '').toLowerCase() ||
-                  activeCategory.toLowerCase() === (category.id || '').toLowerCase()
-                ));
-              const categoryUrl = getPageUrl('shop', categoryKey !== 'Alla' ? { category: categoryKey } : undefined);
-
-              return (
-                <a
-                  key={category.id}
-                  id={`category-card-${category.id}`}
-                  href={categoryUrl}
-                  onClick={(e) => {
-                    if (!isModifiedClick(e)) {
-                      e.preventDefault();
-                      onSelectCategory(categoryKey);
-                    }
-                  }}
-                  className={`group flex flex-col items-center text-center cursor-pointer p-3 sm:p-4 rounded-2xl transition-all duration-300 block border ${
-                    isActive
-                      ? 'bg-[#F3EFE8] border-[#6B8E7B] shadow-xs'
-                      : 'hover:bg-[#F3EFE8]/70 border-transparent'
-                  }`}
-                >
-                  {/* Circular image holder */}
-                  <div
-                    className={`relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mb-3.5 border-2 transition-all bg-[#FAF8F5] flex items-center justify-center p-1.5 sm:p-2 ${
-                      isActive
-                        ? 'border-[#6B8E7B] shadow-md ring-2 ring-[#6B8E7B]/30'
-                        : 'border-[#E6DFD3] group-hover:border-[#6B8E7B] group-hover:shadow-md'
-                    }`}
-                  >
-                    {category.image ? (
-                      <img
-                        src={category.image}
-                        alt={category.name}
-                        className="w-full h-full object-contain object-center transition-all duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full rounded-full bg-[#F3EFE8] flex items-center justify-center text-[#6B8E7B]">
-                        <Tag className="w-6 h-6" />
-                      </div>
-                    )}
-                  </div>
-
-                  <h3
-                    className={`font-serif text-base font-medium transition-colors leading-tight ${
-                      isActive ? 'text-[#6B8E7B] font-semibold' : 'text-[#242D27] group-hover:text-[#6B8E7B]'
-                    }`}
-                  >
-                    {category.name}
-                  </h3>
-                  
-                  {category.description && (
-                    <p className="text-[11px] text-[#66726A] mt-1 line-clamp-1 font-light hidden sm:block">
-                      {category.description}
-                    </p>
-                  )}
-                </a>
-              );
-            })}
-          </div>
-        </section>
-      )}
+      {/* Category Pills Navigation (Hämtas dynamiskt från Firestore) */}
+      <div className="flex items-center justify-start sm:justify-center overflow-x-auto no-scrollbar py-2 gap-2 border-b border-[#E6DFD3] pb-5">
+        {categoryTabs.map((cat) => {
+          const isActive =
+            activeCategory === cat.name ||
+            activeCategory === cat.id ||
+            (activeCategory !== 'Alla' && (
+              activeCategory.toLowerCase() === cat.name.toLowerCase() ||
+              activeCategory.toLowerCase() === cat.id.toLowerCase()
+            ));
+          const catUrl = getPageUrl('shop', cat.name !== 'Alla' ? { category: cat.name } : undefined);
+          return (
+            <a
+              key={cat.id}
+              id={`shop-category-btn-${cat.id}`}
+              href={catUrl}
+              onClick={(e) => {
+                if (!isModifiedClick(e)) {
+                  e.preventDefault();
+                  onSelectCategory(cat.name);
+                }
+              }}
+              className={`px-4 py-2 rounded-full text-xs font-medium tracking-wide whitespace-nowrap transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#6B8E7B] cursor-pointer inline-block border ${
+                isActive
+                  ? 'bg-[#242D27] text-[#FAF8F5] border-[#242D27] shadow-xs'
+                  : 'bg-[#FAF8F5] border-[#E6DFD3] text-[#66726A] hover:bg-[#F3EFE8] hover:text-[#242D27] hover:border-[#6B8E7B]/40'
+              }`}
+            >
+              {cat.label}
+            </a>
+          );
+        })}
+      </div>
 
       {/* Filter and Sorting Control Bar */}
       <div className="bg-[#FAF8F5] border border-[#E6DFD3] rounded-2xl sm:rounded-3xl p-4 sm:p-5 space-y-4 shadow-xs">

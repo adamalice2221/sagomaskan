@@ -55,19 +55,10 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
 
   const [email, setEmail] = useState(settings.email || 'hello@sagomaskan.se');
   const [instagram, setInstagram] = useState(settings.instagram || '@sagomaskan');
-  const [heroTitle, setHeroTitle] = useState(settings.heroTitle || 'Där garn blir till små berättelser');
-  const [heroSubtitle, setHeroSubtitle] = useState(settings.heroSubtitle || 'Mjuk design, färg och fantasi – skapat för hand.');
+  const [heroTitle, setHeroTitle] = useState(settings.heroTitle || 'Handgjorda virkade produkter med kärlek');
+  const [heroSubtitle, setHeroSubtitle] = useState(settings.heroSubtitle || 'Mjuka detaljer för både stora och små i nordisk, minimalistisk design.');
   const [heroProductId, setHeroProductId] = useState(settings.heroProductId || '');
   const [heroProductBadge, setHeroProductBadge] = useState(settings.heroProductBadge || 'Unikt hantverk');
-  const [heroProductEnabled, setHeroProductEnabled] = useState<boolean>(() =>
-    settings.heroProductEnabled !== undefined ? settings.heroProductEnabled : (DEFAULT_SETTINGS.heroProductEnabled ?? true)
-  );
-
-  useEffect(() => {
-    if (settings.heroProductEnabled !== undefined) {
-      setHeroProductEnabled(settings.heroProductEnabled);
-    }
-  }, [settings.heroProductEnabled]);
   
   // Distinguish between pure external user-entered web URLs and uploaded/internal assets
   const isExternalWebUrl = (url?: string) => {
@@ -570,7 +561,6 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
         heroImage: finalHero,
         heroProductId: heroProductId.trim(),
         heroProductBadge: heroProductBadge.trim(),
-        heroProductEnabled,
         aboutText: aboutText.trim(),
         aboutImageUrl: finalAboutImage,
         maintenanceMode: Boolean(maintenanceMode),
@@ -886,92 +876,41 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
               />
             </div>
 
-            {/* Hero Product Selection & Switch */}
+            {/* Hero Product Selection */}
             <div className="pt-3 border-t border-[#E6DFD3] space-y-4">
-              {/* Switch-sektion för Hero-produkt */}
-              <div className="bg-[#FAF8F5] border border-[#E6DFD3] rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-[#242D27]">
-                      Hero-produkt
-                    </span>
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                        heroProductEnabled
-                          ? 'bg-[#EBF3EE] text-[#526E5F] border border-[#CDE0D4]'
-                          : 'bg-[#F3EFE8] text-[#8C9890] border border-[#E6DFD3]'
-                      }`}
-                    >
-                      {heroProductEnabled ? 'På' : 'Av'}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-[#66726A] font-light max-w-xl leading-relaxed">
-                    Visa eller dölj möjligheten att använda en produkt automatiskt i Hero-kortet på startsidan.
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-3 shrink-0 self-start sm:self-center">
-                  <span className={`text-xs font-medium ${heroProductEnabled ? 'text-[#242D27]' : 'text-[#8C9890]'}`}>
-                    {heroProductEnabled ? 'På' : 'Av'}
-                  </span>
-                  <button
-                    type="button"
-                    id="hero-product-toggle"
-                    role="switch"
-                    aria-checked={heroProductEnabled}
-                    onClick={() => setHeroProductEnabled((prev) => !prev)}
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#6B8E7B] focus:ring-offset-2 ${
-                      heroProductEnabled ? 'bg-[#6B8E7B]' : 'bg-[#D4CBBF]'
-                    }`}
-                  >
-                    <span className="sr-only">Hero-produkt På eller Av</span>
-                    <span
-                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs ring-0 transition duration-200 ease-in-out ${
-                        heroProductEnabled ? 'translate-x-5' : 'translate-x-0'
-                      }`}
-                    />
-                  </button>
-                </div>
+              <div>
+                <label className="block text-xs font-medium text-[#242D27] mb-1">
+                  Hero-produkt i välkomstkortet
+                </label>
+                <p className="text-[11px] text-[#66726A] mb-2 font-light">
+                  Välj vilken produkt från din shop som ska visas i Hero-kortet på startsidan. Bild, namn, kategori och pris hämtas automatiskt.
+                </p>
+                <select
+                  value={heroProductId}
+                  onChange={(e) => setHeroProductId(e.target.value)}
+                  className="w-full bg-[#FAF8F5] border border-[#E6DFD3] rounded-xl px-4 py-2.5 text-xs text-[#242D27] focus:outline-none focus:ring-2 focus:ring-[#6B8E7B]"
+                >
+                  <option value="">-- Automatisk (Vald från shopen) --</option>
+                  {products.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} ({p.price} kr &bull; {p.category}) {p.isPublished === false ? '[Ej publicerad]' : ''}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              {/* NÄR SWITCHEN ÄR PÅ: Visa befintlig sektion och inställningar */}
-              {heroProductEnabled && (
-                <div className="space-y-4 pt-1 animate-in fade-in duration-200">
-                  <div>
-                    <label className="block text-xs font-medium text-[#242D27] mb-1">
-                      Hero-produkt i välkomstkortet
-                    </label>
-                    <p className="text-[11px] text-[#66726A] mb-2 font-light">
-                      Välj vilken produkt från din shop som ska visas i Hero-kortet på startsidan. Bild, namn, kategori och pris hämtas automatiskt.
-                    </p>
-                    <select
-                      value={heroProductId}
-                      onChange={(e) => setHeroProductId(e.target.value)}
-                      className="w-full bg-[#FAF8F5] border border-[#E6DFD3] rounded-xl px-4 py-2.5 text-xs text-[#242D27] focus:outline-none focus:ring-2 focus:ring-[#6B8E7B]"
-                    >
-                      <option value="">-- Automatisk (Vald från shopen) --</option>
-                      {products.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name} ({p.price} kr &bull; {p.category}) {p.isPublished === false ? '[Ej publicerad]' : ''}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-[#242D27] mb-1.5">
-                      Etikett på Hero-kortet
-                    </label>
-                    <input
-                      type="text"
-                      value={heroProductBadge}
-                      onChange={(e) => setHeroProductBadge(e.target.value)}
-                      placeholder="Unikt hantverk"
-                      className="w-full bg-[#FAF8F5] border border-[#E6DFD3] rounded-xl px-4 py-2.5 text-xs text-[#242D27] focus:outline-none focus:ring-2 focus:ring-[#6B8E7B]"
-                    />
-                  </div>
-                </div>
-              )}
+              <div>
+                <label className="block text-xs font-medium text-[#242D27] mb-1.5">
+                  Etikett på Hero-kortet
+                </label>
+                <input
+                  type="text"
+                  value={heroProductBadge}
+                  onChange={(e) => setHeroProductBadge(e.target.value)}
+                  placeholder="Unikt hantverk"
+                  className="w-full bg-[#FAF8F5] border border-[#E6DFD3] rounded-xl px-4 py-2.5 text-xs text-[#242D27] focus:outline-none focus:ring-2 focus:ring-[#6B8E7B]"
+                />
+              </div>
             </div>
 
             {/* Hero Image Section */}
