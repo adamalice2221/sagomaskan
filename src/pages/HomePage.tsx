@@ -5,6 +5,7 @@ import { ProductCard } from '../components/ProductCard';
 import { useData } from '../context/DataContext';
 import { normalizeHeroImageUrl } from '../services/storage';
 import { getPageUrl, isModifiedClick } from '../utils/navigation';
+import defaultHeroBg from '../assets/images/hero_craft_banner_1790067384478.jpg';
 
 interface HomePageProps {
   products: Product[];
@@ -63,122 +64,89 @@ export const HomePage: React.FC<HomePageProps> = ({
   }, [allProducts, selectedProductId]);
 
   const heroImageSrc = useMemo(() => {
-    if (heroProduct) {
-      if (heroProduct.images && heroProduct.images.length > 0 && heroProduct.images[0]) {
-        return normalizeHeroImageUrl(heroProduct.images[0]);
-      }
-      if (heroProduct.image) {
-        return normalizeHeroImageUrl(heroProduct.image);
-      }
+    if (settings?.heroImage) {
+      const customSettingImage = normalizeHeroImageUrl(settings.heroImage);
+      if (customSettingImage) return customSettingImage;
     }
-    const customSettingImage = normalizeHeroImageUrl(settings?.heroImage);
-    return customSettingImage || '';
-  }, [heroProduct, settings?.heroImage]);
+    return defaultHeroBg;
+  }, [settings?.heroImage]);
 
-  const heroProductName = heroProduct?.name || 'Virkad produkt';
-  const heroBadgeText = settings?.heroProductBadge || 'Skapat med fantasi';
+  const heroBadgeText = settings?.heroProductBadge || 'Handgjort med kärlek';
 
   return (
     <div className="space-y-16 sm:space-y-24">
       
-      {/* 1. HERO SECTION */}
-      <section id="hero-section" className="relative pt-6 sm:pt-12 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+      {/* 1. HERO SECTION - Full-width edge-to-edge */}
+      <section
+        id="hero-section"
+        className="relative w-full overflow-hidden min-h-[500px] sm:min-h-[560px] md:min-h-[620px] lg:min-h-[680px] flex items-center"
+      >
+        {/* Full-width Background Image & Warm Dreamy Ambient Scrim */}
+        <div className="absolute inset-0 w-full h-full select-none pointer-events-none">
+          <img
+            src={heroImageSrc}
+            alt="Handgjort garn och hantverk"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover object-[center_35%] md:object-center"
+          />
+          {/* Soft, warm, dreamy ambient filter ensuring high contrast and effortless legibility */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#FAF8F5]/96 via-[#FAF8F5]/88 to-[#FAF8F5]/45 sm:from-[#FAF8F5]/95 sm:via-[#FAF8F5]/82 sm:to-[#FAF8F5]/25" />
+          {/* Gentle top and bottom vignetting for smooth blend into page canvas */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#FAF8F5]/40 via-transparent to-[#FAF8F5]" />
+        </div>
+
+        {/* Hero Content aligned nicely on top */}
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 md:py-24">
+          <div className="max-w-2xl text-center lg:text-left space-y-6 sm:space-y-7">
             
-            {/* Left Column: Typography & CTAs */}
-            <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-center lg:text-left">
-              <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl text-[#3B2F2F] leading-[1.15] font-medium tracking-tight min-h-[2.3em] flex flex-col justify-center">
-                {settingsLoaded ? (
-                  <span>{settings?.heroTitle || 'Där garn blir till små berättelser'}</span>
-                ) : (
-                  <span className="inline-block w-full max-w-xl h-12 sm:h-16 bg-[#E6DFD3]/40 animate-pulse rounded-xl mx-auto lg:mx-0" />
-                )}
-              </h1>
-
-              <p className="text-base sm:text-lg text-[#66726A] font-light max-w-xl mx-auto lg:mx-0 leading-relaxed min-h-[3em] flex flex-col justify-center">
-                {settingsLoaded ? (
-                  <span>{settings?.heroSubtitle || 'Unika virkade produkter, skapade för hand med omsorg och glädje.'}</span>
-                ) : (
-                  <span className="inline-block w-full max-w-md h-6 bg-[#E6DFD3]/35 animate-pulse rounded-lg mx-auto lg:mx-0" />
-                )}
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
-                <a
-                  id="hero-explore-shop-btn"
-                  href={getPageUrl('shop')}
-                  onClick={(e) => {
-                    if (!isModifiedClick(e)) {
-                      e.preventDefault();
-                      onNavigate('shop');
-                    }
-                  }}
-                  className="w-full sm:w-auto px-8 py-4 rounded-xl bg-[#242D27] text-[#FAF8F5] text-sm font-medium tracking-wide hover:bg-[#6B8E7B] transition-all flex items-center justify-center gap-3 shadow-md hover:shadow-lg group cursor-pointer"
-                >
-                  <span>Se mina skapelser →</span>
-                </a>
-              </div>
-
-              {/* Informational reassurance banner about beställningsförfrågan */}
-              <div className="pt-4">
-                <div className="p-3.5 rounded-xl bg-[#EFF4F1] border border-[#6B8E7B]/25 text-xs text-[#526E5F] flex items-start gap-2.5 text-left">
-                  <Info className="w-4 h-4 text-[#6B8E7B] shrink-0 mt-0.5" />
-                  <p className="leading-relaxed">
-                    <strong>Så här handlar du:</strong> Lägg dina favoriter i Önskelistan och skicka en förfrågan. Inga betalningar sker på sidan – jag återkommer till dig via mejl!
-                  </p>
-                </div>
-              </div>
+            {/* Subtle handcrafted badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FAF8F5]/90 backdrop-blur-xs border border-[#E6DFD3] text-xs text-[#526E5F] font-medium shadow-2xs">
+              <Heart className="w-3.5 h-3.5 text-[#6B8E7B] fill-[#6B8E7B]" />
+              <span>{heroBadgeText}</span>
             </div>
 
-            {/* Right Column: Hero Image Area */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative mx-auto max-w-md lg:max-w-none">
-                {/* Clean Hero Image Container */}
-                <div className="relative rounded-2xl overflow-hidden shadow-sm border border-[#E6DFD3] bg-[#FAF8F5] h-[420px] sm:h-[480px] flex items-center justify-center">
-                  {!settingsLoaded ? (
-                    <div className="w-full h-full bg-[#E6DFD3]/30 animate-pulse rounded-2xl flex items-center justify-center" />
-                  ) : heroImageSrc ? (
-                    <>
-                      {/* Subtle ambient backdrop fill for non-standard aspect ratios */}
-                      <div
-                        className="absolute inset-0 bg-cover bg-center opacity-20 blur-xl scale-110 pointer-events-none"
-                        style={{ backgroundImage: `url(${heroImageSrc})` }}
-                        aria-hidden="true"
-                      />
-                      <div className="absolute inset-0 bg-[#FAF8F5]/60 pointer-events-none" />
+            {/* Main Headline in deep espresso #3B2F2F */}
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl text-[#3B2F2F] leading-[1.15] font-medium tracking-tight">
+              {settingsLoaded ? (
+                <span>{settings?.heroTitle || 'Där garn blir till små berättelser'}</span>
+              ) : (
+                <span className="inline-block w-full max-w-xl h-12 sm:h-16 bg-[#E6DFD3]/40 animate-pulse rounded-xl mx-auto lg:mx-0" />
+              )}
+            </h1>
 
-                      {/* Main Hero Image with object-contain to ensure entire product is visible without any cropping */}
-                      <img
-                        src={heroImageSrc}
-                        alt={heroProductName}
-                        className="relative z-1 w-full h-full object-contain object-center p-2 sm:p-4 transform hover:scale-102 transition-transform duration-700 max-h-full max-w-full"
-                      />
-                    </>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center p-8 text-center text-[#66726A] space-y-3 z-1">
-                      <div className="w-16 h-16 rounded-full bg-[#F3EFE8] flex items-center justify-center text-[#6B8E7B]">
-                        <Scissors className="w-8 h-8" />
-                      </div>
-                      <p className="text-sm font-medium">Välkommen till Sagomaskan</p>
-                      <p className="text-xs text-[#66726A]/70 max-w-xs">
-                        Ingen hero-bild vald. Lägg till en produkt eller hero-bild i Admin.
-                      </p>
-                    </div>
-                  )}
-                  
-                  {/* Subtle badge positioned naturally near bottom edge */}
-                  <div className="absolute bottom-4 left-4 sm:bottom-5 sm:left-5 z-10 pointer-events-none">
-                    {!settingsLoaded ? (
-                      <div className="h-7 w-28 bg-[#242D27]/80 animate-pulse rounded-lg" />
-                    ) : (
-                      <div className="flex items-center gap-2 bg-[#242D27] text-[#FAF8F5] px-3.5 py-1.5 rounded-lg text-xs font-light shadow-md pointer-events-auto">
-                        <Heart className="w-3.5 h-3.5 text-[#6B8E7B] fill-[#6B8E7B]" />
-                        <span>{heroBadgeText}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
+            {/* Subtitle with rich readability and warm earthy tone */}
+            <p className="text-base sm:text-lg md:text-xl text-[#4A3E3D] font-light max-w-xl mx-auto lg:mx-0 leading-relaxed">
+              {settingsLoaded ? (
+                <span>{settings?.heroSubtitle || 'Mjuk design, färg och fantasi – skapat för hand med omsorg och glädje.'}</span>
+              ) : (
+                <span className="inline-block w-full max-w-md h-6 bg-[#E6DFD3]/35 animate-pulse rounded-lg mx-auto lg:mx-0" />
+              )}
+            </p>
+
+            {/* CTA Button */}
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+              <a
+                id="hero-explore-shop-btn"
+                href={getPageUrl('shop')}
+                onClick={(e) => {
+                  if (!isModifiedClick(e)) {
+                    e.preventDefault();
+                    onNavigate('shop');
+                  }
+                }}
+                className="w-full sm:w-auto px-8 py-4 rounded-xl bg-[#3B2F2F] text-[#FAF8F5] text-sm font-medium tracking-wide hover:bg-[#526E5F] transition-all flex items-center justify-center gap-3 shadow-md hover:shadow-lg group cursor-pointer"
+              >
+                <span>Se mina skapelser →</span>
+              </a>
+            </div>
+
+            {/* Informational reassurance banner about beställningsförfrågan */}
+            <div className="pt-2 max-w-lg mx-auto lg:mx-0">
+              <div className="p-3.5 rounded-xl bg-[#FAF8F5]/90 backdrop-blur-xs border border-[#6B8E7B]/30 text-xs text-[#4A3E3D] flex items-start gap-2.5 text-left shadow-2xs">
+                <Info className="w-4 h-4 text-[#6B8E7B] shrink-0 mt-0.5" />
+                <p className="leading-relaxed">
+                  <strong className="text-[#3B2F2F]">Så här handlar du:</strong> Lägg dina favoriter i Önskelistan och skicka en förfrågan. Inga betalningar sker på sidan – jag återkommer till dig via mejl!
+                </p>
               </div>
             </div>
 
