@@ -197,6 +197,7 @@ function AppContent() {
         return <TermsPage onNavigate={handleNavigate} />;
       case 'wishlist':
         return <WishlistPage products={products} onNavigate={handleNavigate} />;
+      case 'claim':
       case 'reklamation':
         return (
           <ClaimPage
@@ -204,6 +205,7 @@ function AppContent() {
             onNavigateShop={() => handleNavigate('shop')}
           />
         );
+      case 'withdrawal':
       case 'angra-kop':
         return (
           <WithdrawalPage

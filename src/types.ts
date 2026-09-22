@@ -288,7 +288,9 @@ export type PageRoute =
   | 'terms'
   | 'wishlist'
   | 'claim' // Reklamation
+  | 'reklamation'
   | 'withdrawal' // Ångra köp
+  | 'angra-kop'
   | 'admin';
 
 export type AdminTab =

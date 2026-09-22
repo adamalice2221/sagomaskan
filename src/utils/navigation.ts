@@ -46,8 +46,10 @@ export function getPageUrl(
     case 'wishlist':
       return '/onskelista';
     case 'claim':
+    case 'reklamation':
       return '/reklamation';
     case 'withdrawal':
+    case 'angra-kop':
       return '/angra-kop';
     case 'admin':
       return '/admin';
