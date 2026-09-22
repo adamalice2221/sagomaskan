@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { ArrowRight, Heart, MessageSquare, Clock, Scissors, Info, Tag, Instagram, Check } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { ArrowRight, Heart, MessageSquare, Clock, Scissors, Info, Tag } from 'lucide-react';
 import { Product, PageRoute, ProductCategory, Category } from '../types';
 import { ProductCard } from '../components/ProductCard';
 import { WelcomePopup } from '../components/WelcomePopup';
@@ -73,27 +73,6 @@ export const HomePage: React.FC<HomePageProps> = ({
   }, [settings?.heroImage]);
 
   const heroBadgeText = settings?.heroProductBadge || 'Handgjort med kärlek';
-
-  const [newsletterEmail, setNewsletterEmail] = useState('');
-  const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
-
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newsletterEmail.trim() || !newsletterEmail.includes('@')) return;
-
-    try {
-      const stored = JSON.parse(localStorage.getItem('sagomaskan_subscribers') || '[]');
-      if (!stored.includes(newsletterEmail.trim())) {
-        stored.push(newsletterEmail.trim());
-        localStorage.setItem('sagomaskan_subscribers', JSON.stringify(stored));
-      }
-    } catch {
-      // Ignore local storage error
-    }
-
-    setNewsletterSubscribed(true);
-    setNewsletterEmail('');
-  };
 
   return (
     <div className="space-y-16 sm:space-y-24">
@@ -432,68 +411,6 @@ export const HomePage: React.FC<HomePageProps> = ({
             </div>
 
           </div>
-        </div>
-      </section>
-
-      {/* 6. NEWSLETTER & @SAGOMASKAN SECTION */}
-      <section id="newsletter-section" className="bg-[#F3EFE8]/75 border-t border-[#E6DFD3] py-14 sm:py-18">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          
-          {/* @sagomaskan header/badge */}
-          <div className="mb-6 flex flex-col items-center">
-            <a
-              href={settings?.footerInstagramUrl || 'https://instagram.com/sagomaskan'}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Besök @sagomaskan på Instagram"
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FAF8F5] border border-[#E6DFD3] hover:border-[#6B8E7B] text-[#242D27] hover:text-[#6B8E7B] transition-all duration-300 shadow-2xs group cursor-pointer"
-            >
-              <Instagram className="w-4 h-4 text-[#6B8E7B] group-hover:scale-110 transition-transform" />
-              <span className="text-[11px] uppercase tracking-widest font-semibold text-[#66726A] group-hover:text-[#6B8E7B]">
-                Instagram
-              </span>
-              <span className="text-[#D9D2C7]">•</span>
-              <span className="text-sm font-medium font-serif italic text-[#242D27] group-hover:text-[#6B8E7B]">
-                @sagomaskan
-              </span>
-            </a>
-          </div>
-
-          {/* Under @sagomaskan: Newsletter headline & description */}
-          <div className="space-y-2 mb-6">
-            <h2 className="font-serif text-xl sm:text-2xl text-[#242D27] font-medium leading-snug">
-              Prenumerera på vårt nyhetsbrev för nyheter och erbjudanden
-            </h2>
-            <p className="text-xs sm:text-sm text-[#66726A] font-light max-w-md mx-auto leading-relaxed">
-              Få inspiration, nyheter om nya hantverk och erbjudanden direkt i inkorgen.
-            </p>
-          </div>
-
-          {/* Centered Email Form with Sage Green 'Prenumerera' Button */}
-          {newsletterSubscribed ? (
-            <div className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#EFF4F1] border border-[#6B8E7B]/40 text-[#526E5F] text-xs sm:text-sm font-medium">
-              <Check className="w-4 h-4 text-[#6B8E7B] shrink-0" />
-              <span>Tack för att du prenumererar på vårt nyhetsbrev! ♡</span>
-            </div>
-          ) : (
-            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row items-center justify-center gap-2.5 max-w-md mx-auto w-full">
-              <input
-                type="email"
-                required
-                value={newsletterEmail}
-                onChange={(e) => setNewsletterEmail(e.target.value)}
-                placeholder="Din e-postadress"
-                className="w-full px-4 py-2.5 rounded-xl border border-[#E6DFD3] bg-[#FAF8F5] text-sm text-[#242D27] placeholder:text-[#66726A]/70 focus:outline-none focus:border-[#6B8E7B] focus:ring-1 focus:ring-[#6B8E7B] shadow-2xs"
-              />
-              <button
-                type="submit"
-                className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[#6B8E7B] hover:bg-[#587565] text-white text-sm font-medium transition-colors cursor-pointer whitespace-nowrap shadow-xs active:scale-[0.98]"
-              >
-                Prenumerera
-              </button>
-            </form>
-          )}
-
         </div>
       </section>
 

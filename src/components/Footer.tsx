@@ -9,13 +9,14 @@ interface FooterProps {
   isHomePage?: boolean;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onNavigate, isHomePage = true }) => {
+export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const { settings, settingsLoaded } = useData();
   const [email, setEmail] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = email.trim();
     if (!trimmed || !trimmed.includes('@') || !trimmed.includes('.')) {
@@ -23,6 +24,17 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, isHomePage = true })
       return;
     }
     setErrorMessage('');
+    setIsSubmitting(true);
+
+    try {
+      await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: trimmed, consent: true }),
+      });
+    } catch {
+      // Graceful fallback if offline or server is unreachable
+    }
 
     try {
       const existing = JSON.parse(localStorage.getItem('sagomaskan_subscribers') || '[]');
@@ -36,6 +48,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, isHomePage = true })
 
     setIsSubscribed(true);
     setEmail('');
+    setIsSubmitting(false);
   };
 
   const resolveLinkUrl = (target: string): { url: string; isExternal: boolean; route?: PageRoute } => {
@@ -92,19 +105,12 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, isHomePage = true })
   if (!settingsLoaded) {
     return (
       <footer id="main-footer" className="bg-[#F3EFE8] text-[#242D27] border-t border-[#E6DFD3] mt-20">
-        {isHomePage && (
-          <div className="bg-[#FAF8F5] border-b border-[#E6DFD3] py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md mx-auto text-center space-y-3">
-              <div className="h-6 bg-[#E6DFD3]/40 rounded-md mx-auto w-3/4 animate-pulse" />
-              <div className="h-10 bg-[#E6DFD3]/30 rounded-full mx-auto w-full animate-pulse" />
-            </div>
-          </div>
-        )}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
           <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-5 gap-x-3 sm:gap-x-6 md:gap-x-10 lg:gap-x-12 gap-y-10 lg:gap-y-12 mb-16">
             <div className="col-span-3 md:col-span-1 lg:col-span-2 space-y-4">
               <div className="h-8 bg-[#E6DFD3]/50 animate-pulse rounded-md w-48 max-w-full" />
               <div className="h-4 bg-[#E6DFD3]/40 animate-pulse rounded-md w-64 max-w-full" />
+              <div className="h-10 bg-[#E6DFD3]/30 rounded-xl w-full max-w-sm animate-pulse mt-4" />
             </div>
             <div className="col-span-1 space-y-3 min-w-0">
               <div className="h-5 bg-[#E6DFD3]/50 animate-pulse rounded-md w-16 max-w-full" />
@@ -129,72 +135,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, isHomePage = true })
 
   return (
     <footer id="main-footer" className="bg-[#F3EFE8] text-[#242D27] border-t border-[#E6DFD3] mt-20">
-      {/* Nyhetsblockssektion - Varm creme-bakgrund med sagegrön prenumerera-knapp */}
-      {isHomePage && (
-        <section
-          id="newsletter-section"
-          className="bg-[#FAF8F5] border-b border-[#E6DFD3] py-12 sm:py-16 px-4 sm:px-6 lg:px-8"
-        >
-          <div className="max-w-2xl mx-auto text-center">
-            <h3 className="font-serif text-xl sm:text-2xl text-[#3B2F2F] font-normal leading-snug mb-2">
-              Prenumerera på vårt nyhetsbrev för nyheter och erbjudanden
-            </h3>
-            <p className="text-xs sm:text-sm text-[#66726A] font-light max-w-md mx-auto mb-6">
-              Få inspiration och uppdateringar om nya handvirkade kreationer och hantverkstips.
-            </p>
-
-            {isSubscribed ? (
-              <div
-                id="newsletter-success-message"
-                className="inline-flex items-center gap-2 bg-[#EFF4F1] border border-[#6B8E7B]/40 text-[#385345] px-5 py-3 rounded-full text-xs sm:text-sm shadow-2xs font-medium"
-              >
-                <CheckCircle2 className="w-4 h-4 text-[#6B8E7B] shrink-0" />
-                <span>Tack för att du prenumererar! Välkommen till Sagomaskan.</span>
-              </div>
-            ) : (
-              <form
-                id="footer-newsletter-form"
-                onSubmit={handleSubscribe}
-                className="max-w-md mx-auto"
-              >
-                <div className="flex flex-col sm:flex-row items-center gap-2.5 sm:gap-0">
-                  <input
-                    type="email"
-                    id="newsletter-email-input"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      if (errorMessage) setErrorMessage('');
-                    }}
-                    placeholder="Din e-postadress"
-                    aria-label="E-postadress för nyhetsbrev"
-                    required
-                    className="w-full sm:flex-1 px-4 py-3 rounded-full sm:rounded-r-none border border-[#D8CEBF] bg-[#FFFFFF] text-sm text-[#242D27] placeholder:text-[#8C9B90] focus:outline-none focus:border-[#6B8E7B] focus:ring-1 focus:ring-[#6B8E7B] transition-colors"
-                  />
-                  <button
-                    type="submit"
-                    id="newsletter-subscribe-btn"
-                    className="w-full sm:w-auto px-6 py-3 rounded-full sm:rounded-l-none bg-[#6B8E7B] hover:bg-[#587565] text-[#FAF8F5] text-sm font-medium transition-colors cursor-pointer shrink-0 shadow-xs"
-                  >
-                    Prenumerera
-                  </button>
-                </div>
-                {errorMessage && (
-                  <p className="text-xs text-[#A84B4B] mt-2 font-light">{errorMessage}</p>
-                )}
-              </form>
-            )}
-          </div>
-        </section>
-      )}
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
         
         {/* Main Grid: Mobile (Brand full-width, then 3 columns), Tablet (2 cols), Desktop (5 cols) */}
         <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-5 gap-x-3 sm:gap-x-6 md:gap-x-10 lg:gap-x-12 gap-y-10 lg:gap-y-12 mb-16">
           
-          {/* Brand Presentation (full width on mobile, 1 col on md, 2 cols on lg) */}
-          <div className="col-span-3 md:col-span-1 lg:col-span-2 space-y-4">
+          {/* Brand Presentation & Integrated Newsletter in Left Column */}
+          <div className="col-span-3 md:col-span-1 lg:col-span-2 space-y-5">
             <a
               href={getPageUrl('home')}
               onClick={(e) => {
@@ -231,7 +178,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, isHomePage = true })
                   href={instagramUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-2 rounded-full bg-[#FAF8F5] text-[#242D27] hover:text-[#6B8E7B] hover:bg-[#FAF8F5]/80 transition-colors shadow-xs"
+                  className="p-2 rounded-full bg-[#FAF8F5] text-[#242D27] hover:text-[#6B8E7B] hover:bg-[#FAF8F5]/80 transition-colors shadow-xs cursor-pointer"
                   aria-label={`Följ ${brandName} på Instagram`}
                 >
                   <Instagram className="w-4 h-4" />
@@ -240,7 +187,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, isHomePage = true })
               {emailAddress && (
                 <a
                   href={`mailto:${emailAddress}`}
-                  className="p-2 rounded-full bg-[#FAF8F5] text-[#242D27] hover:text-[#6B8E7B] hover:bg-[#FAF8F5]/80 transition-colors shadow-xs"
+                  className="p-2 rounded-full bg-[#FAF8F5] text-[#242D27] hover:text-[#6B8E7B] hover:bg-[#FAF8F5]/80 transition-colors shadow-xs cursor-pointer"
                   aria-label={`Skicka e-post till ${brandName}`}
                 >
                   <Mail className="w-4 h-4" />
@@ -250,6 +197,63 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, isHomePage = true })
                 <span className="text-xs text-[#66726A] font-light">
                   {instagramHandle}
                 </span>
+              )}
+            </div>
+
+            {/* Newsletter Section Integrated in Left Column under Social Icons */}
+            <div className="pt-2 space-y-2.5 max-w-sm">
+              <div className="space-y-1">
+                <h4 className="font-serif text-sm sm:text-base text-[#242D27] font-medium leading-snug">
+                  Prenumerera på vårt nyhetsbrev för nyheter och erbjudanden
+                </h4>
+                <p className="text-xs text-[#66726A] font-light leading-relaxed">
+                  Få inspiration och uppdateringar om nya handvirkade kreationer och hantverkstips.
+                </p>
+              </div>
+
+              {isSubscribed ? (
+                <div
+                  id="newsletter-success-message"
+                  className="inline-flex items-center gap-2 bg-[#EBF3EE] border border-[#CDE0D4] text-[#526E5F] px-4 py-2.5 rounded-xl text-xs shadow-2xs font-medium animate-in fade-in"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-[#6B8E7B] shrink-0" />
+                  <span>Tack för att du prenumererar! Välkommen till Sagomaskan. ♡</span>
+                </div>
+              ) : (
+                <form
+                  id="footer-newsletter-form"
+                  onSubmit={handleSubscribe}
+                  className="pt-1 w-full space-y-2"
+                >
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-0">
+                    <input
+                      type="email"
+                      id="newsletter-email-input"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (errorMessage) setErrorMessage('');
+                      }}
+                      placeholder="Din e-postadress"
+                      aria-label="E-postadress för nyhetsbrev"
+                      required
+                      className="w-full sm:flex-1 px-3.5 py-2.5 rounded-xl sm:rounded-r-none border border-[#D4CBBF] bg-[#FAF8F5] text-xs text-[#242D27] placeholder:text-[#66726A]/70 focus:outline-none focus:border-[#6B8E7B] focus:ring-1 focus:ring-[#6B8E7B] shadow-2xs transition-colors"
+                    />
+                    <button
+                      type="submit"
+                      id="newsletter-subscribe-btn"
+                      disabled={isSubmitting}
+                      className="w-full sm:w-auto px-4 py-2.5 rounded-xl sm:rounded-l-none bg-[#6B8E7B] hover:bg-[#587565] disabled:bg-[#A5B7AC] text-white text-xs font-medium transition-colors cursor-pointer shrink-0 shadow-xs whitespace-nowrap active:scale-[0.99] min-h-[38px]"
+                    >
+                      {isSubmitting ? 'Skickar...' : 'Prenumerera'}
+                    </button>
+                  </div>
+                  {errorMessage && (
+                    <p className="text-xs text-red-600 bg-red-50/80 border border-red-200 p-2 rounded-lg text-left font-light animate-in fade-in">
+                      {errorMessage}
+                    </p>
+                  )}
+                </form>
               )}
             </div>
           </div>
