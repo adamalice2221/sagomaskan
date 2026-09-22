@@ -164,7 +164,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             <p className="text-xs uppercase tracking-[0.2em] text-[#6B8E7B] font-semibold">
               Kollektionen
             </p>
-            <h2 className="font-serif text-3xl sm:text-4xl text-[#242D27]">
+            <h2 className="font-serif text-3xl sm:text-4xl text-[#3B2F2F]">
               Utforska efter kategori
             </h2>
             <p className="text-sm text-[#66726A] font-light">
@@ -225,7 +225,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             <p className="text-xs uppercase tracking-[0.2em] text-[#6B8E7B] font-semibold mb-1">
               Handplockade favoriter
             </p>
-            <h2 className="font-serif text-3xl sm:text-4xl text-[#242D27]">
+            <h2 className="font-serif text-3xl sm:text-4xl text-[#3B2F2F]">
               Utvalda produkter
             </h2>
           </div>
@@ -238,7 +238,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 onNavigate('shop');
               }
             }}
-            className="inline-flex items-center gap-2 text-sm text-[#242D27] hover:text-[#6B8E7B] font-medium transition-colors group cursor-pointer"
+            className="inline-flex items-center gap-2 text-sm text-[#3B2F2F] hover:text-[#6B8E7B] font-medium transition-colors group cursor-pointer"
           >
             <span>Se alla produkter</span>
             <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
@@ -258,7 +258,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           </div>
         ) : (
           <div className="bg-[#FAF8F5] border border-dashed border-[#E6DFD3] rounded-2xl p-8 sm:p-12 text-center max-w-xl mx-auto">
-            <p className="font-serif text-lg text-[#242D27] mb-2">Nya alster är på väg!</p>
+            <p className="font-serif text-lg text-[#3B2F2F] mb-2">Nya alster är på väg!</p>
             <p className="text-xs text-[#66726A] font-light mb-4 leading-relaxed">
               Butikens kollektion förbereds just nu. Skapa produkter i Admin eller kontakta oss för en personlig specialbeställning.
             </p>

@@ -196,14 +196,14 @@ export const ShopPage: React.FC<ShopPageProps> = ({
         </div>
       </div>
 
-      {/* Category Section: Utforska efter kategori (Exakt samma bildbaserade kort som på startsidan) */}
+      {/* Category Section: Utforska efter kategori (Piller-knappar) */}
       {categoryTabs.length > 0 && (
         <section id="categories-section" className="space-y-6">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <p className="text-xs uppercase tracking-[0.2em] text-[#6B8E7B] font-semibold">
               Kollektionen
             </p>
-            <h2 className="font-serif text-3xl sm:text-4xl text-[#242D27]">
+            <h2 className="font-serif text-3xl sm:text-4xl text-[#3B2F2F]">
               Utforska efter kategori
             </h2>
             <p className="text-sm text-[#66726A] font-light">
@@ -211,12 +211,12 @@ export const ShopPage: React.FC<ShopPageProps> = ({
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 lg:gap-5 pb-2">
-            {categoryTabs
-              .filter((category) => category.id !== 'Alla' && category.name !== 'Alla')
-              .map((category) => {
+          {/* Horizontal Rounded Pill Buttons */}
+          <div className="flex items-center justify-center gap-2 sm:gap-2.5 flex-wrap pt-1">
+            {categoryTabs.map((category) => {
               const categoryKey = category.name || category.id;
               const isActive =
+                (categoryKey === 'Alla' && (activeCategory === 'Alla' || !activeCategory)) ||
                 activeCategory === category.name ||
                 activeCategory === category.id ||
                 (activeCategory !== 'Alla' && (
@@ -228,7 +228,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
               return (
                 <a
                   key={category.id}
-                  id={`category-card-${category.id}`}
+                  id={`shop-category-pill-${category.id}`}
                   href={categoryUrl}
                   onClick={(e) => {
                     if (!isModifiedClick(e)) {
@@ -236,46 +236,13 @@ export const ShopPage: React.FC<ShopPageProps> = ({
                       onSelectCategory(categoryKey);
                     }
                   }}
-                  className={`group flex flex-col items-center text-center cursor-pointer p-3 sm:p-4 rounded-2xl transition-all duration-300 block border ${
+                  className={`inline-flex items-center gap-2 px-5 py-2 sm:px-6 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium tracking-wide transition-all duration-200 cursor-pointer shadow-2xs ${
                     isActive
-                      ? 'bg-[#F3EFE8] border-[#6B8E7B] shadow-xs'
-                      : 'hover:bg-[#F3EFE8]/70 border-transparent'
+                      ? 'bg-[#3B2F2F] text-[#FAF8F5] border border-[#3B2F2F] shadow-xs'
+                      : 'bg-[#FAF8F5] text-[#4A3E3D] hover:bg-[#F3EFE8] hover:text-[#242D27] border border-[#E6DFD3] hover:border-[#6B8E7B]/40'
                   }`}
                 >
-                  {/* Circular image holder */}
-                  <div
-                    className={`relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mb-3.5 border-2 transition-all bg-[#FAF8F5] flex items-center justify-center p-1.5 sm:p-2 ${
-                      isActive
-                        ? 'border-[#6B8E7B] shadow-md ring-2 ring-[#6B8E7B]/30'
-                        : 'border-[#E6DFD3] group-hover:border-[#6B8E7B] group-hover:shadow-md'
-                    }`}
-                  >
-                    {category.image ? (
-                      <img
-                        src={category.image}
-                        alt={category.name}
-                        className="w-full h-full object-contain object-center transition-all duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full rounded-full bg-[#F3EFE8] flex items-center justify-center text-[#6B8E7B]">
-                        <Tag className="w-6 h-6" />
-                      </div>
-                    )}
-                  </div>
-
-                  <h3
-                    className={`font-serif text-base font-medium transition-colors leading-tight ${
-                      isActive ? 'text-[#6B8E7B] font-semibold' : 'text-[#242D27] group-hover:text-[#6B8E7B]'
-                    }`}
-                  >
-                    {category.name}
-                  </h3>
-                  
-                  {category.description && (
-                    <p className="text-[11px] text-[#66726A] mt-1 line-clamp-1 font-light hidden sm:block">
-                      {category.description}
-                    </p>
-                  )}
+                  <span>{category.name}</span>
                 </a>
               );
             })}
