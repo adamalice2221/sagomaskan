@@ -183,9 +183,6 @@ export const ShopPage: React.FC<ShopPageProps> = ({
       
       {/* Page Header (Clean, airy, elegant with consistent brand details) */}
       <div className="text-center max-w-2xl mx-auto space-y-3 pt-2">
-        <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-[#242D27] font-medium tracking-tight">
-          Shop
-        </h1>
         <p className="text-sm sm:text-base text-[#66726A] font-light leading-relaxed">
           Handgjorda virkade alster för små och stora.
         </p>
