@@ -160,7 +160,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       {/* 2. CATEGORIES SECTION */}
       {displayCategories.length > 0 && (
         <section id="categories-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 lg:gap-2.5 xl:gap-5">
             {displayCategories.map((category) => {
               const categoryKey = category.name || category.id;
               const categoryUrl = getPageUrl('shop', { category: categoryKey });
@@ -175,10 +175,10 @@ export const HomePage: React.FC<HomePageProps> = ({
                       handleCategoryClick(categoryKey);
                     }
                   }}
-                  className="group flex flex-col items-center text-center cursor-pointer p-2 sm:p-3 xl:p-4 rounded-2xl hover:bg-[#F3EFE8]/70 transition-all duration-300 block"
+                  className="group flex flex-col items-center text-center cursor-pointer p-1.5 sm:p-2.5 xl:p-3 rounded-2xl hover:bg-[#F3EFE8]/70 transition-all duration-300 block"
                 >
                   {/* Circular image holder */}
-                  <div className="relative w-28 h-28 min-[375px]:w-32 min-[375px]:h-32 sm:w-36 sm:h-36 lg:w-32 lg:h-32 xl:w-36 xl:h-36 rounded-full overflow-hidden mb-3.5 border-2 border-[#E6DFD3] group-hover:border-[#6B8E7B] group-hover:shadow-md transition-all bg-[#FAF8F5] flex items-center justify-center p-2 sm:p-2.5">
+                  <div className="relative w-28 h-28 min-[360px]:w-32 min-[360px]:h-32 min-[400px]:w-36 min-[400px]:h-36 sm:w-40 sm:h-40 lg:w-36 lg:h-36 xl:w-40 xl:h-40 rounded-full overflow-hidden mb-3.5 border-2 border-[#E6DFD3] group-hover:border-[#6B8E7B] group-hover:shadow-md transition-all bg-[#FAF8F5] flex items-center justify-center p-2 sm:p-3">
                     {category.image ? (
                       <img
                         src={category.image}
@@ -187,7 +187,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                       />
                     ) : (
                       <div className="w-full h-full rounded-full bg-[#F3EFE8] flex items-center justify-center text-[#6B8E7B]">
-                        <Tag className="w-7 h-7 sm:w-8 sm:h-8" />
+                        <Tag className="w-8 h-8 sm:w-9 sm:h-9" />
                       </div>
                     )}
                   </div>
