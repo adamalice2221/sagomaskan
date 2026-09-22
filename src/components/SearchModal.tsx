@@ -213,8 +213,8 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                       </p>
                     </div>
                     <div className="text-right shrink-0">
-                      <span className="text-sm font-semibold text-[#242D27]">
-                        {product.price} kr
+                      <span className="text-sm font-semibold text-[#242D27] whitespace-nowrap">
+                        {product.price}&nbsp;kr
                       </span>
                     </div>
                   </a>

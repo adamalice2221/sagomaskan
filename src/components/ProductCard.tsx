@@ -163,10 +163,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
         )}
 
         {/* Price and Inquiry Button Bar */}
-        <div className="mt-auto pt-3 border-t border-[#E6DFD3]/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-          <div>
-            <span className="text-base sm:text-lg font-semibold text-[#242D27]">
-              {product.price} kr
+        <div className="mt-auto pt-3 border-t border-[#E6DFD3]/70 flex items-center justify-between gap-2">
+          <div className="shrink-0">
+            <span className="text-base sm:text-lg font-semibold text-[#242D27] whitespace-nowrap leading-none tracking-tight">
+              {product.price}&nbsp;kr
             </span>
           </div>
 
@@ -175,26 +175,27 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
             type="button"
             disabled={isOutOfStock || isAdding}
             onClick={handleAddToCart}
-            className={`w-full sm:w-auto px-3.5 py-2 rounded-xl text-xs font-medium tracking-wide flex items-center justify-center gap-1.5 transition-all focus:outline-none focus:ring-2 focus:ring-[#6B8E7B] cursor-pointer ${
+            className={`px-2.5 py-2 sm:px-3 sm:py-2 rounded-xl text-xs font-medium tracking-wide flex items-center justify-center gap-1.5 transition-all focus:outline-none focus:ring-2 focus:ring-[#6B8E7B] cursor-pointer shrink-0 ${
               isOutOfStock
                 ? 'bg-[#E6DFD3] text-[#66726A] cursor-not-allowed'
                 : isAdding
                 ? 'bg-[#EFF4F1] text-[#526E5F] border border-[#6B8E7B]/40 font-medium'
                 : 'bg-[#242D27] text-[#FAF8F5] hover:bg-[#6B8E7B] active:scale-[0.98]'
             }`}
-            aria-label={`Lägg till ${product.name} i min önskelista`}
+            aria-label={`Lägg till ${product.name} i förfrågelista`}
+            title={`Lägg till ${product.name} i förfrågelista`}
           >
             {isAdding ? (
-              <span className="text-[11px] whitespace-nowrap text-[#526E5F] flex items-center gap-1">
-                <Check className="w-3.5 h-3.5 text-[#6B8E7B]" />
-                Tillagd i din önskelista
+              <span className="text-[11px] sm:text-xs whitespace-nowrap text-[#526E5F] flex items-center gap-1 font-medium">
+                <Check className="w-3.5 h-3.5 text-[#6B8E7B] shrink-0" />
+                <span>Tillagd i förfrågelistan</span>
               </span>
             ) : isOutOfStock ? (
-              <span className="text-[11px]">Slut i lager</span>
+              <span className="text-[11px] sm:text-xs whitespace-nowrap text-[#66726A]">Slut i lager</span>
             ) : (
               <>
                 <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
-                <span className="text-[11px] whitespace-nowrap">Lägg till i min önskelista</span>
+                <span className="text-[11px] sm:text-xs whitespace-nowrap font-medium">Lägg till i förfrågelista</span>
               </>
             )}
           </button>
