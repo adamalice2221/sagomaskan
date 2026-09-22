@@ -5,7 +5,6 @@ import { ProductCard } from '../components/ProductCard';
 import { useData } from '../context/DataContext';
 import { normalizeHeroImageUrl } from '../services/storage';
 import { getPageUrl, isModifiedClick } from '../utils/navigation';
-import defaultHeroBg from '../assets/images/hero_craft_banner_1790067384478.jpg';
 
 interface HomePageProps {
   products: Product[];
@@ -63,12 +62,13 @@ export const HomePage: React.FC<HomePageProps> = ({
     return allProducts.find((p) => p.isPublished !== false) || allProducts[0] || null;
   }, [allProducts, selectedProductId]);
 
+  const isCustomHeroImage = Boolean(settings?.heroImage);
   const heroImageSrc = useMemo(() => {
     if (settings?.heroImage) {
       const customSettingImage = normalizeHeroImageUrl(settings.heroImage);
       if (customSettingImage) return customSettingImage;
     }
-    return defaultHeroBg;
+    return '/hero-craft-banner.webp';
   }, [settings?.heroImage]);
 
   const heroBadgeText = settings?.heroProductBadge || 'Handgjort med kärlek';
@@ -79,16 +79,27 @@ export const HomePage: React.FC<HomePageProps> = ({
       {/* 1. HERO SECTION - Full-width edge-to-edge */}
       <section
         id="hero-section"
-        className="relative w-full overflow-hidden min-h-[500px] sm:min-h-[560px] md:min-h-[620px] lg:min-h-[680px] flex items-center"
+        className="relative w-full overflow-hidden min-h-[500px] sm:min-h-[560px] md:min-h-[620px] lg:min-h-[680px] flex items-center bg-[#FAF8F5]"
       >
         {/* Full-width Background Image & Warm Dreamy Ambient Scrim */}
-        <div className="absolute inset-0 w-full h-full select-none pointer-events-none">
-          <img
-            src={heroImageSrc}
-            alt="Handgjort garn och hantverk"
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-cover object-[center_35%] md:object-center"
-          />
+        <div className="absolute inset-0 w-full h-full select-none pointer-events-none bg-[#F5EFE6]">
+          <picture className="w-full h-full block">
+            {!isCustomHeroImage && (
+              <>
+                <source srcSet="/hero-craft-banner.webp" type="image/webp" />
+                <source srcSet="/hero-craft-banner.jpg" type="image/jpeg" />
+              </>
+            )}
+            <img
+              src={heroImageSrc}
+              alt="Handgjort garn och hantverk"
+              loading="eager"
+              decoding="sync"
+              fetchPriority="high"
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-cover object-[center_35%] md:object-center"
+            />
+          </picture>
           {/* Soft, warm, dreamy ambient filter ensuring high contrast and effortless legibility */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#FAF8F5]/96 via-[#FAF8F5]/88 to-[#FAF8F5]/45 sm:from-[#FAF8F5]/95 sm:via-[#FAF8F5]/82 sm:to-[#FAF8F5]/25" />
           {/* Gentle top and bottom vignetting for smooth blend into page canvas */}
@@ -105,22 +116,14 @@ export const HomePage: React.FC<HomePageProps> = ({
               <span>{heroBadgeText}</span>
             </div>
 
-            {/* Main Headline in deep espresso #3B2F2F */}
+            {/* Main Headline in deep espresso #3B2F2F - Instant First Paint */}
             <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl text-[#3B2F2F] leading-[1.15] font-medium tracking-tight">
-              {settingsLoaded ? (
-                <span>{settings?.heroTitle || 'Där garn blir till små berättelser'}</span>
-              ) : (
-                <span className="inline-block w-full max-w-xl h-12 sm:h-16 bg-[#E6DFD3]/40 animate-pulse rounded-xl mx-auto lg:mx-0" />
-              )}
+              <span>{settings?.heroTitle || 'Där garn blir till små berättelser'}</span>
             </h1>
 
-            {/* Subtitle with rich readability and warm earthy tone */}
+            {/* Subtitle with rich readability and warm earthy tone - Instant First Paint */}
             <p className="text-base sm:text-lg md:text-xl text-[#4A3E3D] font-light max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              {settingsLoaded ? (
-                <span>{settings?.heroSubtitle || 'Mjuk design, färg och fantasi – skapat för hand med omsorg och glädje.'}</span>
-              ) : (
-                <span className="inline-block w-full max-w-md h-6 bg-[#E6DFD3]/35 animate-pulse rounded-lg mx-auto lg:mx-0" />
-              )}
+              <span>{settings?.heroSubtitle || 'Mjuk design, färg och fantasi – skapat för hand med omsorg och glädje.'}</span>
             </p>
 
             {/* CTA Button */}
