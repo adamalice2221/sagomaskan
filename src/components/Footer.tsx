@@ -63,6 +63,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const tagline = settings.footerTagline || 'VIRKADE PRODUKTER';
   const description = settings.footerDescription || 'Handgjorda virkade produkter, skapade med omsorg och glädje.';
 
+  const pagesTitle = settings.footerPagesTitle || 'Navigera';
+  const infoTitle = settings.footerInfoTitle || 'Bra att veta';
   const pageLinks = settings.footerPageLinks || [
     { label: 'Hem', href: 'home', enabled: true },
     { label: 'Shop', href: 'shop', enabled: true },
@@ -106,8 +108,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     return (
       <footer id="main-footer" className="bg-[#F3EFE8] text-[#242D27] border-t border-[#E6DFD3] mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
-          <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-5 gap-x-3 sm:gap-x-6 md:gap-x-10 lg:gap-x-12 gap-y-10 lg:gap-y-12 mb-16">
-            <div className="col-span-3 md:col-span-1 lg:col-span-2 space-y-4">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-x-6 sm:gap-x-8 md:gap-x-10 lg:gap-x-12 gap-y-10 lg:gap-y-12 mb-16">
+            <div className="col-span-2 md:col-span-1 lg:col-span-2 space-y-4">
               <div className="h-8 bg-[#E6DFD3]/50 animate-pulse rounded-md w-48 max-w-full" />
               <div className="h-4 bg-[#E6DFD3]/40 animate-pulse rounded-md w-64 max-w-full" />
               <div className="h-10 bg-[#E6DFD3]/30 rounded-xl w-full max-w-sm animate-pulse mt-4" />
@@ -121,27 +123,21 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <div className="h-5 bg-[#E6DFD3]/50 animate-pulse rounded-md w-16 max-w-full" />
               <div className="h-4 bg-[#E6DFD3]/30 animate-pulse rounded-md w-20 max-w-full" />
             </div>
-            <div className="col-span-1 space-y-3 min-w-0">
-              <div className="h-5 bg-[#E6DFD3]/50 animate-pulse rounded-md w-16 max-w-full" />
-              <div className="h-4 bg-[#E6DFD3]/30 animate-pulse rounded-md w-20 max-w-full" />
-            </div>
           </div>
         </div>
       </footer>
     );
   }
 
-  const instagramHandle = settings.instagram || '@sagomaskan';
-
   return (
     <footer id="main-footer" className="bg-[#F3EFE8] text-[#242D27] border-t border-[#E6DFD3] mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
         
-        {/* Main Grid: Mobile (Brand full-width, then 3 columns), Tablet (2 cols), Desktop (5 cols) */}
-        <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-5 gap-x-3 sm:gap-x-6 md:gap-x-10 lg:gap-x-12 gap-y-10 lg:gap-y-12 mb-16">
+        {/* Main Grid: Mobile (Brand full-width, then 2 columns), Tablet (2 cols), Desktop (4 cols) */}
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-x-6 sm:gap-x-8 md:gap-x-10 lg:gap-x-12 gap-y-10 lg:gap-y-12 mb-16">
           
           {/* Brand Presentation & Integrated Newsletter in Left Column */}
-          <div className="col-span-3 md:col-span-1 lg:col-span-2 space-y-5">
+          <div className="col-span-2 md:col-span-1 lg:col-span-2 space-y-5">
             <a
               href={getPageUrl('home')}
               onClick={(e) => {
@@ -172,36 +168,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </p>
             )}
 
-            <div className="flex items-center space-x-4 pt-1">
-              {instagramEnabled && (
-                <a
-                  href={instagramUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-2 rounded-full bg-[#FAF8F5] text-[#242D27] hover:text-[#6B8E7B] hover:bg-[#FAF8F5]/80 transition-colors shadow-xs cursor-pointer"
-                  aria-label={`Följ ${brandName} på Instagram`}
-                >
-                  <Instagram className="w-4 h-4" />
-                </a>
-              )}
-              {emailAddress && (
-                <a
-                  href={`mailto:${emailAddress}`}
-                  className="p-2 rounded-full bg-[#FAF8F5] text-[#242D27] hover:text-[#6B8E7B] hover:bg-[#FAF8F5]/80 transition-colors shadow-xs cursor-pointer"
-                  aria-label={`Skicka e-post till ${brandName}`}
-                >
-                  <Mail className="w-4 h-4" />
-                </a>
-              )}
-              {instagramHandle && (
-                <span className="text-xs text-[#66726A] font-light">
-                  {instagramHandle}
-                </span>
-              )}
-            </div>
-
-            {/* Newsletter Section Integrated in Left Column under Social Icons */}
-            <div className="pt-2 space-y-2.5 max-w-sm">
+            {/* Newsletter Section Integrated in Left Column */}
+            <div className="pt-3 space-y-2.5 max-w-sm">
               <div className="space-y-1">
                 <h4 className="font-serif text-sm sm:text-base text-[#242D27] font-medium leading-snug">
                   Prenumerera på vårt nyhetsbrev för nyheter och erbjudanden
@@ -223,7 +191,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <form
                   id="footer-newsletter-form"
                   onSubmit={handleSubscribe}
-                  className="pt-1 w-full space-y-2"
+                  className="pt-1.5 w-full space-y-2"
                 >
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-0">
                     <input
@@ -256,12 +224,36 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 </form>
               )}
             </div>
+
+            {/* Social Icons under Newsletter */}
+            <div className="flex items-center space-x-3 pt-2">
+              {instagramEnabled && (
+                <a
+                  href={instagramUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-2 rounded-full bg-[#FAF8F5] text-[#242D27] hover:text-[#6B8E7B] hover:bg-[#FAF8F5]/80 transition-colors shadow-xs cursor-pointer"
+                  aria-label={`Följ ${brandName} på Instagram`}
+                >
+                  <Instagram className="w-4 h-4" />
+                </a>
+              )}
+              {emailAddress && (
+                <a
+                  href={`mailto:${emailAddress}`}
+                  className="p-2 rounded-full bg-[#FAF8F5] text-[#242D27] hover:text-[#6B8E7B] hover:bg-[#FAF8F5]/80 transition-colors shadow-xs cursor-pointer"
+                  aria-label={`Skicka e-post till ${brandName}`}
+                >
+                  <Mail className="w-4 h-4" />
+                </a>
+              )}
+            </div>
           </div>
 
-          {/* Kolumn 1 - Sidor */}
+          {/* Kolumn 1 - Navigera */}
           <div className="col-span-1 space-y-4 min-w-0">
             <h4 className="text-xs tracking-widest uppercase font-semibold text-[#242D27]">
-              Sidor
+              {pagesTitle}
             </h4>
             <ul className="space-y-2.5 text-sm">
               {pageLinks
@@ -290,10 +282,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </ul>
           </div>
 
-          {/* Kolumn 2 - Information */}
+          {/* Kolumn 2 - Bra att veta */}
           <div className="col-span-1 space-y-4 min-w-0">
             <h4 className="text-xs tracking-widest uppercase font-semibold text-[#242D27]">
-              Information
+              {infoTitle}
             </h4>
             <ul className="space-y-2.5 text-sm">
               {infoLinks
@@ -319,45 +311,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                     </li>
                   );
                 })}
-            </ul>
-          </div>
-
-          {/* Kolumn 3 - Kontakt & Följ */}
-          <div className="col-span-1 space-y-4 min-w-0">
-            <h4 className="text-xs tracking-widest uppercase font-semibold text-[#242D27]">
-              Kontakt & Följ
-            </h4>
-            <ul className="space-y-2.5 text-sm">
-              {instagramEnabled && (
-                <li>
-                  <a
-                    href={instagramUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[#66726A] hover:text-[#242D27] transition-colors inline-flex items-center gap-1.5 min-w-0"
-                  >
-                    <Instagram className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">{instagramLabel}</span>
-                  </a>
-                </li>
-              )}
-              {contactEnabled && (
-                <li>
-                  <a
-                    href={getPageUrl('contact')}
-                    onClick={(e) => {
-                      if (!isModifiedClick(e)) {
-                        e.preventDefault();
-                        onNavigate('contact');
-                      }
-                    }}
-                    className="text-[#66726A] hover:text-[#242D27] transition-colors focus:outline-none inline-flex items-center gap-1.5 cursor-pointer min-w-0"
-                  >
-                    <Mail className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">{contactLabel}</span>
-                  </a>
-                </li>
-              )}
             </ul>
           </div>
 

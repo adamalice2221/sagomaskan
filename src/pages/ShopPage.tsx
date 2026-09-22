@@ -182,11 +182,8 @@ export const ShopPage: React.FC<ShopPageProps> = ({
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8 sm:space-y-10">
       
       {/* Page Header (Clean, airy, elegant with consistent brand details) */}
-      <div className="text-center max-w-2xl mx-auto space-y-3 pt-2">
-        <p className="text-sm sm:text-base text-[#66726A] font-light leading-relaxed">
-          Handgjorda virkade alster för små och stora.
-        </p>
-        <div className="inline-block pt-0.5">
+      <div className="text-center max-w-2xl mx-auto pt-2">
+        <div className="inline-block">
           <p className="text-xs text-[#526E5F] bg-[#EFF4F1] border border-[#6B8E7B]/25 rounded-full px-4 py-1.5 font-light">
             Detta är en beställningsförfrågan. Ingen betalning sker här på hemsidan.
           </p>
