@@ -593,6 +593,78 @@ app.get("/api/resend/status", (req: Request, res: Response) => {
   });
 });
 
+// Newsletter Subscription via Resend Contacts
+app.post("/api/newsletter/subscribe", async (req: Request, res: Response) => {
+  try {
+    const { email, consent } = req.body || {};
+
+    if (!email || typeof email !== "string" || !email.includes("@") || !email.includes(".")) {
+      return res.status(400).json({
+        success: false,
+        error: "Vänligen ange en giltig e-postadress.",
+      });
+    }
+
+    if (consent !== true) {
+      return res.status(400).json({
+        success: false,
+        error: "Du måste uttryckligen godkänna marknadsföringssamtycket för att ta del av erbjudandet.",
+      });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const resend = getResend();
+
+    if (!resend) {
+      console.warn(
+        `[/api/newsletter/subscribe] RESEND_API_KEY saknas på servern. Simulerar lyckad registrering för ${cleanEmail}.`
+      );
+      return res.json({
+        success: true,
+        message: "Tack för att du anmälde dig till nyhetsbrevet! ♡",
+        warning: "RESEND_API_KEY är inte konfigurerad på servern.",
+      });
+    }
+
+    const audienceId = process.env.RESEND_AUDIENCE_ID;
+
+    try {
+      const contactPayload: any = {
+        email: cleanEmail,
+        unsubscribed: false,
+      };
+      if (audienceId) {
+        contactPayload.audienceId = audienceId;
+      }
+
+      const { data, error } = await resend.contacts.create(contactPayload);
+      if (error) {
+        console.warn("[/api/newsletter/subscribe] Resend Contacts svarade med:", error);
+      } else {
+        console.log(
+          `[/api/newsletter/subscribe] Kontakt sparad i Resend Contacts för ${cleanEmail} (ID: ${data?.id || "OK"})`
+        );
+      }
+    } catch (contactErr: any) {
+      console.warn(
+        "[/api/newsletter/subscribe] Fel vid anrop till Resend Contacts API:",
+        contactErr?.message || contactErr
+      );
+    }
+
+    return res.json({
+      success: true,
+      message: "Tack för att du anmälde dig till nyhetsbrevet! ♡",
+    });
+  } catch (error: any) {
+    console.error("[/api/newsletter/subscribe] Oväntat serverfel:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Ett internt serverfel uppstod. Försök igen om en stund.",
+    });
+  }
+});
+
 // Resend Inquiry Confirmation Email Endpoint
 app.post("/api/resend/send-inquiry-email", async (req: Request, res: Response) => {
   const startTime = Date.now();

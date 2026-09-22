@@ -275,7 +275,7 @@ function AppContent() {
       <Toast />
 
       {/* Minimalist Footer with discreet Admin link */}
-      <Footer onNavigate={handleNavigate} />
+      <Footer onNavigate={handleNavigate} isHomePage={currentPage === 'home'} />
     </div>
   );
 }

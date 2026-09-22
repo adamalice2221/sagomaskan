@@ -133,6 +133,13 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     'Baby'
   ],
 
+  // Välkomst-popup (Startsida)
+  welcomePopupEnabled: false,
+  welcomePopupTitle: 'Välkommen till Sagomaskan ♡',
+  welcomePopupDiscountText: 'Få 10 % på din första beställning',
+  welcomePopupDiscountCode: 'VÄLKOMMEN10',
+  welcomePopupImageUrl: '',
+
   // Footer - Varumärke
   footerBrandName: 'SAGOMASKAN',
   footerTagline: 'VIRKADE PRODUKTER',

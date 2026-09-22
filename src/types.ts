@@ -231,6 +231,13 @@ export interface SiteSettings {
   announcementEnabled?: boolean;
   popularSearchTerms?: string[];
 
+  // Välkomst-popup (Startsida)
+  welcomePopupEnabled?: boolean;
+  welcomePopupTitle?: string;
+  welcomePopupDiscountText?: string;
+  welcomePopupDiscountCode?: string;
+  welcomePopupImageUrl?: string;
+
   // 1. VARUMÄRKE
   footerBrandName?: string;
   footerTagline?: string;
@@ -353,4 +360,11 @@ export interface FaqItem {
   question: string;
   answer: string;
   category: 'forfragan' | 'betalning' | 'produkter' | 'leverans' | 'skotsel';
+}
+
+export interface NewsletterSubscriber {
+  id?: string;
+  email: string;
+  createdAt: string;
+  source?: string;
 }

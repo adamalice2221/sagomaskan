@@ -137,5 +137,16 @@ service cloud.firestore {
       allow read: if isRegisteredAdmin();
       allow write: if isRegisteredAdmin();
     }
+
+    // Newsletter subscribers
+    match /newsletterSubscribers/{subscriberId} {
+      allow create: if (
+        incoming().email is string &&
+        incoming().email.size() > 3 &&
+        incoming().email.size() <= 150 &&
+        incoming().createdAt is string
+      );
+      allow read, update, delete: if isRegisteredAdmin();
+    }
   }
 }

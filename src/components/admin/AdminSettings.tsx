@@ -1,5 +1,5 @@
 import React, { useState, useRef, ReactNode, useEffect } from 'react';
-import { Settings, Save, Check, Mail, Instagram, Type, Image as ImageIcon, Upload, Trash2, RefreshCw, AlertCircle, Layout, Link as LinkIcon, ShieldAlert, Plus, ChevronUp, ChevronDown, BookOpen, Truck, FileText, HelpCircle, Tag, ShoppingBag, Power, CheckCircle2 } from 'lucide-react';
+import { Settings, Save, Check, Mail, Instagram, Type, Image as ImageIcon, Upload, Trash2, RefreshCw, AlertCircle, Layout, Link as LinkIcon, ShieldAlert, Plus, ChevronUp, ChevronDown, BookOpen, Truck, FileText, HelpCircle, Tag, ShoppingBag, Power, CheckCircle2, Gift, Sparkles } from 'lucide-react';
 import { SiteSettings, FooterLink, Product, InfoSection, FaqSettingItem } from '../../types';
 import { uploadHeroImage, uploadLogoImage, uploadAboutImage, normalizeHeroImageUrl } from '../../services/storage';
 import { DEFAULT_SETTINGS } from '../../services/db';
@@ -68,6 +68,41 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
       setHeroProductEnabled(settings.heroProductEnabled);
     }
   }, [settings.heroProductEnabled]);
+
+  // Välkomst-popup
+  const [welcomePopupEnabled, setWelcomePopupEnabled] = useState<boolean>(() =>
+    settings.welcomePopupEnabled !== undefined ? settings.welcomePopupEnabled : (DEFAULT_SETTINGS.welcomePopupEnabled ?? false)
+  );
+  const [welcomePopupTitle, setWelcomePopupTitle] = useState<string>(
+    settings.welcomePopupTitle !== undefined ? settings.welcomePopupTitle : (DEFAULT_SETTINGS.welcomePopupTitle || 'Välkommen till Sagomaskan ♡')
+  );
+  const [welcomePopupDiscountText, setWelcomePopupDiscountText] = useState<string>(
+    settings.welcomePopupDiscountText !== undefined ? settings.welcomePopupDiscountText : (DEFAULT_SETTINGS.welcomePopupDiscountText || 'Få 10 % på din första beställning')
+  );
+  const [welcomePopupDiscountCode, setWelcomePopupDiscountCode] = useState<string>(
+    settings.welcomePopupDiscountCode !== undefined ? settings.welcomePopupDiscountCode : (DEFAULT_SETTINGS.welcomePopupDiscountCode || 'VÄLKOMMEN10')
+  );
+  const [welcomePopupImageUrl, setWelcomePopupImageUrl] = useState<string>(
+    settings.welcomePopupImageUrl || ''
+  );
+
+  useEffect(() => {
+    if (settings.welcomePopupEnabled !== undefined) {
+      setWelcomePopupEnabled(settings.welcomePopupEnabled);
+    }
+    if (settings.welcomePopupTitle !== undefined) {
+      setWelcomePopupTitle(settings.welcomePopupTitle);
+    }
+    if (settings.welcomePopupDiscountText !== undefined) {
+      setWelcomePopupDiscountText(settings.welcomePopupDiscountText);
+    }
+    if (settings.welcomePopupDiscountCode !== undefined) {
+      setWelcomePopupDiscountCode(settings.welcomePopupDiscountCode);
+    }
+    if (settings.welcomePopupImageUrl !== undefined) {
+      setWelcomePopupImageUrl(settings.welcomePopupImageUrl);
+    }
+  }, [settings.welcomePopupEnabled, settings.welcomePopupTitle, settings.welcomePopupDiscountText, settings.welcomePopupDiscountCode, settings.welcomePopupImageUrl]);
   
   // Distinguish between pure external user-entered web URLs and uploaded/internal assets
   const isExternalWebUrl = (url?: string) => {
@@ -590,6 +625,13 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
         announcementEnabled,
         announcementText: announcementText.trim(),
         popularSearchTerms: popularSearchTerms.map(t => t.trim()).filter(Boolean),
+
+        // Välkomst-popup
+        welcomePopupEnabled,
+        welcomePopupTitle: welcomePopupTitle.trim(),
+        welcomePopupDiscountText: welcomePopupDiscountText.trim(),
+        welcomePopupDiscountCode: welcomePopupDiscountCode.trim(),
+        welcomePopupImageUrl: normalizeHeroImageUrl(welcomePopupImageUrl.trim()),
 
         // Footer fields
         logoImageUrl: normalizeHeroImageUrl(logoImageUrl),
@@ -1210,6 +1252,136 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
                 placeholder="Handgjorda virkade produkter på beställning • Skicka en kostnadsfri beställningsförfrågan"
                 className="w-full bg-[#FAF8F5] border border-[#E6DFD3] rounded-xl px-3.5 py-2.5 text-xs text-[#242D27] focus:outline-none focus:ring-2 focus:ring-[#6B8E7B]"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* Välkomst-popup (Startsida) */}
+        <div className="bg-[#FBF9F5] border border-[#E6DFD3] rounded-3xl p-6 sm:p-8 space-y-5">
+          <div className="flex items-center justify-between pb-2 border-b border-[#E6DFD3]">
+            <h2 className="font-serif text-xl text-[#242D27] font-medium flex items-center gap-2">
+              <Gift className="w-4 h-4 text-[#6B8E7B]" />
+              <span>Välkomst-popup (Erbjudande & Nyhetsbrev)</span>
+            </h2>
+            <span
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                welcomePopupEnabled
+                  ? 'bg-[#EBF3EE] text-[#526E5F] border border-[#CDE0D4]'
+                  : 'bg-[#F3EFE8] text-[#8C9890] border border-[#E6DFD3]'
+              }`}
+            >
+              {welcomePopupEnabled ? 'Aktiv' : 'Inaktiv'}
+            </span>
+          </div>
+
+          <p className="text-xs text-[#66726A] font-light leading-relaxed">
+            Styr välkomst-popupen som visas för besökare på startsidan med ett exklusivt välkomsterbjudande mot anmälan till nyhetsbrevet.
+          </p>
+
+          {/* Switch-sektion för Välkomst-popup */}
+          <div className="bg-[#FAF8F5] border border-[#E6DFD3] rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-[#242D27]">
+                  Välkomst-popup
+                </span>
+                <span
+                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                    welcomePopupEnabled
+                      ? 'bg-[#EBF3EE] text-[#526E5F] border border-[#CDE0D4]'
+                      : 'bg-[#F3EFE8] text-[#8C9890] border border-[#E6DFD3]'
+                  }`}
+                >
+                  {welcomePopupEnabled ? 'På' : 'Av'}
+                </span>
+              </div>
+              <p className="text-[11px] text-[#66726A] font-light max-w-xl leading-relaxed">
+                Slå PÅ eller AV välkomst-popupen på startsidan. När den är avstängd visas den inte för några besökare.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3 shrink-0 self-start sm:self-center">
+              <span className={`text-xs font-medium ${welcomePopupEnabled ? 'text-[#242D27]' : 'text-[#8C9890]'}`}>
+                {welcomePopupEnabled ? 'På' : 'Av'}
+              </span>
+              <button
+                type="button"
+                id="welcome-popup-toggle"
+                role="switch"
+                aria-checked={welcomePopupEnabled}
+                onClick={() => setWelcomePopupEnabled((prev) => !prev)}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#6B8E7B] focus:ring-offset-2 ${
+                  welcomePopupEnabled ? 'bg-[#6B8E7B]' : 'bg-[#D4CBBF]'
+                }`}
+              >
+                <span className="sr-only">Välkomst-popup På eller Av</span>
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs ring-0 transition duration-200 ease-in-out ${
+                    welcomePopupEnabled ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+
+          {/* Fält för innehåll */}
+          <div className="space-y-4 pt-1">
+            <div>
+              <label className="block text-xs font-medium text-[#242D27] mb-1.5">
+                Rubrik
+              </label>
+              <input
+                type="text"
+                value={welcomePopupTitle}
+                onChange={(e) => setWelcomePopupTitle(e.target.value)}
+                placeholder="Välkommen till Sagomaskan ♡"
+                className="w-full bg-[#FAF8F5] border border-[#E6DFD3] rounded-xl px-4 py-2.5 text-xs text-[#242D27] focus:outline-none focus:ring-2 focus:ring-[#6B8E7B]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-[#242D27] mb-1.5">
+                Erbjudandetext
+              </label>
+              <input
+                type="text"
+                value={welcomePopupDiscountText}
+                onChange={(e) => setWelcomePopupDiscountText(e.target.value)}
+                placeholder="Få 10 % på din första beställning"
+                className="w-full bg-[#FAF8F5] border border-[#E6DFD3] rounded-xl px-4 py-2.5 text-xs text-[#242D27] focus:outline-none focus:ring-2 focus:ring-[#6B8E7B]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-[#242D27] mb-1.5">
+                Rabattkod att visa efter registrering
+              </label>
+              <input
+                type="text"
+                value={welcomePopupDiscountCode}
+                onChange={(e) => setWelcomePopupDiscountCode(e.target.value.toUpperCase())}
+                placeholder="VÄLKOMMEN10"
+                className="w-full bg-[#FAF8F5] border border-[#E6DFD3] rounded-xl px-4 py-2.5 text-xs text-[#242D27] font-mono focus:outline-none focus:ring-2 focus:ring-[#6B8E7B]"
+              />
+              <p className="text-[11px] text-[#66726A] mt-1 font-light">
+                Tips: Skapa motsvarande rabattkod under fliken "Rabatter" så att koden automatiskt fungerar och drar av rabatten i kassan.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-[#242D27] mb-1.5">
+                Bild (vänster sida i popupen)
+              </label>
+              <input
+                type="text"
+                value={welcomePopupImageUrl}
+                onChange={(e) => setWelcomePopupImageUrl(e.target.value)}
+                placeholder="https://... eller lämna tomt för standardbild"
+                className="w-full bg-[#FAF8F5] border border-[#E6DFD3] rounded-xl px-4 py-2.5 text-xs text-[#242D27] focus:outline-none focus:ring-2 focus:ring-[#6B8E7B]"
+              />
+              <p className="text-[11px] text-[#66726A] mt-1 font-light">
+                Lämna tomt för att använda Sagomaskans varma hantverksbild automatiskt, eller ange URL till en anpassad bild.
+              </p>
             </div>
           </div>
         </div>

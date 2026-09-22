@@ -175,6 +175,18 @@
         "updatedAt": { "type": "string" }
       },
       "required": ["orderNumber", "customerName", "email", "items", "status", "submittedAt"]
+    },
+    "NewsletterSubscriber": {
+      "title": "NewsletterSubscriber",
+      "description": "Newsletter email subscribers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 150 },
+        "createdAt": { "type": "string" },
+        "source": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["email", "createdAt"]
     }
   },
   "firestore": {
@@ -205,6 +217,10 @@
     "/siteSettings/{settingId}": {
       "schema": "SiteSettings",
       "description": "Site wide settings"
+    },
+    "/newsletterSubscribers/{subscriberId}": {
+      "schema": "NewsletterSubscriber",
+      "description": "Collection of newsletter email subscribers"
     },
     "/admins/{adminUid}": {
       "schema": "Admin",
