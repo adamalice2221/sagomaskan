@@ -125,7 +125,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 <div className="p-3.5 rounded-xl bg-[#EFF4F1] border border-[#6B8E7B]/25 text-xs text-[#526E5F] flex items-start gap-2.5 text-left">
                   <Info className="w-4 h-4 text-[#6B8E7B] shrink-0 mt-0.5" />
                   <p className="leading-relaxed">
-                    <strong>En beställningsförfrågan innebär ingen betalning.</strong> Jag återkommer personligen med information om produkten, pris, eventuell frakt och betalning.
+                    <strong>Så här handlar du:</strong> Lägg dina favoriter i Önskelistan och skicka en förfrågan. Inga betalningar sker på sidan – jag återkommer till dig via mejl!
                   </p>
                 </div>
               </div>
