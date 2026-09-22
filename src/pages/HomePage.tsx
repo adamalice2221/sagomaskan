@@ -160,18 +160,6 @@ export const HomePage: React.FC<HomePageProps> = ({
       {/* 2. CATEGORIES SECTION */}
       {displayCategories.length > 0 && (
         <section id="categories-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
-            <p className="text-xs uppercase tracking-[0.2em] text-[#6B8E7B] font-semibold">
-              Kollektionen
-            </p>
-            <h2 className="font-serif text-3xl sm:text-4xl text-[#3B2F2F]">
-              Utforska efter kategori
-            </h2>
-            <p className="text-sm text-[#66726A] font-light">
-              Välj bland våra handvirkade produkter i tidlösa modeller och lugna färgskalor.
-            </p>
-          </div>
-
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
             {displayCategories.map((category) => {
               const categoryKey = category.name || category.id;
@@ -187,19 +175,19 @@ export const HomePage: React.FC<HomePageProps> = ({
                       handleCategoryClick(categoryKey);
                     }
                   }}
-                  className="group flex flex-col items-center text-center cursor-pointer p-3 sm:p-4 rounded-2xl hover:bg-[#F3EFE8]/70 transition-all duration-300 block"
+                  className="group flex flex-col items-center text-center cursor-pointer p-2 sm:p-3 xl:p-4 rounded-2xl hover:bg-[#F3EFE8]/70 transition-all duration-300 block"
                 >
                   {/* Circular image holder */}
-                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mb-3.5 border-2 border-[#E6DFD3] group-hover:border-[#6B8E7B] group-hover:shadow-md transition-all bg-[#FAF8F5] flex items-center justify-center p-1.5 sm:p-2">
+                  <div className="relative w-28 h-28 min-[375px]:w-32 min-[375px]:h-32 sm:w-36 sm:h-36 lg:w-32 lg:h-32 xl:w-36 xl:h-36 rounded-full overflow-hidden mb-3.5 border-2 border-[#E6DFD3] group-hover:border-[#6B8E7B] group-hover:shadow-md transition-all bg-[#FAF8F5] flex items-center justify-center p-2 sm:p-2.5">
                     {category.image ? (
                       <img
                         src={category.image}
                         alt={category.name}
-                        className="w-full h-full object-contain object-center transition-all duration-300"
+                        className="w-full h-full object-contain object-center transition-all duration-300 group-hover:scale-105"
                       />
                     ) : (
                       <div className="w-full h-full rounded-full bg-[#F3EFE8] flex items-center justify-center text-[#6B8E7B]">
-                        <Tag className="w-6 h-6" />
+                        <Tag className="w-7 h-7 sm:w-8 sm:h-8" />
                       </div>
                     )}
                   </div>
