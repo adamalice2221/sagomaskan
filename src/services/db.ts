@@ -34,11 +34,12 @@ const SETTINGS_COLLECTION = 'siteSettings';
 export const DEFAULT_SETTINGS: SiteSettings = {
   email: 'hello@sagomaskan.se',
   instagram: '@sagomaskan',
-  heroTitle: 'Handgjorda virkade produkter med kärlek',
-  heroSubtitle: 'Mjuka detaljer för både stora och små i nordisk, minimalistisk design.',
+  heroTitle: 'Där garn blir till små berättelser',
+  heroSubtitle: 'Mjuk design, färg och fantasi – skapat för hand.',
   heroImage: '',
   heroProductId: '',
   heroProductBadge: 'Unikt hantverk',
+  heroProductEnabled: true,
   aboutText: 'Sagomaskan är en liten svensk hantverksateljé som skapar personliga och tidlösa virkade produkter för hand med stor omsorg och glädje.',
   aboutImageUrl: '',
   maintenanceMode: false,
@@ -739,6 +740,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       return {
         ...DEFAULT_SETTINGS,
         ...data,
+        heroProductEnabled: data.heroProductEnabled !== undefined ? Boolean(data.heroProductEnabled) : (DEFAULT_SETTINGS.heroProductEnabled ?? true),
         maintenanceMode: data.maintenanceMode !== undefined ? Boolean(data.maintenanceMode) : (maintMode ?? false)
       };
     }
@@ -762,6 +764,7 @@ export function subscribeSiteSettings(callback: (settings: SiteSettings) => void
       callback({
         ...DEFAULT_SETTINGS,
         ...data,
+        heroProductEnabled: data.heroProductEnabled !== undefined ? Boolean(data.heroProductEnabled) : (DEFAULT_SETTINGS.heroProductEnabled ?? true),
         maintenanceMode: Boolean(data.maintenanceMode)
       });
     } else {

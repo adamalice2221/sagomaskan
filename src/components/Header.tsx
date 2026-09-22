@@ -180,12 +180,12 @@ export const Header: React.FC<HeaderProps> = ({
               type="button"
               onClick={() => setIsCartOpen(true)}
               className="relative p-2 rounded-full text-[#242D27] hover:bg-[#F3EFE8] transition-colors focus:outline-none focus:ring-2 focus:ring-[#6B8E7B] flex items-center gap-1.5 cursor-pointer"
-              aria-label="Öppna förfrågelista"
-              title="Förfrågelista"
+              aria-label="Öppna önskelistan"
+              title="Önskelistan"
             >
               <ShoppingBag className="w-5 h-5 stroke-[1.75]" />
               <span className="hidden sm:inline text-xs font-medium text-[#242D27]">
-                Förfrågelista
+                Önskelistan
               </span>
               {cartCount > 0 && (
                 <span

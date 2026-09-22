@@ -116,7 +116,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                   }}
                   className="w-full sm:w-auto px-8 py-4 rounded-xl bg-[#242D27] text-[#FAF8F5] text-sm font-medium tracking-wide hover:bg-[#6B8E7B] transition-all flex items-center justify-center gap-3 shadow-md hover:shadow-lg group cursor-pointer"
                 >
-                  <span>Utforska shoppen →</span>
+                  <span>Se mina skapelser →</span>
                 </a>
               </div>
 

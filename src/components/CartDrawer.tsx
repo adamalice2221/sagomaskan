@@ -52,7 +52,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {
             <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
               <ShoppingBag className="w-5 h-5 text-[#242D27] shrink-0" />
               <h2 className="font-serif text-lg sm:text-xl font-medium text-[#242D27] truncate">
-                Din förfrågelista
+                Din önskelista
               </h2>
               <span className="text-xs text-[#66726A] bg-[#F3EFE8] px-2 py-0.5 rounded-full font-medium shrink-0">
                 {items.reduce((acc, i) => acc + i.quantity, 0)} st
@@ -61,7 +61,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {
             <button
               onClick={() => setIsCartOpen(false)}
               className="p-1.5 rounded-lg text-[#66726A] hover:text-[#242D27] hover:bg-[#F3EFE8] transition-colors shrink-0"
-              aria-label="Stäng förfrågelista"
+              aria-label="Stäng önskelistan"
             >
               <X className="w-5 h-5" />
             </button>
@@ -84,7 +84,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {
                 </div>
                 <div>
                   <h3 className="font-serif text-lg font-medium text-[#242D27]">
-                    Förfrågelistan är tom
+                    Önskelistan är tom
                   </h3>
                   <p className="text-xs text-[#66726A] max-w-xs mt-1 leading-relaxed">
                     Hitta dina handgjorda virkade favoriter i shopen och lägg till dem här.
@@ -309,7 +309,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {
                   }}
                   className="w-full py-2.5 px-4 bg-[#F3EFE8] text-[#242D27] rounded-xl text-xs font-medium hover:bg-[#E6DFD3] transition-colors text-center cursor-pointer"
                 >
-                  Hantera förfrågelistan
+                  Hantera önskelistan
                 </a>
               </div>
 

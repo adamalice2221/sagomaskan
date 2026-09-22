@@ -442,12 +442,12 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                 ) : isAdded ? (
                   <>
                     <Check className="w-4 h-4 text-[#6B8E7B]" />
-                    <span>Tillagd i din förfrågelista</span>
+                    <span>Tillagd i din önskelista</span>
                   </>
                 ) : (
                   <>
                     <ShoppingBag className="w-4 h-4" />
-                    <span>Lägg till i förfrågelista</span>
+                    <span>Lägg till i min önskelista</span>
                   </>
                 )}
               </button>

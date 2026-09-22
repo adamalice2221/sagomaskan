@@ -182,19 +182,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
                 ? 'bg-[#EFF4F1] text-[#526E5F] border border-[#6B8E7B]/40 font-medium'
                 : 'bg-[#242D27] text-[#FAF8F5] hover:bg-[#6B8E7B] active:scale-[0.98]'
             }`}
-            aria-label={`Lägg till ${product.name} i förfrågelista`}
+            aria-label={`Lägg till ${product.name} i min önskelista`}
           >
             {isAdding ? (
               <span className="text-[11px] whitespace-nowrap text-[#526E5F] flex items-center gap-1">
                 <Check className="w-3.5 h-3.5 text-[#6B8E7B]" />
-                Tillagd i din förfrågelista
+                Tillagd i din önskelista
               </span>
             ) : isOutOfStock ? (
               <span className="text-[11px]">Slut i lager</span>
             ) : (
               <>
                 <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
-                <span className="text-[11px] whitespace-nowrap">Lägg till i förfrågelista</span>
+                <span className="text-[11px] whitespace-nowrap">Lägg till i min önskelista</span>
               </>
             )}
           </button>
