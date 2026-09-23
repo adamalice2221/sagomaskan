@@ -195,7 +195,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
             ) : (
               <>
                 <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
-                <span className="text-[11px] sm:text-xs whitespace-nowrap font-medium">Lägg till i önskelista</span>
+                <span className="text-[11px] sm:text-xs whitespace-nowrap font-medium">
+                  <span className="sm:hidden">Lägg till</span>
+                  <span className="hidden sm:inline">Lägg till i önskelista</span>
+                </span>
               </>
             )}
           </button>
