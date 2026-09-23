@@ -188,7 +188,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
             {isAdding ? (
               <span className="text-[11px] sm:text-xs whitespace-nowrap text-[#526E5F] flex items-center gap-1 font-medium">
                 <Check className="w-3.5 h-3.5 text-[#6B8E7B] shrink-0" />
-                <span>Tillagd i önskelistan</span>
+                <span className="sm:hidden">Tillagd</span>
+                <span className="hidden sm:inline">Tillagd i önskelistan</span>
               </span>
             ) : isOutOfStock ? (
               <span className="text-[11px] sm:text-xs whitespace-nowrap text-[#66726A]">Slut i lager</span>

@@ -21,11 +21,11 @@ export const Toast: React.FC = () => {
       id="app-toast-notification"
       role="status"
       aria-live="polite"
-      className="fixed bottom-6 right-6 z-50 max-w-sm w-full bg-[#242D27] text-[#FAF8F5] p-4 rounded-xl shadow-2xl border border-[#6B8E7B]/30 flex items-start gap-3 transform transition-all duration-300 animate-in fade-in slide-in-from-bottom-5"
+      className="fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-50 mx-auto sm:mx-0 w-[calc(100%-2rem)] sm:max-w-sm bg-[#242D27] text-[#FAF8F5] p-5 sm:p-4 rounded-xl shadow-2xl border border-[#6B8E7B]/30 flex flex-col sm:flex-row items-center sm:items-start gap-2.5 sm:gap-3 transform transition-all duration-300 animate-in fade-in slide-in-from-bottom-5 relative"
     >
-      <CheckCircle2 className="w-5 h-5 text-[#6B8E7B] shrink-0 mt-0.5" />
+      <CheckCircle2 className="w-5 h-5 text-[#6B8E7B] shrink-0 sm:mt-0.5" />
       
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 flex flex-col items-center sm:items-start text-center sm:text-left">
         <p className="text-sm font-medium text-[#FAF8F5] leading-snug">
           {toastMessage}
         </p>
@@ -43,7 +43,7 @@ export const Toast: React.FC = () => {
 
       <button
         onClick={clearToast}
-        className="p-1 -mr-1 -mt-1 text-[#FAF8F5]/60 hover:text-[#FAF8F5] rounded-md transition-colors"
+        className="absolute top-3 right-3 p-1 text-[#FAF8F5]/60 hover:text-[#FAF8F5] rounded-md transition-colors"
         aria-label="Stäng notifikation"
       >
         <X className="w-4 h-4" />
