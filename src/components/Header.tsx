@@ -38,6 +38,14 @@ export const Header: React.FC<HeaderProps> = ({
     { label: 'Kontakt', page: 'contact' }
   ];
 
+  const mobileNavLinks: { label: string; page: PageRoute }[] = [
+    { label: 'Hem', page: 'home' },
+    { label: 'Shop', page: 'shop' },
+    { label: 'Favoriter', page: 'wishlist' },
+    { label: 'Om mig', page: 'about' },
+    { label: 'Kontakt', page: 'contact' }
+  ];
+
   const handleNavClick = (page: PageRoute) => {
     onNavigate(page);
     setMobileMenuOpen(false);
@@ -260,8 +268,10 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* Mobile Navigation Links */}
               <nav className="mt-8 flex flex-col space-y-3">
-                {navLinks.map((link) => {
+                {mobileNavLinks.map((link) => {
                   const isActive = currentPage === link.page;
+                  const isWishlist = link.page === 'wishlist';
+
                   return (
                     <a
                       key={link.page}
@@ -279,8 +289,24 @@ export const Header: React.FC<HeaderProps> = ({
                           : 'text-[#66726A] hover:bg-[#F3EFE8] hover:text-[#242D27]'
                       }`}
                     >
-                      <span>{link.label}</span>
-                      <ArrowRight className="w-4 h-4 opacity-40" />
+                      <span className="flex items-center gap-2.5">
+                        {isWishlist && (
+                          <Heart
+                            className={`w-4 h-4 stroke-[1.75] ${
+                              wishlist.length > 0 ? 'fill-[#6B8E7B] text-[#6B8E7B]' : 'text-[#66726A]'
+                            }`}
+                          />
+                        )}
+                        <span>{link.label}</span>
+                      </span>
+                      <div className="flex items-center gap-2">
+                        {isWishlist && wishlist.length > 0 && (
+                          <span className="px-2 py-0.5 rounded-full bg-[#6B8E7B] text-[#FAF8F5] text-xs font-semibold">
+                            {wishlist.length}
+                          </span>
+                        )}
+                        <ArrowRight className="w-4 h-4 opacity-40" />
+                      </div>
                     </a>
                   );
                 })}

@@ -334,7 +334,8 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                       key={color.name}
                       type="button"
                       onClick={() => setSelectedColor(color.name)}
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs transition-all ${
+                      aria-label={`Välj färg ${color.name}`}
+                      className={`min-h-[40px] flex items-center gap-2 px-3.5 py-2 rounded-full border text-xs transition-all focus:outline-none focus:ring-2 focus:ring-[#6B8E7B] focus:ring-offset-1 cursor-pointer ${
                         isSelected
                           ? 'border-[#242D27] bg-[#FAF8F5] shadow-xs ring-1 ring-[#242D27]'
                           : 'border-[#E6DFD3] bg-[#FAF8F5] hover:border-[#6B8E7B]'

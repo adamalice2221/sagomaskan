@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ChevronDown, HelpCircle, MessageCircle } from 'lucide-react';
 import { PageRoute } from '../types';
 import { useData } from '../context/DataContext';
@@ -12,6 +12,42 @@ export const FaqPage: React.FC<FaqPageProps> = ({ onNavigate }) => {
   const { settings, settingsLoaded } = useData();
   const [openIds, setOpenIds] = useState<string[]>(['0', 'forfragan-funkar', 'handgjorda']);
   const [activeFilter, setActiveFilter] = useState<string>('alla');
+
+  // Scroll detection for category pill row on mobile
+  const categoryScrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    const el = categoryScrollRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollLeft(scrollLeft > 4);
+    setCanScrollRight(scrollWidth - scrollLeft - clientWidth > 6);
+  }, []);
+
+  useEffect(() => {
+    checkScroll();
+    const el = categoryScrollRef.current;
+    if (!el) return;
+
+    const frameId = requestAnimationFrame(checkScroll);
+
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => {
+        checkScroll();
+      });
+      resizeObserver.observe(el);
+    }
+
+    window.addEventListener('resize', checkScroll);
+    return () => {
+      cancelAnimationFrame(frameId);
+      if (resizeObserver) resizeObserver.disconnect();
+      window.removeEventListener('resize', checkScroll);
+    };
+  }, [checkScroll]);
 
   const faqs = settings.faqItems && settings.faqItems.length > 0
     ? settings.faqItems
@@ -44,27 +80,51 @@ export const FaqPage: React.FC<FaqPageProps> = ({ onNavigate }) => {
       </div>
 
       {/* Category tabs */}
-      <div className="flex flex-wrap items-center justify-center gap-2 border-b border-[#E6DFD3] pb-4">
-        {[
-          { id: 'alla', label: 'Alla frågor' },
-          { id: 'forfragan', label: 'Beställningsförfrågan' },
-          { id: 'produkter', label: 'Produkter & Hantverk' },
-          { id: 'betalning', label: 'Betalning' },
-          { id: 'leverans', label: 'Leverans' },
-          { id: 'skotsel', label: 'Skötselråd' }
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveFilter(tab.id as any)}
-            className={`px-4 py-2 rounded-full text-xs font-medium tracking-wide transition-all ${
-              activeFilter === tab.id
-                ? 'bg-[#242D27] text-[#FAF8F5] shadow-xs'
-                : 'bg-[#F3EFE8] text-[#66726A] hover:bg-[#E6DFD3] hover:text-[#242D27]'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div className="relative max-w-full overflow-hidden sm:overflow-visible border-b border-[#E6DFD3] pb-4">
+        {/* Left subtle fade indicator when scrolled right */}
+        <div
+          className={`pointer-events-none absolute left-0 top-0 bottom-4 w-8 sm:hidden bg-gradient-to-r from-[#FAF8F5] via-[#FAF8F5]/85 to-transparent z-10 transition-opacity duration-300 ${
+            canScrollLeft ? 'opacity-100' : 'opacity-0'
+          }`}
+          aria-hidden="true"
+        />
+
+        {/* Horizontal Scrollable Categories Container (Single row on mobile, wrapped/centered on sm+) */}
+        <div
+          ref={categoryScrollRef}
+          onScroll={checkScroll}
+          className="flex sm:flex-wrap items-center sm:justify-center gap-2 overflow-x-auto sm:overflow-visible [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden py-1 px-1"
+        >
+          {[
+            { id: 'alla', label: 'Alla frågor' },
+            { id: 'forfragan', label: 'Beställningsförfrågan' },
+            { id: 'produkter', label: 'Produkter & Hantverk' },
+            { id: 'betalning', label: 'Betalning' },
+            { id: 'leverans', label: 'Leverans' },
+            { id: 'skotsel', label: 'Skötselråd' }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveFilter(tab.id as any)}
+              className={`shrink-0 px-4 py-2 rounded-full text-xs font-medium tracking-wide transition-all focus:outline-none focus:ring-2 focus:ring-[#6B8E7B] cursor-pointer ${
+                activeFilter === tab.id
+                  ? 'bg-[#242D27] text-[#FAF8F5] shadow-xs'
+                  : 'bg-[#F3EFE8] text-[#66726A] hover:bg-[#E6DFD3] hover:text-[#242D27]'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Right subtle fade indicator when more categories can be swiped to */}
+        <div
+          className={`pointer-events-none absolute right-0 top-0 bottom-4 w-10 sm:hidden bg-gradient-to-l from-[#FAF8F5] via-[#FAF8F5]/85 to-transparent z-10 transition-opacity duration-300 ${
+            canScrollRight ? 'opacity-100' : 'opacity-0'
+          }`}
+          aria-hidden="true"
+        />
       </div>
 
       {/* Accordion FAQ Items */}

@@ -201,8 +201,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {
                         const isAtMax = itemStock > 0 && item.quantity >= itemStock;
 
                         return (
-                          <div className="flex items-center border border-[#E6DFD3] rounded-lg bg-[#FAF8F5]">
+                          <div className="flex items-center border border-[#E6DFD3] rounded-lg bg-[#FAF8F5] shrink-0">
                             <button
+                              type="button"
                               onClick={() =>
                                 updateQuantity(
                                   item.product.id,
@@ -211,15 +212,16 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {
                                   item.selectedSize
                                 )
                               }
-                              className="p-1 hover:bg-[#F3EFE8] text-[#242D27] transition-colors rounded-l-lg"
+                              className="w-10 h-10 flex items-center justify-center hover:bg-[#F3EFE8] text-[#242D27] transition-colors rounded-l-lg cursor-pointer"
                               aria-label="Minska antal"
                             >
-                              <Minus className="w-3 h-3" />
+                              <Minus className="w-3.5 h-3.5" />
                             </button>
-                            <span className="px-2.5 text-xs font-semibold text-[#242D27]">
+                            <span className="px-2.5 text-xs font-semibold text-[#242D27] min-w-[1.75rem] text-center">
                               {item.quantity}
                             </span>
                             <button
+                              type="button"
                               disabled={isAtMax}
                               onClick={() =>
                                 updateQuantity(
@@ -229,10 +231,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {
                                   item.selectedSize
                                 )
                               }
-                              className="p-1 hover:bg-[#F3EFE8] text-[#242D27] disabled:opacity-40 disabled:cursor-not-allowed transition-colors rounded-r-lg"
+                              className="w-10 h-10 flex items-center justify-center hover:bg-[#F3EFE8] text-[#242D27] disabled:opacity-40 disabled:cursor-not-allowed transition-colors rounded-r-lg cursor-pointer"
                               aria-label="Öka antal"
                             >
-                              <Plus className="w-3 h-3" />
+                              <Plus className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         );

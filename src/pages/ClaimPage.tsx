@@ -474,10 +474,11 @@ export const ClaimPage: React.FC<ClaimPageProps> = ({ onNavigateHome, onNavigate
                           e.stopPropagation();
                           handleRemoveImage(img.id);
                         }}
-                        className="absolute top-1 right-1 p-1 bg-black/60 text-white rounded-full hover:bg-red-600 transition-colors"
+                        className="absolute top-1 right-1 w-10 h-10 flex items-center justify-center bg-black/60 text-white rounded-full hover:bg-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-1 focus:ring-offset-black/40 cursor-pointer"
                         title="Ta bort bild"
+                        aria-label="Ta bort bild"
                       >
-                        <X className="w-3 h-3" />
+                        <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   ))}

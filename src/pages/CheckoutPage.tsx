@@ -381,7 +381,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
               </div>
 
               {/* Postnummer & Ort */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-[#242D27] mb-1">
                     Postnummer *

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { SlidersHorizontal, ArrowUpDown, Search, X, Tag } from 'lucide-react';
 import { Product, ProductCategory, SortOption, AgeGroup, Category } from '../types';
 import { ProductCard } from '../components/ProductCard';
@@ -178,6 +178,44 @@ export const ShopPage: React.FC<ShopPageProps> = ({
     setSortBy('recommended');
   };
 
+  // Horizontal scroll detection for category pill row on mobile
+  const categoryScrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    const el = categoryScrollRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollLeft(scrollLeft > 4);
+    // If remaining scroll is greater than 6px, show right fade indicator
+    setCanScrollRight(scrollWidth - scrollLeft - clientWidth > 6);
+  }, []);
+
+  useEffect(() => {
+    checkScroll();
+    const el = categoryScrollRef.current;
+    if (!el) return;
+
+    // Check with requestAnimationFrame to ensure layout is calculated
+    const frameId = requestAnimationFrame(checkScroll);
+
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => {
+        checkScroll();
+      });
+      resizeObserver.observe(el);
+    }
+
+    window.addEventListener('resize', checkScroll);
+    return () => {
+      cancelAnimationFrame(frameId);
+      if (resizeObserver) resizeObserver.disconnect();
+      window.removeEventListener('resize', checkScroll);
+    };
+  }, [checkScroll, categoryTabs]);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8 sm:space-y-10">
       
@@ -190,9 +228,9 @@ export const ShopPage: React.FC<ShopPageProps> = ({
         </div>
       </div>
 
-      {/* Category Section: Utforska efter kategori (Piller-knappar) */}
+      {/* Category Section: Utforska efter kategori (Piller-knappar med horisontell mobil-scroll) */}
       {categoryTabs.length > 0 && (
-        <section id="categories-section" className="space-y-6">
+        <section id="categories-section" className="space-y-4 sm:space-y-6">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <p className="text-xs uppercase tracking-[0.2em] text-[#6B8E7B] font-semibold">
               Kollektionen
@@ -205,41 +243,64 @@ export const ShopPage: React.FC<ShopPageProps> = ({
             </p>
           </div>
 
-          {/* Horizontal Rounded Pill Buttons */}
-          <div className="flex items-center justify-center gap-2 sm:gap-2.5 flex-wrap pt-1">
-            {categoryTabs.map((category) => {
-              const categoryKey = category.name || category.id;
-              const isActive =
-                (categoryKey === 'Alla' && (activeCategory === 'Alla' || !activeCategory)) ||
-                activeCategory === category.name ||
-                activeCategory === category.id ||
-                (activeCategory !== 'Alla' && (
-                  activeCategory.toLowerCase() === (category.name || '').toLowerCase() ||
-                  activeCategory.toLowerCase() === (category.id || '').toLowerCase()
-                ));
-              const categoryUrl = getPageUrl('shop', categoryKey !== 'Alla' ? { category: categoryKey } : undefined);
+          {/* Horizontal Scrollable Categories Container with Peek/Fade Indicators */}
+          <div className="relative max-w-full overflow-hidden sm:overflow-visible">
+            {/* Left subtle fade indicator when scrolled right */}
+            <div
+              className={`pointer-events-none absolute left-0 top-0 bottom-0 w-8 sm:w-10 bg-gradient-to-r from-[#FAF8F5] via-[#FAF8F5]/85 to-transparent z-10 transition-opacity duration-300 ${
+                canScrollLeft ? 'opacity-100' : 'opacity-0'
+              }`}
+              aria-hidden="true"
+            />
 
-              return (
-                <a
-                  key={category.id}
-                  id={`shop-category-pill-${category.id}`}
-                  href={categoryUrl}
-                  onClick={(e) => {
-                    if (!isModifiedClick(e)) {
-                      e.preventDefault();
-                      onSelectCategory(categoryKey);
-                    }
-                  }}
-                  className={`inline-flex items-center gap-2 px-5 py-2 sm:px-6 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium tracking-wide transition-all duration-200 cursor-pointer shadow-2xs ${
-                    isActive
-                      ? 'bg-[#3B2F2F] text-[#FAF8F5] border border-[#3B2F2F] shadow-xs'
-                      : 'bg-[#FAF8F5] text-[#4A3E3D] hover:bg-[#F3EFE8] hover:text-[#242D27] border border-[#E6DFD3] hover:border-[#6B8E7B]/40'
-                  }`}
-                >
-                  <span>{category.name}</span>
-                </a>
-              );
-            })}
+            {/* Horizontal Rounded Pill Buttons */}
+            <div
+              ref={categoryScrollRef}
+              onScroll={checkScroll}
+              className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden py-1 px-1 sm:justify-center sm:flex-wrap"
+            >
+              {categoryTabs.map((category) => {
+                const categoryKey = category.name || category.id;
+                const isActive =
+                  (categoryKey === 'Alla' && (activeCategory === 'Alla' || !activeCategory)) ||
+                  activeCategory === category.name ||
+                  activeCategory === category.id ||
+                  (activeCategory !== 'Alla' && (
+                    activeCategory.toLowerCase() === (category.name || '').toLowerCase() ||
+                    activeCategory.toLowerCase() === (category.id || '').toLowerCase()
+                  ));
+                const categoryUrl = getPageUrl('shop', categoryKey !== 'Alla' ? { category: categoryKey } : undefined);
+
+                return (
+                  <a
+                    key={category.id}
+                    id={`shop-category-pill-${category.id}`}
+                    href={categoryUrl}
+                    onClick={(e) => {
+                      if (!isModifiedClick(e)) {
+                        e.preventDefault();
+                        onSelectCategory(categoryKey);
+                      }
+                    }}
+                    className={`inline-flex items-center gap-2 px-5 py-2 sm:px-6 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium tracking-wide transition-all duration-200 cursor-pointer shadow-2xs shrink-0 ${
+                      isActive
+                        ? 'bg-[#3B2F2F] text-[#FAF8F5] border border-[#3B2F2F] shadow-xs'
+                        : 'bg-[#FAF8F5] text-[#4A3E3D] hover:bg-[#F3EFE8] hover:text-[#242D27] border border-[#E6DFD3] hover:border-[#6B8E7B]/40'
+                    }`}
+                  >
+                    <span>{category.name}</span>
+                  </a>
+                );
+              })}
+            </div>
+
+            {/* Right subtle fade indicator when more categories can be swiped to */}
+            <div
+              className={`pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-16 bg-gradient-to-l from-[#FAF8F5] via-[#FAF8F5]/85 to-transparent z-10 transition-opacity duration-300 ${
+                canScrollRight ? 'opacity-100' : 'opacity-0'
+              }`}
+              aria-hidden="true"
+            />
           </div>
         </section>
       )}

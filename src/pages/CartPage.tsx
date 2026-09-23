@@ -221,7 +221,7 @@ export const CartPage: React.FC<CartPageProps> = ({ onNavigate }) => {
                       const isAtMax = itemStock > 0 && item.quantity >= itemStock;
 
                       return (
-                        <div className="flex items-center border border-[#E6DFD3] rounded-lg bg-[#FAF8F5]">
+                        <div className="flex items-center border border-[#E6DFD3] rounded-lg bg-[#FAF8F5] shrink-0">
                           <button
                             type="button"
                             onClick={() =>
@@ -232,12 +232,12 @@ export const CartPage: React.FC<CartPageProps> = ({ onNavigate }) => {
                                 item.selectedSize
                               )
                             }
-                            className="p-1.5 hover:bg-[#F3EFE8] text-[#242D27] transition-colors rounded-l-lg"
+                            className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center hover:bg-[#F3EFE8] text-[#242D27] transition-colors rounded-l-lg cursor-pointer"
                             aria-label="Minska antal"
                           >
                             <Minus className="w-3.5 h-3.5" />
                           </button>
-                          <span className="px-3 text-xs font-semibold text-[#242D27]">
+                          <span className="px-2.5 sm:px-3 text-xs sm:text-sm font-semibold text-[#242D27] min-w-[2rem] text-center">
                             {item.quantity}
                           </span>
                           <button
@@ -251,7 +251,7 @@ export const CartPage: React.FC<CartPageProps> = ({ onNavigate }) => {
                                 item.selectedSize
                               )
                             }
-                            className="p-1.5 hover:bg-[#F3EFE8] text-[#242D27] disabled:opacity-40 disabled:cursor-not-allowed transition-colors rounded-r-lg"
+                            className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center hover:bg-[#F3EFE8] text-[#242D27] disabled:opacity-40 disabled:cursor-not-allowed transition-colors rounded-r-lg cursor-pointer"
                             aria-label="Öka antal"
                           >
                             <Plus className="w-3.5 h-3.5" />

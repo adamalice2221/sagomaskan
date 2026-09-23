@@ -199,8 +199,8 @@ export const WelcomePopup: React.FC = () => {
           <X className="w-4 h-4" />
         </button>
 
-        {/* Left Side: Warm Sagomaskan Image */}
-        <div className="relative w-full md:w-5/12 h-36 sm:h-44 md:h-auto shrink-0 overflow-hidden bg-[#F3EFE8]">
+        {/* Left Side: Warm Sagomaskan Image - hidden under 390px for compact view, preserved on 390px+ */}
+        <div className="hidden min-[390px]:block relative w-full md:w-5/12 h-36 sm:h-44 md:h-auto shrink-0 overflow-hidden bg-[#F3EFE8]">
           <img
             src={imageSrc}
             alt="Sagomaskan handgjorda alster"
@@ -223,26 +223,26 @@ export const WelcomePopup: React.FC = () => {
         </div>
 
         {/* Right Side: Content & Form / Success */}
-        <div className="w-full md:w-7/12 p-5 sm:p-7 md:p-8 flex flex-col justify-center overflow-y-auto">
+        <div className="w-full md:w-7/12 p-4 min-[390px]:p-5 sm:p-7 md:p-8 flex flex-col justify-center overflow-y-auto">
           {!isSuccess ? (
-            <div className="space-y-4 sm:space-y-5">
+            <div className="space-y-3 min-[390px]:space-y-4 sm:space-y-5">
               {/* Badge */}
               <div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EBF3EE] border border-[#CDE0D4] text-[11px] font-semibold text-[#526E5F]">
+                <span className="inline-flex items-center gap-1.5 px-2.5 min-[390px]:px-3 py-0.5 min-[390px]:py-1 rounded-full bg-[#EBF3EE] border border-[#CDE0D4] text-[10px] min-[390px]:text-[11px] font-semibold text-[#526E5F]">
                   <Sparkles className="w-3 h-3 text-[#6B8E7B]" />
                   <span>Välkomsterbjudande</span>
                 </span>
               </div>
 
               {/* Title & Offer */}
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <h2
                   id="welcome-popup-title"
-                  className="font-serif text-2xl sm:text-3xl text-[#242D27] font-medium leading-tight"
+                  className="font-serif text-xl min-[390px]:text-2xl sm:text-3xl text-[#242D27] font-medium leading-tight"
                 >
                   {title}
                 </h2>
-                <p className="text-base sm:text-lg font-medium text-[#526E5F]">
+                <p className="text-sm min-[390px]:text-base sm:text-lg font-medium text-[#526E5F]">
                   {discountText}
                 </p>
                 <p className="text-xs sm:text-sm text-[#66726A] font-light leading-relaxed">
@@ -251,7 +251,7 @@ export const WelcomePopup: React.FC = () => {
               </div>
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-3.5 pt-1">
+              <form onSubmit={handleSubmit} className="space-y-3 min-[390px]:space-y-3.5 pt-0.5">
                 <div>
                   <label htmlFor="welcome-email-input" className="sr-only">
                     Din e-postadress
@@ -267,30 +267,30 @@ export const WelcomePopup: React.FC = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Din e-postadress"
-                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-[#E6DFD3] bg-white text-sm text-[#242D27] placeholder:text-[#66726A]/70 focus:outline-none focus:border-[#6B8E7B] focus:ring-2 focus:ring-[#6B8E7B]/20 shadow-2xs transition-all"
+                      className="w-full pl-10 pr-4 py-2.5 min-[390px]:py-3 rounded-xl border border-[#E6DFD3] bg-white text-xs min-[390px]:text-sm text-[#242D27] placeholder:text-[#66726A]/70 focus:outline-none focus:border-[#6B8E7B] focus:ring-2 focus:ring-[#6B8E7B]/20 shadow-2xs transition-all"
                     />
                   </div>
                 </div>
 
                 {/* GDPR Consent Checkbox */}
-                <div className="flex items-start gap-2.5 pt-0.5">
+                <div className="flex items-start gap-2 pt-0.5">
                   <input
                     id="welcome-consent-checkbox"
                     type="checkbox"
                     checked={consent}
                     onChange={(e) => setConsent(e.target.checked)}
-                    className="mt-0.5 h-4 w-4 rounded border-[#D4CBBF] text-[#6B8E7B] focus:ring-[#6B8E7B] cursor-pointer accent-[#6B8E7B]"
+                    className="mt-0.5 h-3.5 w-3.5 min-[390px]:h-4 min-[390px]:w-4 rounded border-[#D4CBBF] text-[#6B8E7B] focus:ring-[#6B8E7B] cursor-pointer accent-[#6B8E7B] shrink-0"
                   />
                   <label
                     htmlFor="welcome-consent-checkbox"
-                    className="text-xs text-[#66726A] font-light leading-relaxed cursor-pointer select-none"
+                    className="text-[11px] min-[390px]:text-xs text-[#66726A] font-light leading-snug min-[390px]:leading-relaxed cursor-pointer select-none"
                   >
                     Ja, jag vill få Sagomaskans nyheter och erbjudanden via e-post.
                   </label>
                 </div>
 
                 {errorMessage && (
-                  <p className="text-xs text-red-600 bg-red-50/80 border border-red-200 p-2.5 rounded-lg leading-tight animate-in fade-in">
+                  <p className="text-xs text-red-600 bg-red-50/80 border border-red-200 p-2 min-[390px]:p-2.5 rounded-lg leading-tight animate-in fade-in">
                     {errorMessage}
                   </p>
                 )}
@@ -300,7 +300,7 @@ export const WelcomePopup: React.FC = () => {
                   type="submit"
                   id="welcome-popup-submit-btn"
                   disabled={loading}
-                  className="w-full py-3 px-6 rounded-xl bg-[#6B8E7B] hover:bg-[#587565] disabled:bg-[#A5B7AC] text-white font-medium text-sm transition-all duration-200 shadow-sm active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-2.5 min-[390px]:py-3 px-6 rounded-xl bg-[#6B8E7B] hover:bg-[#587565] disabled:bg-[#A5B7AC] text-white font-medium text-xs min-[390px]:text-sm transition-all duration-200 shadow-sm active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {loading ? (
                     <span className="inline-flex items-center gap-2">
@@ -316,11 +316,11 @@ export const WelcomePopup: React.FC = () => {
                 </button>
 
                 {/* Discrete close action */}
-                <div className="text-center pt-1">
+                <div className="text-center pt-0.5">
                   <button
                     type="button"
                     onClick={handleClose}
-                    className="text-xs text-[#8C9890] hover:text-[#66726A] hover:underline cursor-pointer transition-colors"
+                    className="text-[11px] min-[390px]:text-xs text-[#8C9890] hover:text-[#66726A] hover:underline cursor-pointer transition-colors"
                   >
                     Nej tack, jag fortsätter utan rabatt
                   </button>
@@ -329,13 +329,13 @@ export const WelcomePopup: React.FC = () => {
             </div>
           ) : (
             /* Success View */
-            <div className="space-y-5 py-2 text-center sm:text-left animate-in fade-in duration-300">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#EBF3EE] text-[#6B8E7B] border border-[#CDE0D4] shadow-2xs">
-                <Heart className="w-6 h-6 fill-[#6B8E7B]" />
+            <div className="space-y-4 min-[390px]:space-y-5 py-2 text-center sm:text-left animate-in fade-in duration-300">
+              <div className="inline-flex items-center justify-center w-10 h-10 min-[390px]:w-12 min-[390px]:h-12 rounded-2xl bg-[#EBF3EE] text-[#6B8E7B] border border-[#CDE0D4] shadow-2xs">
+                <Heart className="w-5 h-5 min-[390px]:w-6 min-[390px]:h-6 fill-[#6B8E7B]" />
               </div>
 
-              <div className="space-y-1.5">
-                <h2 className="font-serif text-2xl sm:text-3xl text-[#242D27] font-medium leading-tight">
+              <div className="space-y-1">
+                <h2 className="font-serif text-xl min-[390px]:text-2xl sm:text-3xl text-[#242D27] font-medium leading-tight">
                   Din rabatt är redo! ♡
                 </h2>
                 <p className="text-xs sm:text-sm text-[#66726A] font-light leading-relaxed">
@@ -344,18 +344,18 @@ export const WelcomePopup: React.FC = () => {
               </div>
 
               {/* Discount Code Box */}
-              <div className="bg-[#F3EFE8] border-2 border-dashed border-[#D4CBBF] rounded-2xl p-4 sm:p-5 text-center space-y-3">
-                <div className="text-xs uppercase tracking-widest text-[#66726A] font-semibold">
+              <div className="bg-[#F3EFE8] border-2 border-dashed border-[#D4CBBF] rounded-2xl p-3.5 min-[390px]:p-4 sm:p-5 text-center space-y-2.5 min-[390px]:space-y-3">
+                <div className="text-[10px] min-[390px]:text-xs uppercase tracking-widest text-[#66726A] font-semibold">
                   Din rabattkod
                 </div>
-                <div className="font-mono text-2xl sm:text-3xl font-bold tracking-wider text-[#242D27] select-all">
+                <div className="font-mono text-xl min-[390px]:text-2xl sm:text-3xl font-bold tracking-wider text-[#242D27] select-all">
                   {discountCode}
                 </div>
                 <button
                   type="button"
                   id="welcome-popup-copy-btn"
                   onClick={handleCopyCode}
-                  className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer shadow-2xs ${
+                  className={`inline-flex items-center justify-center gap-2 px-4 min-[390px]:px-5 py-2 min-[390px]:py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer shadow-2xs ${
                     copied
                       ? 'bg-[#526E5F] text-white'
                       : 'bg-[#6B8E7B] hover:bg-[#587565] text-white active:scale-95'
@@ -376,11 +376,11 @@ export const WelcomePopup: React.FC = () => {
               </div>
 
               {/* Action Button */}
-              <div className="pt-2">
+              <div className="pt-1 min-[390px]:pt-2">
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="w-full py-3 px-6 rounded-xl bg-[#242D27] hover:bg-[#38433C] text-white font-medium text-sm transition-colors shadow-xs cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-2.5 min-[390px]:py-3 px-6 rounded-xl bg-[#242D27] hover:bg-[#38433C] text-white font-medium text-xs min-[390px]:text-sm transition-colors shadow-xs cursor-pointer flex items-center justify-center gap-2"
                 >
                   <span>Börja upptäcka hantverken</span>
                   <ArrowRight className="w-4 h-4" />
