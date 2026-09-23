@@ -236,7 +236,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
         {/* 4 Featured Products Grid */}
         {featuredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
             {featuredProducts.map((product) => (
               <ProductCard
                 key={product.id}
@@ -270,54 +270,64 @@ export const HomePage: React.FC<HomePageProps> = ({
       {/* 4. ABOUT TEASER SECTION ("Varje maska berättar en liten historia") */}
       <section id="about-teaser-section" className="bg-[#F3EFE8]/70 border-y border-[#E6DFD3] py-12 sm:py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-12 xl:gap-14 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-14 items-center">
             
-            {/* Vänster sida: Äkta Sagomaskan hantverksbild (45–50% på desktop, först på mobil) */}
-            <div className="lg:col-span-5 order-1 flex flex-col justify-center">
-              <div className="relative w-full mx-auto max-w-sm sm:max-w-md lg:max-w-none">
-                <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-[#E6DFD3] bg-[#FAF8F5] shadow-xs aspect-4/3 sm:aspect-16/10 lg:aspect-4/5 flex items-center justify-center">
-                  <picture className="w-full h-full block">
-                    {!settings?.aboutImageUrl && (
-                      <>
-                        <source srcSet="/hero-craft-banner.webp" type="image/webp" />
-                        <source srcSet="/hero-craft-banner.jpg" type="image/jpeg" />
-                      </>
-                    )}
+            {/* Visual with Genuine Crochet Craft Aesthetic */}
+            <div className="lg:col-span-5 order-2 lg:order-1">
+              <div className="relative mx-auto max-w-sm sm:max-w-md lg:max-w-none">
+                <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-[#E6DFD3] bg-[#FAF8F5] shadow-xs aspect-4/3 sm:aspect-4/3 md:aspect-square lg:aspect-4/5 flex items-center justify-center">
+                  {settings?.aboutImageUrl ? (
                     <img
-                      src={settings?.aboutImageUrl || '/hero-craft-banner.webp'}
+                      src={settings.aboutImageUrl}
                       alt="Sagomaskan - Handvirkat hantverk med garn och virknål"
                       className="w-full h-full object-cover object-center transform hover:scale-[1.02] transition-transform duration-700 ease-out"
-                      loading="lazy"
                     />
-                  </picture>
-                </div>
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center p-6 sm:p-8 text-center text-[#66726A] relative">
+                      {/* Subtle organic craft decorative backdrop */}
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#EFF4F1] border border-[#6B8E7B]/20 flex items-center justify-center text-[#6B8E7B] mb-4 sm:mb-5 shadow-2xs">
+                        <Scissors className="w-8 h-8 sm:w-9 sm:h-9" strokeWidth={1.5} />
+                      </div>
+                      
+                      {/* Decorative stitch accent */}
+                      <div className="inline-flex items-center justify-center gap-1.5 text-[#6B8E7B] mb-2.5" aria-hidden="true">
+                        <span className="w-5 h-[1.5px] bg-[#6B8E7B]/30 rounded-full" />
+                        <svg className="w-8 h-2.5 text-[#6B8E7B]" viewBox="0 0 40 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                          <path d="M2 6c4-4 8-4 12 0s8 4 12 0 8-4 12 0" />
+                        </svg>
+                        <span className="w-5 h-[1.5px] bg-[#6B8E7B]/30 rounded-full" />
+                      </div>
 
-                {/* Diskret hantverkstext under bilden */}
-                <div className="mt-2.5 sm:mt-3 flex items-center justify-center lg:justify-start gap-2 text-xs text-[#66726A] font-light">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#6B8E7B]/60 shrink-0" />
-                  <span>Handgjort med omsorg</span>
+                      <h3 className="font-serif text-lg sm:text-xl text-[#242D27] font-medium mb-1">
+                        Handgjort med omsorg
+                      </h3>
+                      <p className="text-xs sm:text-[13px] text-[#66726A] font-light max-w-xs leading-relaxed">
+                        Maska för maska med garn, virknål och tålamod
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Höger sida: Berättelse och presentation (50–55% på desktop) */}
-            <div className="lg:col-span-7 order-2 text-center lg:text-left flex flex-col justify-center">
+            {/* Narrative Content - Personal and genuine */}
+            <div className="lg:col-span-7 order-1 lg:order-2 text-center lg:text-left flex flex-col justify-center">
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-[#6B8E7B] font-semibold mb-2 sm:mb-2.5">
-                  OM HANTVERKET
+                  Om hantverket
                 </p>
                 
-                <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#242D27] leading-[1.25] font-medium mb-4 sm:mb-6">
+                <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#242D27] leading-[1.25] font-medium mb-4 sm:mb-5">
                   Varje maska berättar en liten historia
                 </h2>
 
-                <div className="space-y-3.5 sm:space-y-4 mb-6 sm:mb-8">
+                <div className="space-y-3 sm:space-y-3.5 mb-6 sm:mb-7">
                   <p className="text-base sm:text-[17px] text-[#242D27] font-light leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                    Bakom Sagomaskan finns en glädje i att skapa med garn, färg och fantasi. Varje produkt virkas för hand, maska för maska, och får sin egen lilla personlighet.
+                    Bakom Sagomaskan finns en passion för att skapa med garn, färg och fantasi. Varje produkt virkas för hand och får sin egen lilla personlighet.
                   </p>
 
                   <p className="text-sm sm:text-base text-[#66726A] font-light leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                    Jag tycker om att skapa saker som känns personliga, mysiga och gjorda för att uppskattas länge.
+                    Jag tycker om att skapa saker som känns personliga, mysiga och gjorda för att användas och uppskattas länge.
                   </p>
                 </div>
 
@@ -331,7 +341,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                         onNavigate('about');
                       }
                     }}
-                    className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#242D27] text-[#FAF8F5] text-xs sm:text-sm font-medium hover:bg-[#6B8E7B] active:scale-[0.98] transition-all shadow-xs group cursor-pointer"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#242D27] text-[#FAF8F5] text-xs sm:text-sm font-medium hover:bg-[#6B8E7B] active:scale-[0.98] transition-all shadow-xs group cursor-pointer"
                   >
                     <span>Läs mer om hantverket →</span>
                   </a>
