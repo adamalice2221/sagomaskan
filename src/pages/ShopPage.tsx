@@ -413,7 +413,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
 
       {/* Product Grid */}
       {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6 lg:gap-7">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-6 sm:gap-6 lg:gap-7">
           {filteredProducts.map((product) => (
             <ProductCard
               key={product.id}
