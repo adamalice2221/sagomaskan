@@ -42,13 +42,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {
         onClick={() => setIsCartOpen(false)}
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-4 sm:pl-10">
+      <div className="fixed inset-0 sm:inset-y-0 sm:right-0 sm:max-w-full flex sm:pl-10">
         <div
           id="cart-drawer-panel"
-          className="w-screen max-w-md bg-[#FAF8F5] border-l border-[#E6DFD3] shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300"
+          className="w-full h-[100dvh] sm:h-full sm:w-screen sm:max-w-md bg-[#FAF8F5] border-0 sm:border-l border-[#E6DFD3] shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300"
         >
           {/* Drawer Header */}
-          <div className="p-4 sm:p-6 border-b border-[#E6DFD3] flex items-center justify-between">
+          <div className="p-4 sm:p-6 border-b border-[#E6DFD3] flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
               <ShoppingBag className="w-5 h-5 text-[#242D27] shrink-0" />
               <h2 className="font-serif text-lg sm:text-xl font-medium text-[#242D27] truncate">
@@ -68,7 +68,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {
           </div>
 
           {/* Inquiry Explanatory Banner */}
-          <div className="px-5 py-3 bg-[#EFF4F1] border-b border-[#6B8E7B]/30 text-xs text-[#526E5F] flex items-start gap-2">
+          <div className="px-5 py-3 bg-[#EFF4F1] border-b border-[#6B8E7B]/30 text-xs text-[#526E5F] flex items-start gap-2 shrink-0">
             <Info className="w-4 h-4 shrink-0 mt-0.5 text-[#6B8E7B]" />
             <p className="leading-relaxed">
               Detta är en <strong>beställningsförfrågan</strong>. Ingen betalning genomförs på webbplatsen.
@@ -76,7 +76,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {
           </div>
 
           {/* Items List */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-5">
+          <div className="flex-1 overflow-y-auto min-h-0 p-4 sm:p-6 space-y-4 sm:space-y-5 pb-12 sm:pb-6">
             {items.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4">
                 <div className="w-16 h-16 rounded-full bg-[#F3EFE8] flex items-center justify-center text-[#66726A]">
@@ -251,7 +251,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {
 
           {/* Drawer Footer / Summary */}
           {items.length > 0 && (
-            <div className="p-4 sm:p-6 border-t border-[#E6DFD3] bg-[#FAF8F5] space-y-4">
+            <div className="p-4 sm:p-6 border-t border-[#E6DFD3] bg-[#FAF8F5] space-y-4 shrink-0 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:pb-6">
               <div className="space-y-1.5">
                 {appliedCode && discountResult?.valid && discountResult.discountAmount > 0 ? (
                   <>
