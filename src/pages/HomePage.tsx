@@ -158,32 +158,36 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
       </section>
 
-      {/* 2. VALUES & INFORMATION SECTION - 2 elegant Scandinavian cards */}
+      {/* 2. VALUES & INFORMATION SECTION - 2 elegant Scandinavian organic cards */}
       <section id="values-section" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           
           {/* 1. Med hjärta i varje mask */}
-          <div className="h-full flex flex-col p-5 sm:p-6 rounded-2xl bg-[#FAF8F5] border border-[#E6DFD3] hover:border-[#6B8E7B]/40 transition-colors duration-300">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#EFF4F1] border border-[#6B8E7B]/20 text-[#526E5F] flex items-center justify-center shrink-0 mb-3 sm:mb-3.5">
-              <Scissors className="w-4 h-4 sm:w-4.5 sm:h-4.5" strokeWidth={1.5} />
+          <div className="h-full flex flex-col p-6 rounded-[30px] bg-[#FAF8F5] border border-[#E6DFD3] hover:border-[#6B8E7B]/30 transition-all duration-300">
+            <div className="flex items-center gap-3.5 mb-3">
+              <div className="w-11 h-11 rounded-full bg-[#EFF4F1] border border-[#6B8E7B]/15 text-[#526E5F] flex items-center justify-center shrink-0 shadow-2xs">
+                <Scissors className="w-4.5 h-4.5" strokeWidth={1.5} />
+              </div>
+              <h3 className="font-serif text-base sm:text-lg font-medium text-[#242D27] leading-snug">
+                Med hjärta i varje mask
+              </h3>
             </div>
-            <h3 className="font-serif text-base sm:text-lg font-medium text-[#242D27] mb-1.5 leading-snug">
-              Med hjärta i varje mask
-            </h3>
-            <p className="text-sm text-[#45524B] leading-relaxed">
+            <p className="text-sm text-[#45524B] leading-relaxed pl-1">
               Jag virkar varje produkt för hand och lägger tid, omsorg och kärlek i varje detalj.
             </p>
           </div>
 
           {/* 2. Efter din beställning */}
-          <div className="h-full flex flex-col p-5 sm:p-6 rounded-2xl bg-[#FAF8F5] border border-[#E6DFD3] hover:border-[#6B8E7B]/40 transition-colors duration-300">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#EFF4F1] border border-[#6B8E7B]/20 text-[#526E5F] flex items-center justify-center shrink-0 mb-3 sm:mb-3.5">
-              <Clock className="w-4 h-4 sm:w-4.5 sm:h-4.5" strokeWidth={1.5} />
+          <div className="h-full flex flex-col p-6 rounded-[30px] bg-[#FAF8F5] border border-[#E6DFD3] hover:border-[#6B8E7B]/30 transition-all duration-300">
+            <div className="flex items-center gap-3.5 mb-3">
+              <div className="w-11 h-11 rounded-full bg-[#EFF4F1] border border-[#6B8E7B]/15 text-[#526E5F] flex items-center justify-center shrink-0 shadow-2xs">
+                <Clock className="w-4.5 h-4.5" strokeWidth={1.5} />
+              </div>
+              <h3 className="font-serif text-base sm:text-lg font-medium text-[#242D27] leading-snug">
+                Efter din beställning
+              </h3>
             </div>
-            <h3 className="font-serif text-base sm:text-lg font-medium text-[#242D27] mb-1.5 leading-snug">
-              Efter din beställning
-            </h3>
-            <p className="text-sm text-[#45524B] leading-relaxed">
+            <p className="text-sm text-[#45524B] leading-relaxed pl-1">
               Vissa produkter virkas efter din beställning. Har du frågor eller behöver hjälp på vägen är du alltid välkommen att höra av dig.
             </p>
           </div>
