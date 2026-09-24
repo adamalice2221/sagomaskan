@@ -149,7 +149,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               <div className="p-3.5 rounded-xl bg-[#FAF8F5]/90 backdrop-blur-xs border border-[#6B8E7B]/30 text-xs text-[#4A3E3D] flex items-start gap-2.5 text-left shadow-2xs">
                 <Info className="w-4 h-4 text-[#6B8E7B] shrink-0 mt-0.5" />
                 <p className="leading-relaxed">
-                  <strong className="text-[#3B2F2F]">Så här handlar du:</strong> Lägg dina favoriter i Önskelistan och skicka en förfrågan. Inga betalningar sker på sidan – jag återkommer till dig via mejl!
+                  <strong className="text-[#3B2F2F]">Så här handlar du:</strong> Lägg dina favoriter i önskelistan och skicka en förfrågan. Inga betalningar sker på sidan – jag återkommer till dig via mejl.
                 </p>
               </div>
             </div>
