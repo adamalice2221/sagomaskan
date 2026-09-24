@@ -9,7 +9,7 @@ interface MaintenancePageProps {
 export const MaintenancePage: React.FC<MaintenancePageProps> = ({ onAdminLogin }) => {
   const { settings } = useData();
 
-  const email = settings.email || 'hello@sagomaskan.se';
+  const email = settings.email || 'info@sagomaskan.se';
   const instagram = settings.instagram || '@sagomaskan';
   const instagramUrl = settings.footerInstagramUrl || `https://instagram.com/${instagram.replace('@', '')}`;
 

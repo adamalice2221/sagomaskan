@@ -12,7 +12,7 @@ export const ContactPage: React.FC = () => {
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const contactEmail = settings?.email || 'hello@sagomaskan.se';
+  const contactEmail = settings?.email || 'info@sagomaskan.se';
   const instagramHandle = settings?.instagram || '@sagomaskan';
   const instagramUrl = settings?.footerInstagramUrl || `https://instagram.com/${instagramHandle.replace('@', '')}`;
 

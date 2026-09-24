@@ -32,7 +32,7 @@ const SETTINGS_COLLECTION = 'siteSettings';
 
 // Default initial settings
 export const DEFAULT_SETTINGS: SiteSettings = {
-  email: 'hello@sagomaskan.se',
+  email: 'info@sagomaskan.se',
   instagram: '@sagomaskan',
   heroTitle: 'Där garn blir till små berättelser',
   heroSubtitle: 'Mjuk design, färg och fantasi – skapat för hand.',
@@ -165,7 +165,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   footerInstagramUrl: 'https://instagram.com/sagomaskan',
   footerInstagramEnabled: true,
   footerEmailLabel: 'E-post',
-  footerEmail: 'hello@sagomaskan.se',
+  footerEmail: 'info@sagomaskan.se',
   footerContactLabel: 'Kontakt',
   footerContactUrl: 'contact',
   footerContactEnabled: true,

@@ -41,7 +41,6 @@ export const Header: React.FC<HeaderProps> = ({
   const mobileNavLinks: { label: string; page: PageRoute }[] = [
     { label: 'Hem', page: 'home' },
     { label: 'Shop', page: 'shop' },
-    { label: 'Favoriter', page: 'wishlist' },
     { label: 'Om mig', page: 'about' },
     { label: 'Kontakt', page: 'contact' }
   ];
@@ -377,8 +376,8 @@ export const Header: React.FC<HeaderProps> = ({
               <p className="font-serif italic text-sm text-[#242D27]">
                 Små maskor – stora leenden. ♡
               </p>
-              <p>Stockholm, Sverige</p>
-              <p>hello@sagomaskan.se</p>
+              <p>Malmö, Sverige</p>
+              <p>info@sagomaskan.se</p>
             </div>
           </div>
         </div>

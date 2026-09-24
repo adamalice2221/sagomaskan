@@ -94,7 +94,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const instagramEnabled = settings.footerInstagramEnabled !== false;
 
   const emailLabel = settings.footerEmailLabel || 'E-post';
-  const emailAddress = settings.footerEmail || settings.email || 'hello@sagomaskan.se';
+  const emailAddress = settings.footerEmail || settings.email || 'info@sagomaskan.se';
 
   const contactLabel = settings.footerContactLabel || 'Kontakt';
   const contactUrl = settings.footerContactUrl || 'contact';

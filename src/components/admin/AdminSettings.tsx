@@ -70,7 +70,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
     setShowStatusConfirmModal(true);
   };
 
-  const [email, setEmail] = useState(settings.email || 'hello@sagomaskan.se');
+  const [email, setEmail] = useState(settings.email || 'info@sagomaskan.se');
   const [instagram, setInstagram] = useState(settings.instagram || '@sagomaskan');
   const [heroTitle, setHeroTitle] = useState(settings.heroTitle || 'Där garn blir till små berättelser');
   const [heroSubtitle, setHeroSubtitle] = useState(settings.heroSubtitle || 'Mjuk design, färg och fantasi – skapat för hand.');
@@ -346,7 +346,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
   const [footerInstagramEnabled, setFooterInstagramEnabled] = useState(settings.footerInstagramEnabled ?? true);
 
   const [footerEmailLabel, setFooterEmailLabel] = useState(settings.footerEmailLabel ?? 'E-post');
-  const [footerEmail, setFooterEmail] = useState(settings.footerEmail ?? settings.email ?? 'hello@sagomaskan.se');
+  const [footerEmail, setFooterEmail] = useState(settings.footerEmail ?? settings.email ?? 'info@sagomaskan.se');
 
   const [footerContactLabel, setFooterContactLabel] = useState(settings.footerContactLabel ?? 'Kontakt');
   const [footerContactUrl, setFooterContactUrl] = useState(settings.footerContactUrl ?? 'contact');
@@ -1922,7 +1922,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
                           type="text"
                           value={footerEmail}
                           onChange={(e) => setFooterEmail(e.target.value)}
-                          placeholder="hello@sagomaskan.se"
+                          placeholder="info@sagomaskan.se"
                           className="bg-[#FAF8F5] border border-[#E6DFD3] rounded-lg px-2.5 py-1 text-xs w-48"
                         />
                       </div>
