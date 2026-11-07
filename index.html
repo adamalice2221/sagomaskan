@@ -12103,6 +12103,13 @@
     <div id="globalToast" class="global-toast" role="status" aria-live="polite" hidden></div>
 
     <script>
+      // Förhindra att webbläsaren automatiskt återställer eller låser skrollposition till botten vid sidbyten och historikändringar
+      try {
+        if ('scrollRestoration' in history) {
+          history.scrollRestoration = 'manual';
+        }
+      } catch (_) {}
+
       // Hantera skroll-effekt på headern och synka höjden på toppbannern så båda följer med vid skroll
       const mainHeader = document.querySelector('.main-header');
       const topBannerStickyEl = document.querySelector('.top-banner');
@@ -12178,8 +12185,49 @@
         document.body.style.overflow = '';
       }
 
+      // Robust och omedelbar nollställning av skrollposition så besökaren aldrig hamnar längst ner vid sid-/vybyten
+      function scrollToPageTop(behavior = 'instant') {
+        try {
+          if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+          }
+        } catch (_) {}
+
+        // 1. Omedelbar synkron nollställning på fönster, dokument och huvudelement
+        try {
+          window.scrollTo(0, 0);
+        } catch (_) {}
+        try {
+          if (document.documentElement) document.documentElement.scrollTop = 0;
+          if (document.body) document.body.scrollTop = 0;
+        } catch (_) {}
+        try {
+          const mainEl = document.querySelector('main');
+          if (mainEl) mainEl.scrollTop = 0;
+        } catch (_) {}
+
+        // 2. Dubbel requestAnimationFrame för att förhindra att DOM-reflow och layout-ändringar tvingar ner skrollen
+        if (typeof requestAnimationFrame === 'function') {
+          requestAnimationFrame(() => {
+            try {
+              window.scrollTo(0, 0);
+              if (document.documentElement) document.documentElement.scrollTop = 0;
+              if (document.body) document.body.scrollTop = 0;
+            } catch (_) {}
+            requestAnimationFrame(() => {
+              try {
+                window.scrollTo(0, 0);
+                if (document.documentElement) document.documentElement.scrollTop = 0;
+                if (document.body) document.body.scrollTop = 0;
+              } catch (_) {}
+            });
+          });
+        }
+      }
+
       function openCart() {
         closeMenu();
+        scrollToPageTop('instant');
         const successView = document.getElementById('cartOrderSuccessView');
         if (successView && !successView.hidden) {
           hideCheckoutView();
@@ -12223,7 +12271,9 @@
           url.hash = 'varukorg';
           window.history.replaceState({}, '', url.toString());
         } catch (_) {}
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToPageTop('instant');
+        const drawerBody = document.querySelector('.drawer-scroll-body');
+        if (drawerBody) drawerBody.scrollTop = 0;
       }
 
       function closeCart() {
@@ -12447,6 +12497,7 @@
       // Växla mellan Startsida, Butikssida (Mina skapelser), Kundservice, Mitt konto, Admin och Varukorg
       function showHomeView() {
         closeCart();
+        scrollToPageTop('instant');
         homeView.hidden = false;
         shopView.hidden = true;
         if (productDetailView) productDetailView.hidden = true;
@@ -12476,11 +12527,12 @@
             window.history.replaceState({}, '', url.pathname + (url.search ? url.search : ''));
           }
         } catch (_) {}
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToPageTop('instant');
       }
 
       function showShopView(categoryIndex = -1) {
         closeCart();
+        scrollToPageTop('instant');
         activeShopCategoryIndex = categoryIndex;
         if (categoryIndex >= 0 && typeof shopSearchQuery !== 'undefined' && shopSearchQuery) {
           shopSearchQuery = '';
@@ -12518,11 +12570,12 @@
             window.history.replaceState({}, '', url.pathname + (url.search ? url.search : '') + '#mina-skapelser');
           }
         } catch (_) {}
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToPageTop('instant');
       }
 
       function showCustomerServiceView(targetCategoryId = null) {
         closeCart();
+        scrollToPageTop('instant');
         homeView.hidden = true;
         shopView.hidden = true;
         if (productDetailView) productDetailView.hidden = true;
@@ -12556,6 +12609,8 @@
           window.history.replaceState({}, '', url.toString());
         } catch (_) {}
 
+        scrollToPageTop('instant');
+
         if (targetCategoryId && typeof openFaqCategory === 'function') {
           openFaqCategory(targetCategoryId);
           return;
@@ -12574,11 +12629,12 @@
             showFaqOverview();
           }
         }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToPageTop('instant');
       }
 
       function showAccountView() {
         closeCart();
+        scrollToPageTop('instant');
         homeView.hidden = true;
         shopView.hidden = true;
         if (productDetailView) productDetailView.hidden = true;
@@ -12603,7 +12659,7 @@
           url.hash = 'mina-sidor';
           window.history.replaceState({}, '', url.toString());
         } catch (_) {}
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToPageTop('instant');
       }
 
       navHomeLink.addEventListener('click', (e) => {
@@ -13109,7 +13165,7 @@
           window.history.replaceState(null, '', '#kundservice/' + categoryId);
         } catch (_) {}
 
-        // Scrolla mjukt till toppen av kategorin
+        // Scrolla till toppen eller till specifik artikel
         if (targetArticleId) {
           setTimeout(() => {
             const targetEl = document.getElementById('articleCard_' + targetArticleId);
@@ -13123,7 +13179,7 @@
             }
           }, 80);
         } else {
-          window.scrollTo({ top: 120, behavior: 'smooth' });
+          scrollToPageTop('instant');
         }
       }
 
@@ -13151,7 +13207,7 @@
           window.history.replaceState(null, '', '#kundservice');
         } catch (_) {}
 
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToPageTop('instant');
       }
 
       function handleFaqSearch(rawQuery) {
@@ -13783,15 +13839,13 @@
       }
 
       if (cartStartShoppingBtn) {
-        cartStartShoppingBtn.addEventListener('click', () => {
+        cartStartShoppingBtn.addEventListener('click', (e) => {
+          if (e && e.preventDefault) e.preventDefault();
           closeCart();
           if (typeof showShopView === 'function') {
-            showShopView();
+            showShopView(-1);
           }
-          const shopSection = document.getElementById('shopSection');
-          if (shopSection) {
-            shopSection.scrollIntoView({ behavior: 'smooth' });
-          }
+          scrollToPageTop('instant');
         });
       }
 
@@ -15290,7 +15344,9 @@
           cartPageLayoutEl.classList.remove('has-items');
         }
 
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToPageTop('instant');
+        const drawerBody = document.querySelector('.drawer-scroll-body');
+        if (drawerBody) drawerBody.scrollTop = 0;
       }
 
       function hideCheckoutView() {
@@ -16599,6 +16655,7 @@
         }
         currentDetailProductId = String(prod.id);
 
+        scrollToPageTop('instant');
         closeCart();
         homeView.hidden = true;
         shopView.hidden = true;
@@ -16614,7 +16671,7 @@
         if (navAccountLink) navAccountLink.classList.remove('is-active');
         if (navAdminLink) navAdminLink.classList.remove('is-active');
         closeMenu();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToPageTop('instant');
 
         if (updateHistory) {
           try {
@@ -19345,6 +19402,7 @@
           return;
         }
         closeCart();
+        scrollToPageTop('instant');
         if (homeView) homeView.hidden = true;
         if (shopView) shopView.hidden = true;
         if (productDetailView) productDetailView.hidden = true;
@@ -19373,7 +19431,7 @@
           url.hash = 'admin';
           window.history.replaceState({}, '', url.toString());
         } catch (_) {}
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToPageTop('instant');
       }
 
       if (adminBackToShopBtn) {
@@ -21938,6 +21996,7 @@
 
       window.addEventListener('popstate', () => {
         try {
+          scrollToPageTop('instant');
           if (window.location.hash === '#varukorg') {
             openCart();
           } else if (window.location.hash === '#konto' || window.location.hash === '#mina-sidor') {
@@ -21969,6 +22028,45 @@
             }
           }
         } catch (_) {}
+      });
+
+      // Global klick-fångare för SPA-ankarlänkar som säkerställer att sidbyten alltid nollställer skroll till toppen
+      document.addEventListener('click', (e) => {
+        const link = e.target.closest('a[href^="#"]');
+        if (!link) return;
+        const href = link.getAttribute('href');
+        if (!href || href === '#' || href === '#!') return;
+
+        if (
+          href === '#hem' ||
+          href === '#mina-skapelser' ||
+          href === '#kundservice' ||
+          href.startsWith('#kundservice/') ||
+          href === '#mina-sidor' ||
+          href === '#konto' ||
+          href === '#admin' ||
+          href === '#varukorg'
+        ) {
+          if (!e.defaultPrevented) {
+            e.preventDefault();
+            if (href === '#hem') showHomeView();
+            else if (href === '#mina-skapelser') showShopView(-1);
+            else if (href === '#kundservice') showCustomerServiceView();
+            else if (href.startsWith('#kundservice/')) showCustomerServiceView(href.replace('#kundservice/', ''));
+            else if (href === '#mina-sidor' || href === '#konto') {
+              const activeCust = typeof getActiveCustomer === 'function' ? getActiveCustomer() : null;
+              if (activeCust) showAccountView();
+              else {
+                showHomeView();
+                if (typeof openAccountAuthModal === 'function') openAccountAuthModal('login');
+              }
+            } else if (href === '#admin') {
+              if (typeof requestAdminAccess === 'function') requestAdminAccess();
+            } else if (href === '#varukorg') {
+              openCart();
+            }
+          }
+        }
       });
 
 
@@ -22219,6 +22317,16 @@
       checkInitialProductRoute();
       updateHeaderSearchVisibility();
       initCookieConsentBanner();
+
+      // Se till att sidan alltid startar i toppen vid inläsning/refresh om inte en specifik djup-ankare efterfrågas
+      if (!window.location.hash || window.location.hash === '#hem' || window.location.hash === '#') {
+        scrollToPageTop('instant');
+      }
+      window.addEventListener('load', () => {
+        if (!window.location.hash || window.location.hash === '#hem' || window.location.hash === '#') {
+          scrollToPageTop('instant');
+        }
+      });
 
       // Exponera synkroniserings-hooks för Firebase Firestore
       window.currentProducts = currentProducts;
