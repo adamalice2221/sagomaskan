@@ -1,0 +1,232 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Handvirkat hantverk och produkter i butiken",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unikt produkt-ID",
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "description": "Produktens namn",
+          "maxLength": 150
+        },
+        "categoryIndex": {
+          "type": "number",
+          "description": "Index för produktkategori (0-5)"
+        },
+        "price": {
+          "type": "number",
+          "description": "Pris i SEK"
+        },
+        "description": {
+          "type": "string",
+          "description": "Beskrivning av produkten och hantverket",
+          "maxLength": 2000
+        },
+        "stock": {
+          "type": "number",
+          "description": "Lagersaldo"
+        },
+        "images": {
+          "type": "array",
+          "description": "Upp till 5 bildlänkar eller komprimerade bilder"
+        },
+        "image": {
+          "type": "string",
+          "description": "Huvudbild (url eller data-url)"
+        },
+        "featured": {
+          "type": "boolean",
+          "description": "Om produkten visas som utvald på startsidan"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Tidpunkt då produkten skapades"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Tidpunkt då produkten senast uppdaterades"
+        }
+      },
+      "required": ["name", "price"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Kategori för sortering av virkade produkter",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Kategori-ID (t.ex. index '0' till '5')",
+          "maxLength": 32
+        },
+        "name": {
+          "type": "string",
+          "description": "Kategorins visningsnamn",
+          "maxLength": 80
+        },
+        "image": {
+          "type": "string",
+          "description": "Kategorins omslagsbild"
+        },
+        "order": {
+          "type": "number",
+          "description": "Sorteringsordning"
+        }
+      },
+      "required": ["name"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Kundbeställning lagd via kassan",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Ordernummer t.ex. SM-1001",
+          "maxLength": 64
+        },
+        "customerName": {
+          "type": "string",
+          "description": "Kundens fullständiga namn",
+          "maxLength": 120
+        },
+        "customerEmail": {
+          "type": "string",
+          "description": "Kundens e-postadress",
+          "maxLength": 160
+        },
+        "customerPhone": {
+          "type": "string",
+          "description": "Kundens telefonnummer",
+          "maxLength": 40
+        },
+        "shippingAddress": {
+          "type": "string",
+          "description": "Leveransadress för beställningen",
+          "maxLength": 300
+        },
+        "paymentMethod": {
+          "type": "string",
+          "description": "Valt betalsätt t.ex. swish eller klarna",
+          "maxLength": 50
+        },
+        "items": {
+          "type": "array",
+          "description": "Lista över beställda produkter och antal"
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "Totalsumma i SEK"
+        },
+        "discountCode": {
+          "type": "string",
+          "description": "Tillämpad rabattkod",
+          "maxLength": 40
+        },
+        "status": {
+          "type": "string",
+          "description": "Orderstatus: Mottagen, Packas, Skickad, Avbruten",
+          "enum": ["Mottagen", "Packas", "Skickad", "Avbruten"]
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Skapad tidpunkt i ISO-format"
+        }
+      },
+      "required": ["customerName", "customerEmail", "totalAmount", "status"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Kundmeddelande inskickat via kontaktformuläret",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unikt meddelande-ID",
+          "maxLength": 64
+        },
+        "name": {
+          "type": "string",
+          "description": "Avsändarens namn",
+          "maxLength": 100
+        },
+        "email": {
+          "type": "string",
+          "description": "Avsändarens e-postadress",
+          "maxLength": 160
+        },
+        "subject": {
+          "type": "string",
+          "description": "Ämne för förfrågan",
+          "maxLength": 120
+        },
+        "message": {
+          "type": "string",
+          "description": "Meddelandetext",
+          "maxLength": 3000
+        },
+        "status": {
+          "type": "string",
+          "description": "Status t.ex. Nytt, Läst, Besvarat",
+          "maxLength": 30
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Tidpunkt då meddelandet skickades"
+        }
+      },
+      "required": ["name", "email", "message"]
+    },
+    "StoreSettings": {
+      "title": "StoreSettings",
+      "description": "Konfiguration och anpassningar för butiken t.ex. banners, hero och presentaskar",
+      "type": "object",
+      "properties": {
+        "topBanner": {
+          "type": "object",
+          "description": "Toppbanner med meddelande och färger"
+        },
+        "hero": {
+          "type": "object",
+          "description": "Huvudbanner med rubrik, text, bild och transparens"
+        },
+        "homeBoxes": {
+          "type": "array",
+          "description": "Informationsrutor på startsidan"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Senaste uppdateringstidpunkt"
+        }
+      }
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Offentlig produktkatalog för handgjorda alster"
+    },
+    "/categories/{categoryId}": {
+      "schema": "Category",
+      "description": "Kategorier för butikens sortiment"
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Kundbeställningar från kassan"
+    },
+    "/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Inkomna förfrågningar och kundmeddelanden"
+    },
+    "/settings/{settingId}": {
+      "schema": "StoreSettings",
+      "description": "Globala butiksinställningar och banners"
+    }
+  }
+}

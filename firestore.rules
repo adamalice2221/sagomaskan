@@ -1,0 +1,116 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() == 'sagomaskan@outlook.com';
+    }
+
+    function isValidProduct(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 150
+        && data.price is number && data.price >= 0 && data.price <= 100000;
+    }
+
+    function isValidCategory(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 80;
+    }
+
+    function isValidOrder(data) {
+      return data.customerName is string && data.customerName.size() > 0 && data.customerName.size() <= 120
+        && data.customerEmail is string && data.customerEmail.size() > 0 && data.customerEmail.size() <= 160
+        && data.totalAmount is number && data.totalAmount >= 0 && data.totalAmount <= 500000
+        && data.status is string && data.status in ['Mottagen', 'Packas', 'Skickad', 'Avbruten', 'new', 'shipped', 'cancelled', 'completed', 'processing'];
+    }
+
+    function isValidMessage(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.email is string && data.email.size() > 0 && data.email.size() <= 160
+        && data.message is string && data.message.size() > 0 && data.message.size() <= 3000;
+    }
+
+    function isValidDiscount(data) {
+      return data.code is string && data.code.size() >= 2 && data.code.size() <= 50
+        && data.type is string && data.type in ['percent', 'fixed']
+        && data.value is number && data.value >= 0;
+    }
+
+    match /products/{productId} {
+      allow read: if true;
+      allow create: if isValidId(productId) && isAdmin() && isValidProduct(incoming());
+      allow update: if isValidId(productId) && isValidProduct(incoming()) && (
+        isAdmin() ||
+        (
+          incoming().diff(existing()).affectedKeys().hasOnly(['stock', 'updatedAt'])
+          && incoming().stock is number
+          && incoming().stock >= 0
+          && incoming().stock < existing().stock
+        )
+      );
+      allow delete: if isValidId(productId) && isAdmin();
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow create, update: if isValidId(categoryId) && isAdmin() && isValidCategory(incoming());
+      allow delete: if isValidId(categoryId) && isAdmin();
+    }
+
+    match /orders/{orderId} {
+      allow get: if isValidId(orderId);
+      allow list: if isAdmin();
+      allow create: if isValidId(orderId) && isValidOrder(incoming());
+      allow update: if isValidId(orderId) && (
+        isAdmin() ||
+        (
+          existing().status in ['new', 'Mottagen']
+          && incoming().status == 'cancelled'
+          && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'statusHistory', 'updatedAt'])
+        )
+      );
+      allow delete: if isValidId(orderId) && isAdmin();
+    }
+
+    match /messages/{messageId} {
+      allow read: if isAdmin();
+      allow create: if isValidId(messageId) && isValidMessage(incoming());
+      allow update, delete: if isValidId(messageId) && isAdmin();
+    }
+
+    match /discounts/{discountId} {
+      allow read: if true;
+      allow create, update: if isValidId(discountId) && isAdmin() && isValidDiscount(incoming());
+      allow delete: if isValidId(discountId) && isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isValidId(settingId) && isAdmin();
+    }
+
+    match /test/{testId} {
+      allow read: if true;
+    }
+  }
+}

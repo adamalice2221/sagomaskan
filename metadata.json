@@ -1,0 +1,6 @@
+{
+  "name": "Sagomaskan - Virkade Produkter",
+  "description": "E-handel för handvirkade alster, amigurumi och unika garnkreationer av Sagomaskan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
