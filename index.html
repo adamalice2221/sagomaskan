@@ -3289,7 +3289,8 @@
       }
 
       .account-fav-stock.is-out {
-        color: #991b1b;
+        color: #8c5a32;
+        font-weight: 500;
       }
 
       .account-fav-actions {
@@ -3312,11 +3313,28 @@
         font-size: 0.76rem;
         font-weight: 500;
         cursor: pointer;
-        transition: background-color 0.2s ease;
+        transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
       }
 
       .account-fav-cart-btn:hover:not(:disabled) {
         background-color: #333333;
+      }
+
+      .account-fav-cart-btn.is-watch {
+        background-color: #F4F2EC;
+        border-color: #c9c3b6;
+        color: #2f3e3b;
+      }
+
+      .account-fav-cart-btn.is-watch:hover:not(:disabled) {
+        background-color: #eae6dc;
+        border-color: #b4ad9e;
+      }
+
+      .account-fav-cart-btn.is-watch.is-watched {
+        background-color: #ecfdf5;
+        border-color: #a7f3d0;
+        color: #065f46;
       }
 
       .account-fav-cart-btn:disabled {
@@ -6277,6 +6295,25 @@
         transform: none;
       }
 
+      .product-detail-add-cart-btn.is-watch {
+        background-color: #F4F2EC;
+        border-color: #c9c3b6;
+        color: #2f3e3b;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .product-detail-add-cart-btn.is-watch:hover:not(:disabled) {
+        background-color: #eae6dc;
+        border-color: #b4ad9e;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+      }
+
+      .product-detail-add-cart-btn.is-watch.is-watched {
+        background-color: #ecfdf5;
+        border-color: #a7f3d0;
+        color: #065f46;
+      }
+
       .product-detail-share-btn {
         display: inline-flex;
         align-items: center;
@@ -6364,9 +6401,9 @@
       /* Lagersaldo och unika exemplar */
       .shop-badge-soldout {
         display: inline-block;
-        background-color: #fef2f2;
-        color: #991b1b;
-        border: 1px solid #fecaca;
+        background-color: #fdf8f3;
+        color: #8c5a32;
+        border: 1px solid #ebd9c8;
         font-size: 0.68rem;
         font-weight: 600;
         letter-spacing: 0.08em;
@@ -6391,10 +6428,78 @@
       }
 
       .shop-add-to-cart-btn.is-soldout {
-        background-color: #d4d4d4 !important;
-        border-color: #d4d4d4 !important;
-        color: #737373 !important;
-        cursor: not-allowed !important;
+        background-color: #F4F2EC !important;
+        border-color: #c9c3b6 !important;
+        color: #2f3e3b !important;
+        cursor: pointer !important;
+      }
+
+      .shop-add-to-cart-btn.is-soldout:hover {
+        background-color: #eae6dc !important;
+        border-color: #b4ad9e !important;
+      }
+
+      .shop-add-to-cart-btn.is-soldout.is-watched {
+        background-color: #ecfdf5 !important;
+        border-color: #a7f3d0 !important;
+        color: #065f46 !important;
+      }
+
+      .watch-modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 4200;
+        background-color: rgba(18, 22, 20, 0.56);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .watch-modal-overlay[hidden] {
+        display: none !important;
+      }
+
+      .watch-modal-card {
+        width: 100%;
+        max-width: 440px;
+        background-color: #ffffff;
+        border-radius: 18px;
+        padding: 26px 26px 24px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        position: relative;
+      }
+
+      .watch-modal-prod-preview {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background-color: #F8F6F1;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        margin-bottom: 16px;
+      }
+
+      .watch-modal-prod-thumb {
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        overflow: hidden;
+        background-color: #ffffff;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .watch-modal-prod-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
       }
 
       /* Banner för rensade eller justerade varor i varukorgen */
@@ -10620,6 +10725,45 @@
       </div>
     </div>
 
+    <!-- Pop-up Modal för att bevaka produkt när 0 finns i lager -->
+    <div id="watchProductModal" class="watch-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="watchModalTitle" hidden>
+      <div class="watch-modal-card">
+        <div class="account-modal-header" style="margin-bottom: 12px;">
+          <div class="account-modal-brand">
+            <span class="account-modal-brand-title" style="font-size: 1rem;">BEVAKA PRODUKT</span>
+            <span class="account-modal-brand-sub" id="watchModalTitle">Få besked när den finns i lager igen</span>
+          </div>
+          <button id="closeWatchModalBtn" type="button" class="account-modal-close-btn" aria-label="Stäng bevakning">✕</button>
+        </div>
+
+        <div id="watchModalProdPreview" class="watch-modal-prod-preview" hidden></div>
+
+        <p style="font-size: 0.85rem; color: #525252; line-height: 1.5; margin: 0 0 16px 0;">
+          Denna skapelse har just nu 0 i lager. Lämna din e-postadress nedan så skickar vi ett meddelande så fort den går att beställa igen.
+        </p>
+
+        <form id="watchProductForm" class="account-modal-form" style="gap: 12px;">
+          <input type="hidden" id="watchModalProductId" value="" />
+          <div class="account-form-field">
+            <label class="account-form-label" for="watchModalNameInput">Namn (valfritt)</label>
+            <input type="text" id="watchModalNameInput" class="account-form-input" placeholder="Ditt namn" maxlength="100" autocomplete="name" />
+          </div>
+          <div class="account-form-field">
+            <label class="account-form-label" for="watchModalEmailInput">E-postadress *</label>
+            <input type="email" id="watchModalEmailInput" class="account-form-input" placeholder="din.epost@exempel.se" maxlength="160" required autocomplete="email" />
+          </div>
+          <div style="display: flex; gap: 10px; margin-top: 6px;">
+            <button type="submit" class="account-submit-btn" style="flex: 1;">
+              <span>Aktivera bevakning</span>
+            </button>
+            <button type="button" id="cancelWatchModalBtn" class="pin-cancel-btn" style="padding: 0 18px; border-radius: 999px;">
+              Avbryt
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- Pop-up Modal för Inloggning & Registrering (Mitt konto) -->
     <div id="accountAuthModal" class="account-auth-modal-overlay" aria-label="Inloggning och konto" role="dialog" aria-modal="true" hidden>
       <div class="account-auth-modal-card">
@@ -12136,6 +12280,173 @@
 
       let currentMessages = loadMessages();
 
+      // Bevakade produkter (när 0 finns i lager)
+      const WATCHED_PRODUCTS_STORAGE_KEY = 'sagomaskan_watched_products_v1';
+
+      function loadWatchedProductIds() {
+        try {
+          const raw = localStorage.getItem(WATCHED_PRODUCTS_STORAGE_KEY);
+          if (!raw) return [];
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) return parsed.map(String);
+        } catch (_) {}
+        return [];
+      }
+
+      let watchedProductIds = loadWatchedProductIds();
+
+      function isProductWatched(productId) {
+        return watchedProductIds.includes(String(productId));
+      }
+
+      function markProductWatched(productId) {
+        const pid = String(productId || '');
+        if (!pid) return;
+        if (!watchedProductIds.includes(pid)) {
+          watchedProductIds.push(pid);
+          safeSetItem(WATCHED_PRODUCTS_STORAGE_KEY, JSON.stringify(watchedProductIds));
+        }
+      }
+
+      const watchProductModal = document.getElementById('watchProductModal');
+      const watchProductForm = document.getElementById('watchProductForm');
+      const watchModalProductId = document.getElementById('watchModalProductId');
+      const watchModalProdPreview = document.getElementById('watchModalProdPreview');
+      const watchModalNameInput = document.getElementById('watchModalNameInput');
+      const watchModalEmailInput = document.getElementById('watchModalEmailInput');
+      const closeWatchModalBtn = document.getElementById('closeWatchModalBtn');
+      const cancelWatchModalBtn = document.getElementById('cancelWatchModalBtn');
+
+      function closeWatchProductModal() {
+        if (!watchProductModal) return;
+        watchProductModal.hidden = true;
+        if (!quickViewModal || quickViewModal.hidden) {
+          document.body.style.overflow = '';
+        }
+      }
+
+      function openWatchProductModal(productId) {
+        const prod = currentProducts.find((p) => String(p.id) === String(productId));
+        if (!prod || !watchProductModal) return;
+
+        if (watchModalProductId) watchModalProductId.value = String(prod.id);
+
+        if (watchModalProdPreview) {
+          const prodImgs = typeof getProductImages === 'function' ? getProductImages(prod) : prod.image ? [prod.image] : [];
+          const thumbHtml = prodImgs[0]
+            ? `<img src="${prodImgs[0]}" alt="${escapeHtml(prod.name)}" />`
+            : PLACEHOLDER_ICON_SVG;
+          watchModalProdPreview.innerHTML = `
+            <div class="watch-modal-prod-thumb">${thumbHtml}</div>
+            <div style="min-width: 0;">
+              <div style="font-size: 0.92rem; font-weight: 600; color: #171717; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(prod.name)}</div>
+              <div style="font-size: 0.8rem; color: #525252;">${escapeHtml(prod.price)} kr · Bevaka</div>
+            </div>
+          `;
+          watchModalProdPreview.hidden = false;
+        }
+
+        const cust = typeof getActiveCustomer === 'function' ? getActiveCustomer() : null;
+        if (watchModalNameInput && !watchModalNameInput.value.trim() && cust && cust.name) {
+          watchModalNameInput.value = cust.name;
+        }
+        if (watchModalEmailInput && !watchModalEmailInput.value.trim() && cust && cust.email) {
+          watchModalEmailInput.value = cust.email;
+        }
+
+        watchProductModal.hidden = false;
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => {
+          if (watchModalEmailInput && !watchModalEmailInput.value.trim()) {
+            watchModalEmailInput.focus();
+          } else if (watchModalEmailInput) {
+            watchModalEmailInput.focus();
+          }
+        }, 40);
+      }
+
+      if (closeWatchModalBtn) {
+        closeWatchModalBtn.addEventListener('click', closeWatchProductModal);
+      }
+      if (cancelWatchModalBtn) {
+        cancelWatchModalBtn.addEventListener('click', closeWatchProductModal);
+      }
+      if (watchProductModal) {
+        watchProductModal.addEventListener('click', (e) => {
+          if (e.target === watchProductModal) {
+            closeWatchProductModal();
+          }
+        });
+      }
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && watchProductModal && !watchProductModal.hidden) {
+          closeWatchProductModal();
+        }
+      });
+
+      if (watchProductForm) {
+        watchProductForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const pid = watchModalProductId ? watchModalProductId.value : '';
+          const prod = currentProducts.find((p) => String(p.id) === String(pid));
+          const emailVal = watchModalEmailInput ? watchModalEmailInput.value.trim() : '';
+          const nameVal = watchModalNameInput ? watchModalNameInput.value.trim() : '';
+
+          if (!emailVal || !emailVal.includes('@')) {
+            showToast('Vänligen ange en giltig e-postadress.', 'warning');
+            return;
+          }
+
+          const prodName = prod ? prod.name : 'Produkt';
+          const newWatchMsg = {
+            id: 'msg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+            createdAt: new Date().toISOString(),
+            status: 'unread',
+            name: (nameVal || 'Kund').slice(0, 100),
+            email: emailVal.slice(0, 160),
+            subject: `Bevaka produkt: ${prodName}`.slice(0, 120),
+            orderNumber: '',
+            message: `Kund vill bevaka produkten "${prodName}" (ID: ${pid}) och få besked via e-post (${emailVal}) när den åter finns i lager.`.slice(0, 3000)
+          };
+
+          currentMessages.unshift(newWatchMsg);
+          saveMessages(currentMessages, newWatchMsg);
+          markProductWatched(pid);
+
+          if (typeof renderAdminMessagesSection === 'function') {
+            renderAdminMessagesSection();
+          }
+          if (typeof updateAdminKpisAndBadges === 'function') {
+            updateAdminKpisAndBadges();
+          }
+          if (typeof renderShopProducts === 'function') {
+            renderShopProducts();
+          }
+          if (typeof renderFeaturedProducts === 'function') {
+            renderFeaturedProducts();
+          }
+          if (typeof renderCustomerFavorites === 'function') {
+            renderCustomerFavorites(typeof getActiveCustomer === 'function' ? getActiveCustomer() : null);
+          }
+
+          const qvBtn = document.getElementById('qvAddToCartBtn');
+          if (qvBtn && qvBtn.dataset.watchProdId === String(pid)) {
+            qvBtn.classList.add('is-watched');
+            const qvLabel = qvBtn.querySelector('span');
+            if (qvLabel) qvLabel.textContent = '✓ Bevakas';
+          }
+          const detailBtn = document.getElementById('detailAddToCartBtn');
+          const detailLabel = document.getElementById('detailAddToCartBtnLabel');
+          if (detailBtn && detailBtn.dataset.watchProdId === String(pid)) {
+            detailBtn.classList.add('is-watched');
+            if (detailLabel) detailLabel.textContent = '✓ Bevakas';
+          }
+
+          closeWatchProductModal();
+          showToast(`Du bevakar nu "${prodName}"! Vi hör av oss när den finns i lager.`, 'success');
+        });
+      }
+
       const customerServiceContactForm = document.getElementById('customerServiceContactForm');
       const csContactSuccessMsg = document.getElementById('csContactSuccessMsg');
 
@@ -12411,7 +12722,7 @@
 
         const availableStock = product.stock !== undefined ? product.stock : 1;
         if (availableStock <= 0) {
-          showToast('Produkten är tyvärr slutsåld.', 'warning');
+          showToast('Produkten har 0 i lager just nu. Klicka på Bevaka för att få besked när den återkommer.', 'warning');
           return false;
         }
 
@@ -14777,12 +15088,13 @@
 
                 const stock = prod.stock !== undefined ? prod.stock : 1;
                 const isSoldOut = stock <= 0;
+                const isWatched = isSoldOut && isProductWatched(prod.id);
                 let stockBadgeHtml = '';
                 let addToCartBtnHtml = '';
 
                 if (isSoldOut) {
-                  stockBadgeHtml = `<span class="shop-badge-soldout">Slutsåld</span>`;
-                  addToCartBtnHtml = `<button type="button" class="shop-add-to-cart-btn is-soldout" disabled>Slutsåld</button>`;
+                  stockBadgeHtml = `<span class="shop-badge-soldout">Bevaka</span>`;
+                  addToCartBtnHtml = `<button type="button" class="shop-add-to-cart-btn is-soldout ${isWatched ? 'is-watched' : ''}" data-watch-product-id="${escapeHtml(prod.id)}">${isWatched ? '✓ Bevakas' : 'Bevaka'}</button>`;
                 } else {
                   stockBadgeHtml = `<span class="shop-badge-instock">I lager</span>`;
                   addToCartBtnHtml = `<button type="button" class="shop-add-to-cart-btn" data-add-cart-id="${escapeHtml(prod.id)}">Lägg i varukorg</button>`;
@@ -14871,6 +15183,13 @@
             addToCart(btn.getAttribute('data-add-cart-id'));
           });
         });
+
+        shopProductsContent.querySelectorAll('[data-watch-product-id]').forEach((btn) => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openWatchProductModal(btn.getAttribute('data-watch-product-id'));
+          });
+        });
       }
 
       // Renderar Utvalda produkter på startsidan (under kategorierna)
@@ -14907,12 +15226,13 @@
 
                 const stock = prod.stock !== undefined ? prod.stock : 1;
                 const isSoldOut = stock <= 0;
+                const isWatched = isSoldOut && isProductWatched(prod.id);
                 let stockBadgeHtml = '';
                 let addToCartBtnHtml = '';
 
                 if (isSoldOut) {
-                  stockBadgeHtml = `<span class="shop-badge-soldout">Slutsåld</span>`;
-                  addToCartBtnHtml = `<button type="button" class="shop-add-to-cart-btn is-soldout" disabled>Slutsåld</button>`;
+                  stockBadgeHtml = `<span class="shop-badge-soldout">Bevaka</span>`;
+                  addToCartBtnHtml = `<button type="button" class="shop-add-to-cart-btn is-soldout ${isWatched ? 'is-watched' : ''}" data-featured-watch-id="${escapeHtml(prod.id)}">${isWatched ? '✓ Bevakas' : 'Bevaka'}</button>`;
                 } else {
                   stockBadgeHtml = `<span class="shop-badge-instock">I lager</span>`;
                   addToCartBtnHtml = `<button type="button" class="shop-add-to-cart-btn" data-featured-add-cart-id="${escapeHtml(prod.id)}">Lägg i varukorg</button>`;
@@ -15000,6 +15320,13 @@
             addToCart(btn.getAttribute('data-featured-add-cart-id'));
           });
         });
+
+        featuredProductsContent.querySelectorAll('[data-featured-watch-id]').forEach((btn) => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openWatchProductModal(btn.getAttribute('data-featured-watch-id'));
+          });
+        });
       }
 
       // --- SNABBVY (QUICK VIEW) MODAL ---
@@ -15058,10 +15385,11 @@
         const inCartItem = currentCart.find((item) => String(item.productId) === String(prod.id));
         const inCartQty = inCartItem ? inCartItem.quantity : 0;
         const isSoldOut = stock <= 0;
+        const isWatched = isSoldOut && isProductWatched(prod.id);
         const isMaxInCart = !isSoldOut && inCartQty >= stock;
         const maxSelectableQty = Math.max(1, stock - inCartQty);
         const stockBadgeHtml = isSoldOut
-          ? `<span class="shop-badge-soldout" style="margin-bottom:0;">Slutsåld</span>`
+          ? `<span class="shop-badge-soldout" style="margin-bottom:0;">Bevaka</span>`
           : `<span class="shop-badge-instock" style="margin-bottom:0;">I lager (${stock} st)</span>`;
 
         let qvQty = 1;
@@ -15126,15 +15454,16 @@
                 <button
                   type="button"
                   id="qvAddToCartBtn"
-                  class="product-detail-add-cart-btn"
-                  ${isSoldOut || isMaxInCart ? 'disabled' : ''}
+                  class="product-detail-add-cart-btn ${isSoldOut ? 'is-watch' + (isWatched ? ' is-watched' : '') : ''}"
+                  ${isSoldOut ? `data-watch-prod-id="${escapeHtml(prod.id)}"` : ''}
+                  ${!isSoldOut && isMaxInCart ? 'disabled' : ''}
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <circle cx="8" cy="21" r="1"></circle>
-                    <circle cx="19" cy="21" r="1"></circle>
-                    <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
-                  </svg>
-                  <span>${isSoldOut ? 'Slutsåld' : isMaxInCart ? 'Max antal i varukorg' : 'Lägg i varukorg'}</span>
+                  ${
+                    isSoldOut
+                      ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>`
+                      : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>`
+                  }
+                  <span>${isSoldOut ? (isWatched ? '✓ Bevakas' : 'Bevaka') : isMaxInCart ? 'Max antal i varukorg' : 'Lägg i varukorg'}</span>
                 </button>
               </div>
 
@@ -15227,11 +15556,17 @@
         }
 
         const qvAddToCartBtn = document.getElementById('qvAddToCartBtn');
-        if (qvAddToCartBtn && !isSoldOut && !isMaxInCart) {
-          qvAddToCartBtn.addEventListener('click', () => {
-            addToCart(prod.id, qvQty);
-            closeQuickViewModal();
-          });
+        if (qvAddToCartBtn) {
+          if (isSoldOut) {
+            qvAddToCartBtn.addEventListener('click', () => {
+              openWatchProductModal(prod.id);
+            });
+          } else if (!isMaxInCart) {
+            qvAddToCartBtn.addEventListener('click', () => {
+              addToCart(prod.id, qvQty);
+              closeQuickViewModal();
+            });
+          }
         }
 
         const qvOpenFullPageBtn = document.getElementById('qvOpenFullPageBtn');
@@ -15386,12 +15721,13 @@
         const inCartItem = currentCart.find((item) => String(item.productId) === String(prod.id));
         const inCartQty = inCartItem ? inCartItem.quantity : 0;
         const isSoldOut = stock <= 0;
+        const isWatched = isSoldOut && isProductWatched(prod.id);
         const isMaxInCart = !isSoldOut && inCartQty >= stock;
         let maxSelectableQty = Math.max(1, stock - inCartQty);
 
         let stockBadgeHtml = '';
         if (isSoldOut) {
-          stockBadgeHtml = `<span class="shop-badge-soldout">Slutsåld</span>`;
+          stockBadgeHtml = `<span class="shop-badge-soldout">Bevaka</span>`;
         } else {
           stockBadgeHtml = `<span class="shop-badge-instock">I lager</span>`;
         }
@@ -15480,15 +15816,16 @@
                   <button
                     type="button"
                     id="detailAddToCartBtn"
-                    class="product-detail-add-cart-btn"
-                    ${isSoldOut || isMaxInCart ? 'disabled' : ''}
+                    class="product-detail-add-cart-btn ${isSoldOut ? 'is-watch' + (isWatched ? ' is-watched' : '') : ''}"
+                    ${isSoldOut ? `data-watch-prod-id="${escapeHtml(prod.id)}"` : ''}
+                    ${!isSoldOut && isMaxInCart ? 'disabled' : ''}
                   >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <circle cx="8" cy="21" r="1"></circle>
-                      <circle cx="19" cy="21" r="1"></circle>
-                      <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
-                    </svg>
-                    <span id="detailAddToCartBtnLabel">${isSoldOut ? 'Slutsåld' : isMaxInCart ? 'Max antal i varukorg' : 'Lägg i varukorg'}</span>
+                    ${
+                      isSoldOut
+                        ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>`
+                        : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>`
+                    }
+                    <span id="detailAddToCartBtnLabel">${isSoldOut ? (isWatched ? '✓ Bevakas' : 'Bevaka') : isMaxInCart ? 'Max antal i varukorg' : 'Lägg i varukorg'}</span>
                   </button>
 
                   <button
@@ -15611,28 +15948,34 @@
             });
           }
 
-          if (detailAddToCartBtn && !isSoldOut) {
-            detailAddToCartBtn.addEventListener('click', () => {
-              const added = addToCart(prod.id, detailQty);
-              if (added) {
-                const updatedCartItem = currentCart.find((item) => String(item.productId) === String(prod.id));
-                const updatedInCart = updatedCartItem ? updatedCartItem.quantity : 0;
-                const nowMaxed = updatedInCart >= stock;
-                maxSelectableQty = Math.max(1, stock - updatedInCart);
-                if (nowMaxed) {
-                  detailAddToCartBtn.disabled = true;
-                  if (detailAddToCartBtnLabel) detailAddToCartBtnLabel.textContent = 'Max antal i varukorg';
-                  if (detailQtyGroup) detailQtyGroup.hidden = true;
-                } else if (detailQtyPlusBtn && detailQtyMinusBtn && detailQtyVal) {
-                  if (detailQty > maxSelectableQty) {
-                    detailQty = maxSelectableQty;
-                    detailQtyVal.textContent = String(detailQty);
+          if (detailAddToCartBtn) {
+            if (isSoldOut) {
+              detailAddToCartBtn.addEventListener('click', () => {
+                openWatchProductModal(prod.id);
+              });
+            } else {
+              detailAddToCartBtn.addEventListener('click', () => {
+                const added = addToCart(prod.id, detailQty);
+                if (added) {
+                  const updatedCartItem = currentCart.find((item) => String(item.productId) === String(prod.id));
+                  const updatedInCart = updatedCartItem ? updatedCartItem.quantity : 0;
+                  const nowMaxed = updatedInCart >= stock;
+                  maxSelectableQty = Math.max(1, stock - updatedInCart);
+                  if (nowMaxed) {
+                    detailAddToCartBtn.disabled = true;
+                    if (detailAddToCartBtnLabel) detailAddToCartBtnLabel.textContent = 'Max antal i varukorg';
+                    if (detailQtyGroup) detailQtyGroup.hidden = true;
+                  } else if (detailQtyPlusBtn && detailQtyMinusBtn && detailQtyVal) {
+                    if (detailQty > maxSelectableQty) {
+                      detailQty = maxSelectableQty;
+                      detailQtyVal.textContent = String(detailQty);
+                    }
+                    detailQtyMinusBtn.disabled = detailQty <= 1;
+                    detailQtyPlusBtn.disabled = detailQty >= maxSelectableQty;
                   }
-                  detailQtyMinusBtn.disabled = detailQty <= 1;
-                  detailQtyPlusBtn.disabled = detailQty >= maxSelectableQty;
                 }
-              }
-            });
+              });
+            }
           }
 
           // Klickhanterare för Dela-knappen (kopierar produktens URL till urklipp)
@@ -16637,6 +16980,7 @@
                     : `Kategori ${catIdx + 1}`;
                 const stock = prod.stock !== undefined ? prod.stock : 1;
                 const isSoldOut = stock <= 0;
+                const isWatched = isSoldOut && isProductWatched(prod.id);
                 const thumbHtml = prod.image
                   ? `<img src="${prod.image}" alt="${escapeHtml(prod.name)}" />`
                   : PLACEHOLDER_ICON_SVG;
@@ -16654,7 +16998,7 @@
                           <span class="account-fav-price">${escapeHtml(prod.price)} kr</span>
                           <span aria-hidden="true">·</span>
                           <span class="account-fav-stock ${isSoldOut ? 'is-out' : ''}">
-                            ${isSoldOut ? 'Slutsåld' : `I lager (${stock} st)`}
+                            ${isSoldOut ? 'Bevaka' : `I lager (${stock} st)`}
                           </span>
                         </div>
                       </div>
@@ -16662,11 +17006,10 @@
                     <div class="account-fav-actions">
                       <button
                         type="button"
-                        class="account-fav-cart-btn"
-                        data-fav-add-cart="${escapeHtml(prod.id)}"
-                        ${isSoldOut ? 'disabled' : ''}
+                        class="account-fav-cart-btn ${isSoldOut ? 'is-watch' + (isWatched ? ' is-watched' : '') : ''}"
+                        ${isSoldOut ? `data-fav-watch-id="${escapeHtml(prod.id)}"` : `data-fav-add-cart="${escapeHtml(prod.id)}"`}
                       >
-                        ${isSoldOut ? 'Slutsåld' : 'Lägg i varukorg'}
+                        ${isSoldOut ? (isWatched ? '✓ Bevakas' : 'Bevaka') : 'Lägg i varukorg'}
                       </button>
                       <button
                         type="button"
@@ -16695,6 +17038,13 @@
           btn.addEventListener('click', () => {
             const pid = btn.getAttribute('data-fav-add-cart');
             if (pid) addToCart(pid);
+          });
+        });
+
+        accountFavoritesListContainer.querySelectorAll('[data-fav-watch-id]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const pid = btn.getAttribute('data-fav-watch-id');
+            if (pid) openWatchProductModal(pid);
           });
         });
 
