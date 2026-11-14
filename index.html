@@ -122,35 +122,6 @@
         opacity: 0.85;
       }
 
-      .top-banner-account-tabs {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 6px;
-        background-color: #f3f4f3;
-        padding: 5px;
-        border-radius: 12px;
-        margin-bottom: 20px;
-      }
-
-      .top-banner-account-tab-btn {
-        border: none;
-        background: transparent;
-        padding: 10px 14px;
-        border-radius: 9px;
-        font-family: inherit;
-        font-size: 0.84rem;
-        font-weight: 600;
-        color: #555555;
-        cursor: pointer;
-        transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
-      }
-
-      .top-banner-account-tab-btn.is-active {
-        background-color: #ffffff;
-        color: #171717;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      }
-
       .account-modal-switch-text {
         margin-top: 14px;
         font-size: 0.82rem;
@@ -784,86 +755,6 @@
         justify-content: center;
         line-height: 1;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-      }
-
-      /* Mitt konto-knapp i headern */
-      .account-btn {
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 44px;
-        padding: 0 12px;
-        gap: 8px;
-        color: #171717;
-        border-radius: 999px;
-        position: relative;
-        text-decoration: none;
-        font-family: inherit;
-        transition: background-color 0.2s ease, opacity 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
-        border: 1px solid rgba(0, 0, 0, 0.08);
-        background-color: rgba(255, 255, 255, 0.55);
-      }
-
-      .account-btn:hover {
-        background-color: #ffffff;
-        border-color: rgba(0, 0, 0, 0.16);
-      }
-
-      .account-btn.is-logged-in {
-        background-color: #2f3e3b;
-        color: #ffffff;
-        border-color: #2f3e3b;
-      }
-
-      .account-btn.is-logged-in .account-btn-label {
-        color: #ffffff;
-      }
-
-      .account-btn.is-logged-in:hover {
-        background-color: #1e2a28;
-      }
-
-      .account-btn:focus-visible {
-        outline: 2px solid #171717;
-        outline-offset: 2px;
-      }
-
-      .account-btn-icon-wrap {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .account-status-dot {
-        position: absolute;
-        top: -1px;
-        right: -3px;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background-color: #22c55e;
-        border: 1.5px solid #ffffff;
-        display: none;
-      }
-
-      .account-btn.is-logged-in .account-status-dot {
-        display: block;
-      }
-
-      .account-btn-label {
-        font-size: 0.82rem;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        color: #171717;
-        line-height: 1;
-        max-width: 130px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
       }
 
       /* Pop-up Auth Modal för Mitt konto (Skandinavisk quiet luxury-design) */
@@ -2269,17 +2160,6 @@
         }
       }
 
-      .hero-kicker {
-        font-size: 0.78rem;
-        font-weight: 500;
-        letter-spacing: 0.22em;
-        text-transform: uppercase;
-        color: #555555;
-        margin-bottom: 20px;
-        opacity: 0;
-        animation: heroFadeInUp 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.08s forwards;
-      }
-
       .hero-title {
         font-size: clamp(1.85rem, 3.1vw, 2.75rem);
         font-weight: 400;
@@ -2338,7 +2218,6 @@
 
       @media (prefers-reduced-motion: reduce) {
         .hero-section,
-        .hero-kicker,
         .hero-title,
         .hero-description,
         .hero-cta,
@@ -2630,12 +2509,6 @@
         letter-spacing: 0.08em;
         text-transform: uppercase;
         color: #171717;
-      }
-
-      .featured-products-subtitle {
-        font-size: 0.92rem;
-        color: #666666;
-        line-height: 1.5;
       }
 
       .featured-products-footer {
@@ -2945,10 +2818,10 @@
 
       .admin-kpi-row {
         display: grid;
-        grid-template-columns: repeat(3, minmax(150px, 220px));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 14px;
         width: 100%;
-        max-width: 720px;
+        max-width: 880px;
         justify-content: center;
       }
 
@@ -2956,10 +2829,11 @@
         background-color: rgba(255, 255, 255, 0.88);
         border: 1px solid rgba(0, 0, 0, 0.06);
         border-radius: 16px;
-        padding: 14px 16px;
+        padding: 14px 12px;
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
         gap: 4px;
       }
 
@@ -2993,32 +2867,86 @@
       }
 
       .admin-products-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+      }
+
+      .admin-product-form-grid {
         display: grid;
-        grid-template-columns: minmax(320px, 430px) minmax(0, 1fr);
-        gap: 24px;
+        grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+        gap: 22px;
         align-items: start;
       }
 
-      .admin-prod-list-grid {
+      .admin-product-form-col {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        min-width: 0;
+      }
+
+      .admin-product-meta-row {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-        gap: 16px;
+        grid-template-columns: 1.35fr 0.9fr 0.9fr;
+        gap: 12px;
+      }
+
+      .admin-product-bottom-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+        padding-top: 14px;
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
+      }
+
+      .admin-prod-list-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
       }
 
       .admin-prod-item-card {
         background-color: #FBFBF9;
         border: 1px solid rgba(0, 0, 0, 0.08);
-        border-radius: 16px;
-        padding: 16px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
+        border-radius: 14px;
+        padding: 14px 18px;
+        display: grid;
+        grid-template-columns: 72px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 16px;
         transition: box-shadow 0.2s ease, border-color 0.2s ease;
       }
 
       .admin-prod-item-card:hover {
         border-color: rgba(23, 23, 23, 0.18);
         box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.06);
+      }
+
+      .admin-prod-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        min-width: 0;
+      }
+
+      .admin-prod-title {
+        font-size: 0.98rem;
+        font-weight: 600;
+        color: #171717;
+        line-height: 1.3;
+        word-break: break-word;
+      }
+
+      .admin-prod-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        flex-shrink: 0;
       }
 
       .admin-prod-thumb {
@@ -3039,12 +2967,6 @@
         width: 100%;
         height: 100%;
         object-fit: contain;
-      }
-
-      .admin-status-btn-group {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
       }
 
       .admin-status-step-btn {
@@ -3075,29 +2997,6 @@
         color: #ffffff;
       }
 
-      .admin-status-step-btn.is-cancel.is-active {
-        background-color: #991b1b;
-        border-color: #991b1b;
-        color: #ffffff;
-      }
-
-      .admin-msg-card {
-        background-color: #FBFBF9;
-        border: 1px solid rgba(0, 0, 0, 0.08);
-        border-radius: 16px;
-        padding: 20px 22px;
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
-      }
-
-      .admin-msg-card.is-unread {
-        background-color: #ffffff;
-        border-color: rgba(47, 62, 59, 0.3);
-        box-shadow: 0 6px 20px -6px rgba(47, 62, 59, 0.08);
-      }
-
       .footer-admin-trigger {
         background: transparent;
         border: none;
@@ -3121,8 +3020,27 @@
       }
 
       @media (max-width: 1024px) {
-        .admin-products-layout {
+        .admin-product-form-grid {
           grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 820px) {
+        .admin-prod-item-card {
+          grid-template-columns: 58px minmax(0, 1fr);
+          align-items: start;
+          gap: 12px;
+          padding: 14px;
+        }
+        .admin-prod-thumb {
+          width: 58px;
+          height: 58px;
+        }
+        .admin-prod-actions {
+          grid-column: 1 / -1;
+          justify-content: flex-end;
+          padding-top: 10px;
+          border-top: 1px solid rgba(0, 0, 0, 0.06);
         }
       }
 
@@ -3135,14 +3053,27 @@
           border-radius: 20px;
         }
         .admin-kpi-row {
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 8px;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 6px;
         }
         .admin-kpi-box {
-          padding: 10px 8px;
+          padding: 10px 6px;
         }
         .admin-kpi-val {
-          font-size: 1.15rem;
+          font-size: 1.1rem;
+        }
+        .admin-kpi-label {
+          font-size: 0.68rem;
+          line-height: 1.25;
+        }
+        .admin-product-meta-row {
+          grid-template-columns: 1fr 1fr;
+        }
+        .admin-product-meta-row > div:first-child {
+          grid-column: 1 / -1;
+        }
+        .admin-product-bottom-bar .account-submit-btn {
+          width: 100%;
         }
         .account-order-stepper {
           grid-template-columns: repeat(2, 1fr);
@@ -3166,25 +3097,8 @@
         width: 100%;
       }
 
-      /* 2-kolumnslayout (samma struktur som Kundservice) */
-      .account-auth-wrapper,
-      .account-dashboard {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        column-gap: 32px;
-        row-gap: 36px;
-        align-items: start;
-        width: 100%;
-      }
-
-      .account-auth-wrapper[hidden],
-      .account-dashboard[hidden] {
-        display: none !important;
-      }
-
       /* Toppkort i #DDE5E3 (exakt som Kundservice toppkort) */
-      .account-top-hero-card,
-      .account-dashboard-header {
+      .account-top-hero-card {
         grid-column: 1 / -1;
         width: 100%;
         min-height: auto;
@@ -3204,280 +3118,6 @@
         justify-content: center;
         text-align: center;
         padding: 48px 36px;
-      }
-
-      .account-hero-bar {
-        width: 100%;
-        max-width: 860px;
-        margin: 26px auto 0 auto;
-        background-color: #ffffff;
-        border-radius: 14px;
-        border: 1.5px solid rgba(0, 0, 0, 0.1);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-        padding: 12px 20px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        flex-wrap: wrap;
-      }
-
-      .account-hero-bar-centered {
-        justify-content: center;
-      }
-
-      /* Vänster kolumn: 3x2 pastellkort (samma struktur och färger som Kundservice) */
-      .account-small-cards-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        grid-auto-rows: 1fr;
-        gap: 20px;
-        width: 100%;
-        max-width: 100%;
-        margin: 0;
-        align-items: stretch;
-      }
-
-      .account-small-card {
-        background-color: #ffffff;
-        border-radius: 20px;
-        border: 1.5px solid rgba(0, 0, 0, 0.06);
-        box-shadow:
-          0 4px 16px -2px rgba(0, 0, 0, 0.04),
-          0 2px 6px -1px rgba(0, 0, 0, 0.02);
-        min-height: 240px;
-        padding: 32px 16px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        cursor: pointer;
-        transition:
-          transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
-          box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1),
-          border-color 0.2s ease;
-        box-sizing: border-box;
-      }
-
-      .account-small-card:hover {
-        border-color: rgba(23, 23, 23, 0.16);
-        transform: translateY(-3px);
-        box-shadow:
-          0 10px 24px -4px rgba(0, 0, 0, 0.08),
-          0 4px 8px -2px rgba(0, 0, 0, 0.04);
-      }
-
-      .account-small-card.is-active-card {
-        border-color: #171717;
-        box-shadow:
-          0 0 0 2px rgba(23, 23, 23, 0.12),
-          0 10px 24px -4px rgba(0, 0, 0, 0.08);
-      }
-
-      .account-small-card.pastel-0 { background-color: #CBDAE1; }
-      .account-small-card.pastel-1 { background-color: #DDE5E3; }
-      .account-small-card.pastel-2 { background-color: #F0F3F3; }
-      .account-small-card.pastel-3 { background-color: #F0E6DB; }
-      .account-small-card.pastel-4 { background-color: #EDDCC8; }
-      .account-small-card.pastel-5 { background-color: #ECD1C5; }
-
-      .account-small-card:hover .cs-small-card-icon {
-        transform: scale(1.06);
-      }
-
-      .account-small-card:hover .cs-small-card-badge {
-        background: rgba(0, 0, 0, 0.12);
-        transform: translateY(-1px);
-      }
-
-      /* Höger kolumn: #FAF8F5 huvudkort (samma struktur som #customerServiceBottomCard) */
-      .account-auth-card,
-      .account-dashboard-right-card {
-        min-height: auto;
-        max-width: 100%;
-        width: 100%;
-        margin: 0;
-        padding: 38px 40px;
-        background-color: #FAF8F5;
-        border: 1.5px solid rgba(0, 0, 0, 0.08);
-        border-radius: 24px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
-        align-self: start;
-        gap: 6px;
-        box-sizing: border-box;
-        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
-        text-align: center;
-      }
-
-      .account-auth-wrapper .account-auth-card {
-        grid-column: 1 / -1;
-        max-width: 760px;
-        margin: 0 auto;
-      }
-
-      .account-auth-badge {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background-color: #dde5e3;
-        color: #2f3e3b;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 10px;
-        border: 1px solid rgba(47, 62, 59, 0.08);
-      }
-
-      .account-kicker {
-        font-size: 0.76rem;
-        font-weight: 600;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-        color: #444444;
-        margin-bottom: 8px;
-      }
-
-      .account-auth-title {
-        font-size: clamp(1.35rem, 2vw, 1.65rem);
-        font-weight: 700;
-        line-height: 1.3;
-        color: #171717;
-        margin: 0 0 4px 0;
-        text-align: center;
-      }
-
-      .account-auth-subtitle {
-        font-size: 0.92rem;
-        line-height: 1.5;
-        color: #555555;
-        margin: 0 0 20px 0;
-        max-width: 560px;
-        text-align: center;
-      }
-
-      .account-tabs {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 6px;
-        background-color: #F4F2EC;
-        padding: 5px;
-        border-radius: 14px;
-        width: 100%;
-        max-width: 740px;
-        margin-bottom: 18px;
-        border: 1px solid rgba(0, 0, 0, 0.06);
-      }
-
-      .account-tab-btn {
-        border: none;
-        background: transparent;
-        padding: 11px 16px;
-        border-radius: 10px;
-        font-family: inherit;
-        font-size: 0.84rem;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        color: #555555;
-        cursor: pointer;
-        transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
-      }
-
-      .account-tab-btn.is-active {
-        background-color: #ffffff;
-        color: #171717;
-        font-weight: 700;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
-      }
-
-      .account-form {
-        width: 100%;
-        max-width: 740px;
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        text-align: left;
-      }
-
-      .account-form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-      }
-
-      .account-field {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      }
-
-      .account-label {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #171717;
-      }
-
-      .account-input-wrap {
-        position: relative;
-        display: flex;
-        align-items: center;
-      }
-
-      .account-input {
-        width: 100%;
-        padding: 13px 16px;
-        font-size: 0.95rem;
-        font-family: inherit;
-        color: #171717;
-        background-color: #ffffff;
-        border: 1.5px solid rgba(0, 0, 0, 0.12);
-        border-radius: 12px;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
-      }
-
-      .account-input:focus {
-        outline: none;
-        border-color: #171717;
-        background-color: #ffffff;
-        box-shadow: 0 0 0 3px rgba(23, 23, 23, 0.08);
-      }
-
-      .account-pw-toggle {
-        position: absolute;
-        right: 12px;
-        background: transparent;
-        border: none;
-        color: #666666;
-        font-size: 0.76rem;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        cursor: pointer;
-        padding: 4px 6px;
-        border-radius: 6px;
-        font-family: inherit;
-      }
-
-      .account-pw-toggle:hover {
-        color: #171717;
-        background-color: rgba(0, 0, 0, 0.04);
-      }
-
-      .account-error-box {
-        width: 100%;
-        max-width: 740px;
-        background-color: #fef2f2;
-        border: 1px solid #fecaca;
-        color: #991b1b;
-        padding: 12px 14px;
-        border-radius: 12px;
-        font-size: 0.84rem;
-        line-height: 1.45;
-        margin-bottom: 8px;
       }
 
       .account-submit-btn {
@@ -3526,569 +3166,6 @@
       .account-secondary-btn:hover {
         background-color: #f5f5f5;
         border-color: #171717;
-      }
-
-      .account-form-divider {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 0.74rem;
-        font-weight: 600;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: #737373;
-        margin: 4px 0 2px;
-      }
-
-      .account-form-divider::before,
-      .account-form-divider::after {
-        content: "";
-        flex: 1;
-        height: 1px;
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-
-      .account-welcome-col {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        width: 100%;
-        max-width: 100%;
-      }
-
-      .account-welcome-title {
-        font-size: clamp(2.1rem, 3.6vw, 3.1rem);
-        font-weight: 700;
-        color: #111111;
-        line-height: 1.15;
-        letter-spacing: -0.025em;
-        margin: 0 auto 14px auto;
-        text-align: center;
-      }
-
-      .account-welcome-meta {
-        font-size: clamp(1rem, 1.25vw, 1.15rem);
-        color: #333333;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin: 0 auto;
-      }
-
-      .account-email-text {
-        color: #111111;
-        font-weight: 600;
-      }
-
-      .account-welcome-timestamps {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 8px 16px;
-        font-size: 0.85rem;
-        color: #4b5563;
-        line-height: 1.4;
-      }
-
-      .account-welcome-ts-item {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-      }
-
-      .account-welcome-ts-label {
-        color: #6b7280;
-        font-weight: 500;
-      }
-
-      .account-welcome-ts-value {
-        color: #171717;
-        font-weight: 600;
-        font-variant-numeric: tabular-nums;
-      }
-
-      .account-welcome-ts-sep {
-        color: rgba(23, 23, 23, 0.22);
-        user-select: none;
-      }
-
-      .account-header-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-      }
-
-      .account-dashboard-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        width: 100%;
-        text-align: left;
-      }
-
-      .account-dashboard-grid.is-single-tab {
-        width: 100%;
-      }
-
-      .account-left-stack,
-      .account-right-stack {
-        display: contents;
-      }
-
-      .account-panel-card {
-        background-color: #ffffff;
-        border: 1px solid rgba(23, 23, 23, 0.08);
-        border-radius: 22px;
-        padding: 28px 30px;
-        box-shadow:
-          0 14px 34px -10px rgba(23, 23, 23, 0.05),
-          0 4px 12px -2px rgba(23, 23, 23, 0.02);
-        display: flex;
-        flex-direction: column;
-        gap: 22px;
-        transition:
-          padding 0.24s cubic-bezier(0.22, 1, 0.36, 1),
-          box-shadow 0.24s cubic-bezier(0.22, 1, 0.36, 1),
-          border-color 0.24s ease,
-          transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
-      }
-
-      .account-panel-card.is-collapsed {
-        padding: 22px 26px;
-        gap: 0;
-      }
-
-      .account-panel-card.is-collapsed:hover {
-        border-color: rgba(47, 62, 59, 0.22);
-        box-shadow:
-          0 16px 36px -10px rgba(23, 23, 23, 0.07),
-          0 6px 14px -3px rgba(23, 23, 23, 0.03);
-      }
-
-      .account-panel-card:not(.is-collapsed) {
-        border-color: rgba(47, 62, 59, 0.22);
-        box-shadow:
-          0 20px 44px -12px rgba(23, 23, 23, 0.08),
-          0 6px 16px -4px rgba(23, 23, 23, 0.03);
-      }
-
-      .account-panel-card.is-dragging {
-        opacity: 0.52;
-        transform: scale(0.985);
-        border-color: rgba(47, 62, 59, 0.35);
-        box-shadow:
-          0 24px 48px -12px rgba(23, 23, 23, 0.14),
-          0 8px 20px -4px rgba(23, 23, 23, 0.06);
-        z-index: 5;
-      }
-
-      .account-panel-card.is-drag-over {
-        border-color: #2f3e3b !important;
-        background-color: #fcfbf8;
-        box-shadow:
-          0 0 0 2px rgba(47, 62, 59, 0.15),
-          0 20px 42px -10px rgba(23, 23, 23, 0.1) !important;
-        transform: translateY(-2px);
-      }
-
-      .account-panel-card[hidden] {
-        display: none !important;
-      }
-
-      .account-panel-top {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 14px;
-        padding-bottom: 18px;
-        border-bottom: 1px solid rgba(23, 23, 23, 0.07);
-        flex-wrap: wrap;
-        cursor: grab;
-        user-select: none;
-        transition: padding 0.2s ease, border-color 0.2s ease;
-      }
-
-      .account-panel-top:active {
-        cursor: grabbing;
-      }
-
-      .account-panel-card.is-collapsed .account-panel-top {
-        padding-bottom: 0;
-        border-bottom-color: transparent;
-      }
-
-      .account-panel-title-wrap {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        min-width: 0;
-        flex: 1;
-      }
-
-      .account-panel-drag-handle {
-        width: 26px;
-        height: 36px;
-        border-radius: 8px;
-        color: #9a978f;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        cursor: grab;
-        touch-action: none;
-        transition: color 0.2s ease, background-color 0.2s ease;
-      }
-
-      .account-panel-top:hover .account-panel-drag-handle,
-      .account-panel-drag-handle:hover {
-        color: #2f3e3b;
-        background-color: rgba(244, 242, 236, 0.85);
-      }
-
-      .account-panel-drag-handle:active {
-        cursor: grabbing;
-      }
-
-      .account-card-touch-ghost {
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 9999;
-        pointer-events: none;
-        background-color: rgba(255, 255, 255, 0.96);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border: 1px solid rgba(47, 62, 59, 0.28);
-        border-radius: 18px;
-        padding: 14px 20px;
-        box-shadow:
-          0 24px 48px -12px rgba(23, 23, 23, 0.18),
-          0 8px 20px -4px rgba(23, 23, 23, 0.08);
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        max-width: 320px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #171717;
-      }
-
-      .account-panel-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 13px;
-        background-color: #F4F2EC;
-        border: 1px solid rgba(23, 23, 23, 0.06);
-        color: #2f3e3b;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        transition: background-color 0.22s ease, color 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
-      }
-
-      .account-panel-card.is-collapsed .account-panel-top:hover .account-panel-icon {
-        background-color: #eae6dc;
-        border-color: rgba(47, 62, 59, 0.16);
-      }
-
-      .account-panel-card:not(.is-collapsed) .account-panel-icon {
-        background-color: #2f3e3b;
-        border-color: #2f3e3b;
-        color: #F4F2EC;
-      }
-
-      .account-panel-title-group {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        min-width: 0;
-      }
-
-      .account-panel-title {
-        font-size: 1.08rem;
-        font-weight: 600;
-        color: #171717;
-        letter-spacing: 0.01em;
-        line-height: 1.3;
-      }
-
-      .account-panel-subtitle {
-        font-size: 0.8rem;
-        color: #6b6b6b;
-        font-weight: 400;
-        line-height: 1.4;
-      }
-
-      .account-panel-top-right {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-left: auto;
-        flex-shrink: 0;
-      }
-
-      .account-panel-meta-text {
-        font-size: 0.8rem;
-        color: #555555;
-        font-weight: 500;
-        font-variant-numeric: tabular-nums;
-      }
-
-      .account-panel-collapse-btn {
-        width: 36px;
-        height: 36px;
-        border-radius: 11px;
-        border: 1px solid rgba(23, 23, 23, 0.09);
-        background-color: #faf9f6;
-        color: #444444;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        flex-shrink: 0;
-        transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-      }
-
-      .account-panel-top:hover .account-panel-collapse-btn,
-      .account-panel-collapse-btn:hover {
-        background-color: #F4F2EC;
-        border-color: rgba(23, 23, 23, 0.2);
-        color: #171717;
-      }
-
-      .account-panel-card:not(.is-collapsed) .account-panel-collapse-btn {
-        background-color: #F4F2EC;
-        border-color: rgba(47, 62, 59, 0.2);
-        color: #171717;
-      }
-
-      .account-panel-collapse-btn svg {
-        transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
-      }
-
-      .account-panel-card:not(.is-collapsed) .account-panel-collapse-btn svg {
-        transform: rotate(180deg);
-      }
-
-      .account-panel-body {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-      }
-
-      .account-panel-card.is-collapsed .account-panel-body {
-        display: none;
-      }
-
-      .account-info-list {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-      }
-
-      .account-info-item {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        padding: 14px 16px;
-        background-color: #faf9f6;
-        border: 1px solid rgba(23, 23, 23, 0.06);
-        border-radius: 14px;
-        transition: border-color 0.2s ease;
-      }
-
-      .account-info-item:hover {
-        border-color: rgba(23, 23, 23, 0.13);
-      }
-
-      .account-info-label {
-        font-size: 0.7rem;
-        font-weight: 600;
-        letter-spacing: 0.09em;
-        text-transform: uppercase;
-        color: #737373;
-      }
-
-      .account-info-value {
-        font-size: 0.94rem;
-        font-weight: 500;
-        color: #171717;
-        word-break: break-word;
-        line-height: 1.4;
-      }
-
-      .account-info-value.is-muted {
-        color: #888888;
-        font-weight: 400;
-        font-style: italic;
-      }
-
-      .account-profile-note {
-        font-size: 0.81rem;
-        color: #4b5553;
-        line-height: 1.55;
-        background-color: #f4f7f6;
-        border: 1px solid rgba(47, 62, 59, 0.12);
-        border-radius: 14px;
-        padding: 13px 16px;
-      }
-
-      /* Nyhetsbrev & Preferenser på Mina sidor */
-      .account-pref-checkbox-card {
-        display: flex;
-        align-items: flex-start;
-        gap: 14px;
-        padding: 18px 20px;
-        background-color: #F4F2EC;
-        border: 1px solid rgba(23, 23, 23, 0.08);
-        border-radius: 16px;
-        cursor: pointer;
-        user-select: none;
-        transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
-      }
-
-      .account-pref-checkbox-card:hover {
-        border-color: rgba(47, 62, 59, 0.25);
-        box-shadow: 0 8px 22px -8px rgba(23, 23, 23, 0.06);
-      }
-
-      .account-pref-checkbox-card.is-checked {
-        background-color: #f4f7f6;
-        border-color: rgba(47, 62, 59, 0.26);
-      }
-
-      .account-pref-checkbox-input {
-        position: absolute;
-        opacity: 0;
-        width: 1px;
-        height: 1px;
-        pointer-events: none;
-      }
-
-      .account-pref-checkbox-box {
-        width: 22px;
-        height: 22px;
-        border-radius: 7px;
-        border: 1.5px solid rgba(23, 23, 23, 0.28);
-        background-color: #ffffff;
-        color: #ffffff;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        margin-top: 2px;
-        transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
-      }
-
-      .account-pref-checkbox-box svg {
-        opacity: 0;
-        transform: scale(0.75);
-        transition: opacity 0.16s ease, transform 0.18s ease;
-      }
-
-      .account-pref-checkbox-input:checked + .account-pref-checkbox-box {
-        background-color: #2f3e3b;
-        border-color: #2f3e3b;
-      }
-
-      .account-pref-checkbox-input:checked + .account-pref-checkbox-box svg {
-        opacity: 1;
-        transform: scale(1);
-      }
-
-      .account-pref-checkbox-input:focus-visible + .account-pref-checkbox-box {
-        outline: 2px solid #2f3e3b;
-        outline-offset: 2px;
-      }
-
-      .account-pref-checkbox-content {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        min-width: 0;
-        flex: 1;
-      }
-
-      .account-pref-checkbox-title {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #171717;
-        line-height: 1.35;
-      }
-
-      .account-pref-checkbox-desc {
-        font-size: 0.83rem;
-        color: #555555;
-        line-height: 1.55;
-      }
-
-      /* Kontohistorik & Aktivitetslogg på Mina sidor */
-      .account-activity-log-box {
-        background-color: #faf9f6;
-        border: 1px solid rgba(23, 23, 23, 0.06);
-        border-radius: 16px;
-        padding: 16px 18px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-
-      .account-activity-log-heading {
-        font-size: 0.72rem;
-        font-weight: 600;
-        letter-spacing: 0.09em;
-        text-transform: uppercase;
-        color: #737373;
-      }
-
-      .account-activity-log-list {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .account-activity-log-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid rgba(23, 23, 23, 0.05);
-        font-size: 0.84rem;
-        flex-wrap: wrap;
-      }
-
-      .account-activity-log-item:last-child {
-        padding-bottom: 0;
-        border-bottom: none;
-      }
-
-      .account-activity-log-left {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: #171717;
-        font-weight: 500;
-      }
-
-      .account-activity-dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background-color: #2f3e3b;
-        flex-shrink: 0;
-      }
-
-      .account-activity-log-time {
-        font-size: 0.78rem;
-        color: #6b6b6b;
-        font-variant-numeric: tabular-nums;
       }
 
       .account-feedback-banner {
@@ -4269,12 +3346,6 @@
       }
 
       /* Orderhistorik-kort på Mina sidor */
-      .account-orders-list {
-        display: flex;
-        flex-direction: column;
-        gap: 18px;
-      }
-
       .account-order-card {
         background-color: #faf9f6;
         border: 1px solid rgba(0, 0, 0, 0.08);
@@ -4673,107 +3744,23 @@
         stroke: #b91c1c;
       }
 
-      @media (max-width: 1100px) {
-        .account-auth-wrapper,
-        .account-dashboard {
-          grid-template-columns: 1fr;
-        }
-      }
-
       @media (max-width: 768px) {
-        .account-btn {
-          padding: 0 8px;
-          min-width: 44px;
-          min-height: 44px;
-        }
-
-        .account-btn-label {
-          display: none;
-        }
-
         .account-section {
           padding: 20px 16px 72px;
         }
 
-        .account-top-hero-card,
-        .account-dashboard-header {
+        .account-top-hero-card {
           padding: 32px 20px;
           border-radius: 22px;
           margin-top: 12px;
         }
 
-        .account-small-cards-grid {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 14px;
-        }
-
-        .account-small-card {
-          min-height: 190px;
-          padding: 24px 12px;
-        }
-
-        .account-auth-card,
-        .account-dashboard-right-card {
-          padding: 28px 20px;
-          border-radius: 20px;
-        }
-
-        .account-panel-card {
-          padding: 22px 18px;
-          border-radius: 18px;
-        }
-
-        .account-panel-card.is-collapsed {
-          padding: 18px;
-        }
-
-        .account-info-list {
-          grid-template-columns: 1fr;
-        }
-
         .account-favorites-grid {
           grid-template-columns: 1fr;
-        }
-
-        .account-input {
-          font-size: 16px !important;
         }
       }
 
       @media (max-width: 480px) {
-        .account-form-row {
-          grid-template-columns: 1fr;
-        }
-
-        .account-small-cards-grid {
-          grid-template-columns: 1fr;
-        }
-
-        .account-hero-bar {
-          flex-direction: column;
-          align-items: stretch;
-          text-align: center;
-        }
-
-        .account-welcome-timestamps {
-          flex-direction: column;
-          align-items: center;
-          gap: 4px;
-        }
-
-        .account-welcome-ts-sep {
-          display: none;
-        }
-
-        .account-header-actions {
-          width: 100%;
-          justify-content: center;
-        }
-
-        .account-header-actions .account-secondary-btn {
-          flex: 1;
-        }
-
         .account-order-card {
           padding: 16px;
         }
@@ -5702,67 +4689,6 @@
         transform: translateX(2px);
       }
 
-      /* Kort för "Hittade du inte svaret?" */
-      .faq-need-more-help-card {
-        background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%);
-        border: 1.5px solid rgba(2, 132, 199, 0.2);
-        border-radius: 20px;
-        padding: 22px 26px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 18px;
-        flex-wrap: wrap;
-      }
-
-      .faq-need-help-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        background-color: #ffffff;
-        color: #0284c7;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      }
-
-      .faq-need-help-title {
-        font-size: 1.05rem;
-        font-weight: 700;
-        color: #111827;
-        margin: 0 0 4px 0;
-      }
-
-      .faq-need-help-desc {
-        font-size: 0.88rem;
-        color: #4b5563;
-        margin: 0;
-        line-height: 1.4;
-      }
-
-      .faq-need-help-btn {
-        background-color: #171717;
-        color: #ffffff;
-        border: none;
-        border-radius: 999px;
-        padding: 10px 22px;
-        font-size: 0.88rem;
-        font-weight: 600;
-        font-family: inherit;
-        cursor: pointer;
-        white-space: nowrap;
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-      }
-
-      .faq-need-help-btn:hover {
-        background-color: #333333;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14);
-      }
-
       /* Dynamisk sökträffsvy */
       .customer-service-search-results {
         width: 100%;
@@ -5951,24 +4877,6 @@
         text-align: center;
         max-width: 680px;
         margin: 0 auto 48px;
-      }
-
-      .shop-kicker {
-        font-size: 0.76rem;
-        font-weight: 500;
-        letter-spacing: 0.22em;
-        text-transform: uppercase;
-        color: #666666;
-        margin-bottom: 14px;
-      }
-
-      .shop-title {
-        font-size: clamp(2rem, 3.8vw, 3rem);
-        font-weight: 400;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: #171717;
-        margin-bottom: 16px;
       }
 
       .shop-subtitle {
@@ -6745,11 +5653,6 @@
         cursor: pointer;
       }
 
-      /* Produktkort utanför butikssidan (t.ex. i admin eller framtida vyer) är inte klickbara som helhet */
-      .admin-product-card {
-        cursor: default;
-      }
-
       /* Dedikerad Produktsida (showProductDetailView) */
       .product-detail-view {
         width: 100%;
@@ -7070,25 +5973,6 @@
       .product-detail-thumb-btn.is-active {
         border-color: #171717;
         box-shadow: 0 0 0 2px rgba(23, 23, 23, 0.14);
-      }
-
-      .shop-multi-img-badge {
-        position: absolute;
-        bottom: 10px;
-        left: 10px;
-        background-color: rgba(244, 242, 236, 0.92);
-        backdrop-filter: blur(4px);
-        border: 1px solid rgba(0, 0, 0, 0.08);
-        color: #262626;
-        font-size: 0.68rem;
-        font-weight: 600;
-        padding: 3px 8px;
-        border-radius: 999px;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        pointer-events: none;
-        z-index: 2;
       }
 
       .admin-prod-images-slots-grid {
@@ -7456,13 +6340,6 @@
         color: #555555;
       }
 
-      .product-detail-perk-icon {
-        color: #171717;
-        display: flex;
-        align-items: center;
-        font-size: 1.1rem;
-      }
-
       @media (max-width: 1100px) {
         .shop-products-grid {
           grid-template-columns: repeat(3, 1fr);
@@ -7499,20 +6376,6 @@
         margin-bottom: 6px;
       }
 
-      .shop-badge-unique {
-        display: inline-block;
-        background-color: #f0fdf4;
-        color: #166534;
-        border: 1px solid #bbf7d0;
-        font-size: 0.68rem;
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        padding: 2px 8px;
-        border-radius: 999px;
-        margin-bottom: 6px;
-      }
-
       .shop-badge-instock {
         display: inline-block;
         background-color: #f8fafc;
@@ -7532,36 +6395,6 @@
         border-color: #d4d4d4 !important;
         color: #737373 !important;
         cursor: not-allowed !important;
-      }
-
-      /* Admin header åtgärder */
-      .admin-header-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .admin-header-btn {
-        background: transparent;
-        border: 1px solid #d4d4d4;
-        border-radius: 6px;
-        padding: 7px 12px;
-        font-family: inherit;
-        font-size: 0.78rem;
-        font-weight: 500;
-        letter-spacing: 0.06em;
-        color: #404040;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-      }
-
-      .admin-header-btn:hover {
-        background-color: #f5f5f5;
-        border-color: #171717;
-        color: #171717;
       }
 
       /* Banner för rensade eller justerade varor i varukorgen */
@@ -7676,45 +6509,6 @@
         line-height: 1.45;
       }
 
-      .pin-input-group {
-        position: relative;
-        display: flex;
-        align-items: center;
-      }
-
-      .pin-input {
-        width: 100%;
-        padding: 12px 42px 12px 16px;
-        font-size: 1.35rem;
-        letter-spacing: 0.25em;
-        text-align: center;
-        font-family: inherit;
-        border: 1px solid #d4d4d4;
-        border-radius: 10px;
-        background-color: #fafafa;
-        color: #171717;
-        outline: none;
-        transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
-      }
-
-      .pin-input:focus {
-        border-color: #171717;
-        background-color: #ffffff;
-        box-shadow: 0 0 0 3px rgba(23, 23, 23, 0.08);
-      }
-
-      .pin-visibility-toggle {
-        position: absolute;
-        right: 10px;
-        background: transparent;
-        border: none;
-        color: #737373;
-        font-size: 1.1rem;
-        cursor: pointer;
-        padding: 4px;
-        line-height: 1;
-      }
-
       .pin-error-msg {
         color: #dc2626;
         font-size: 0.78rem;
@@ -7727,35 +6521,10 @@
         display: none !important;
       }
 
-      .pin-hint-text {
-        font-size: 0.76rem;
-        color: #737373;
-        text-align: center;
-        margin-top: 10px;
-      }
-
       .pin-modal-actions {
         display: flex;
         gap: 10px;
         margin-top: 20px;
-      }
-
-      .pin-submit-btn {
-        flex: 1;
-        padding: 12px 16px;
-        border: none;
-        border-radius: 8px;
-        background-color: #171717;
-        color: #ffffff;
-        font-family: inherit;
-        font-size: 0.86rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background-color 0.2s ease;
-      }
-
-      .pin-submit-btn:hover {
-        background-color: #333333;
       }
 
       .pin-cancel-btn {
@@ -8075,15 +6844,6 @@
         color: #555555;
         max-width: 340px;
         margin-bottom: 24px;
-      }
-
-      .footer-social-heading {
-        font-size: 0.72rem;
-        font-weight: 600;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-        color: #737373;
-        margin-bottom: 12px;
       }
 
       .footer-social-list {
@@ -8472,7 +7232,6 @@
         .categories-section,
         .featured-products-section,
         .promo-banner-section,
-        .newsletter-section,
         .shop-section {
           padding-left: 16px;
           padding-right: 16px;
@@ -9193,43 +7952,6 @@
         box-sizing: border-box;
       }
 
-      .giftbox-info-header {
-        text-align: center;
-        max-width: 660px;
-        margin: 0 auto 36px;
-      }
-
-      .giftbox-info-eyebrow {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 0.74rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        color: #2f3e3b;
-        background: #DDE5E3;
-        padding: 5px 14px;
-        border-radius: 999px;
-        margin-bottom: 12px;
-      }
-
-      .giftbox-info-title {
-        font-family: 'Playfair Display', Georgia, serif;
-        font-size: clamp(1.65rem, 2.8vw, 2.25rem);
-        font-weight: 500;
-        color: #171717;
-        margin: 0 0 10px;
-        letter-spacing: -0.01em;
-      }
-
-      .giftbox-info-subtitle {
-        font-size: 0.96rem;
-        line-height: 1.65;
-        color: #525252;
-        margin: 0;
-      }
-
       .giftbox-cards-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -9268,24 +7990,6 @@
         align-items: flex-start;
         justify-content: space-between;
         gap: 16px;
-      }
-
-      .giftbox-card-badge {
-        display: inline-block;
-        font-size: 0.76rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        padding: 5px 12px;
-        border-radius: 999px;
-        background: #F4F2EC;
-        color: #404040;
-        margin-bottom: 10px;
-      }
-
-      .giftbox-option-card.is-luxury .giftbox-card-badge {
-        background: #2f3e3b;
-        color: #ffffff;
       }
 
       .giftbox-card-name {
@@ -9339,27 +8043,6 @@
       .giftbox-feature-list li svg {
         color: #2f3e3b;
         flex-shrink: 0;
-      }
-
-      .giftbox-card-select-btn {
-        width: 100%;
-        padding: 11px 18px;
-        border-radius: 999px;
-        border: 1px solid #171717;
-        background: transparent;
-        color: #171717;
-        font-family: inherit;
-        font-size: 0.84rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.18s ease;
-      }
-
-      .giftbox-card-select-btn:hover,
-      .giftbox-option-card.is-selected .giftbox-card-select-btn {
-        background: #2f3e3b;
-        border-color: #2f3e3b;
-        color: #ffffff;
       }
 
       /* Radioknappar & Hälsningsfält på Produktsida och i Kassa */
@@ -11101,7 +9784,6 @@
           <!-- Toppkort med översikt & PIN-hantering -->
           <div class="admin-top-hero-card" role="region" aria-label="Adminpanel översikt">
             <div style="max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
-              <span style="display: inline-block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.14em; color: #404040; font-weight: 600; margin-bottom: 6px;">Skaparvy &middot; Sagomaskan</span>
               <h1 style="font-family: 'Playfair Display', Georgia, serif; font-size: clamp(1.85rem, 3vw, 2.35rem); font-weight: 500; color: #171717; margin: 0 0 8px 0; line-height: 1.2;">Adminpanel</h1>
               <p style="font-size: 0.94rem; color: #4a4a4a; line-height: 1.6; margin: 0;">
                 Hantera dina handvirkade skapelser, uppdatera orderstatus för inkomna beställningar och läs kundmeddelanden. All data synkroniseras i realtid med din molndatabas (Firebase Firestore).
@@ -11137,32 +9819,13 @@
               </div>
             </div>
 
-            <!-- Kontrollknappar för PIN & Lås -->
+            <!-- Kontrollknapp för Lås & lämna admin -->
             <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center;">
-              <button type="button" id="adminToggleChangePinBtn" class="account-secondary-btn" style="padding: 8px 16px; font-size: 0.82rem;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                <span>Byt PIN-kod</span>
-              </button>
               <button type="button" id="adminLockBtn" class="account-secondary-btn" style="padding: 8px 16px; font-size: 0.82rem; color: #b91c1c;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                 <span>Lås &amp; lämna admin</span>
               </button>
             </div>
-
-            <!-- Utfällbart formulär för att byta PIN-kod -->
-            <form id="adminChangePinForm" hidden style="width: 100%; max-width: 440px; background: #ffffff; border-radius: 16px; padding: 18px 20px; border: 1px solid rgba(0,0,0,0.08); display: flex; flex-direction: column; gap: 12px; text-align: left; margin-top: 4px;">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 0.88rem; font-weight: 600; color: #171717;">Ändra PIN-kod / lösenord för Admin</span>
-                <button type="button" id="adminCancelChangePinBtn" style="background: none; border: none; color: #666; cursor: pointer; font-size: 0.82rem;">Stäng ✕</button>
-              </div>
-              <div>
-                <label for="adminNewPinInput" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: #525252; font-weight: 600; display: block; margin-bottom: 4px;">Ny PIN-kod eller lösenord (minst 4 tecken)</label>
-                <input type="password" id="adminNewPinInput" class="account-form-input" placeholder="T.ex. 4829" minlength="4" required />
-              </div>
-              <div style="display: flex; gap: 8px;">
-                <button type="submit" class="account-submit-btn" style="padding: 9px 18px; font-size: 0.82rem; height: auto; margin-top: 0;">Spara ny kod</button>
-              </div>
-            </form>
           </div>
 
           <!-- Flikväljare & Sektioner -->
@@ -11237,118 +9900,126 @@
               </div>
 
               <div class="admin-products-layout">
-                <!-- Vänster: Formulär för att lägga till / redigera skapelse -->
+                <!-- Överst (liggande): Formulär för att lägga till / redigera skapelse -->
                 <div class="admin-sub-box" id="adminProductFormCard">
-                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 8px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 8px; flex-wrap: wrap;">
                     <h3 id="adminProductFormTitle" style="font-size: 1.05rem; font-weight: 600; color: #171717; margin: 0;">Lägg till ny skapelse</h3>
                     <button type="button" id="adminCancelEditProductBtn" class="account-secondary-btn" hidden style="padding: 5px 12px; font-size: 0.76rem;">
                       Avbryt redigering
                     </button>
                   </div>
 
-                  <form id="adminProductForm" style="display: flex; flex-direction: column; gap: 14px;">
+                  <form id="adminProductForm" style="display: flex; flex-direction: column; gap: 16px;">
                     <input type="hidden" id="adminProductIdInput" value="" />
 
-                    <div>
-                      <label for="adminProdNameInput" style="font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; color: #525252; font-weight: 600; display: block; margin-bottom: 5px;">Namn på skapelse *</label>
-                      <input type="text" id="adminProdNameInput" class="account-form-input" placeholder="T.ex. Virkad skogskanin i merinoull" required />
+                    <div class="admin-product-form-grid">
+                      <!-- Vänster kolumn: Grunduppgifter & beskrivning -->
+                      <div class="admin-product-form-col">
+                        <div>
+                          <label for="adminProdNameInput" style="font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; color: #525252; font-weight: 600; display: block; margin-bottom: 5px;">Namn på skapelse *</label>
+                          <input type="text" id="adminProdNameInput" class="account-form-input" placeholder="T.ex. Virkad skogskanin i merinoull" required />
+                        </div>
+
+                        <div class="admin-product-meta-row">
+                          <div>
+                            <label for="adminProdCategorySelect" style="font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; color: #525252; font-weight: 600; display: block; margin-bottom: 5px;">Kategori *</label>
+                            <select id="adminProdCategorySelect" class="account-form-input" style="cursor: pointer;"></select>
+                          </div>
+                          <div>
+                            <label for="adminProdPriceInput" style="font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; color: #525252; font-weight: 600; display: block; margin-bottom: 5px;">Pris (kr) *</label>
+                            <input type="number" id="adminProdPriceInput" class="account-form-input" placeholder="T.ex. 349" min="0" step="1" required />
+                          </div>
+                          <div>
+                            <label for="adminProdStockInput" style="font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; color: #525252; font-weight: 600; display: block; margin-bottom: 5px;">Lagersaldo (st) *</label>
+                            <input type="number" id="adminProdStockInput" class="account-form-input" value="1" min="0" step="1" required />
+                          </div>
+                        </div>
+
+                        <div style="flex: 1; display: flex; flex-direction: column;">
+                          <label for="adminProdDescInput" style="font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; color: #525252; font-weight: 600; display: block; margin-bottom: 5px;">Beskrivning &amp; material (valfritt)</label>
+                          <textarea id="adminProdDescInput" class="account-form-input" rows="5" style="height: auto; min-height: 124px; padding: 10px 14px; resize: vertical; line-height: 1.5;" placeholder="Beskriv garn, storlek, tvättråd och detaljer..."></textarea>
+                        </div>
+
+                        <!-- Digital PDF-produkt (Mönster) -->
+                        <div style="background: #ffffff; border: 1px solid rgba(0,0,0,0.1); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;">
+                          <label for="adminProdDigitalCheckbox" style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; user-select: none;">
+                            <input type="checkbox" id="adminProdDigitalCheckbox" style="width: 17px; height: 17px; margin-top: 2px; accent-color: #2f3e3b; cursor: pointer; flex-shrink: 0;" />
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                              <span style="font-size: 0.84rem; font-weight: 600; color: #171717;">Digital PDF-produkt (Virkmönster)</span>
+                              <span style="font-size: 0.75rem; color: #666666; line-height: 1.4;">Ger 0 kr frakt vid rena mönsterköp. Nedladdningsknappen aktiveras för kunden så snart du godkänner Swish-betalningen.</span>
+                            </div>
+                          </label>
+
+                          <div id="adminProdDigitalPdfBox" hidden style="padding-top: 10px; border-top: 1px dashed rgba(0,0,0,0.08); display: flex; flex-direction: column; gap: 8px;">
+                            <div>
+                              <label for="adminProdPdfUrlInput" style="font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; color: #2f3e3b; font-weight: 600; display: block; margin-bottom: 4px;">Nedladdningslänk / PDF-sökväg *</label>
+                              <input
+                                type="text"
+                                id="adminProdPdfUrlInput"
+                                class="account-form-input"
+                                style="height: 38px; font-size: 0.84rem;"
+                                placeholder="T.ex. https://exempel.se/monster.pdf eller /pdf/skogskanin-monster.pdf"
+                              />
+                            </div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                              <label for="adminProdPdfFileInput" class="account-secondary-btn" style="padding: 5px 11px; font-size: 0.75rem; cursor: pointer; width: fit-content;">
+                                📄 Eller välj lokal PDF-fil...
+                              </label>
+                              <input type="file" id="adminProdPdfFileInput" accept=".pdf,application/pdf" hidden />
+                              <span id="adminProdPdfFileStatus" style="font-size: 0.73rem; color: #525252;"></span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Höger kolumn: Produktbilder -->
+                      <div class="admin-product-form-col">
+                        <!-- Bildhantering: Upp till 5 produktbilder (Uppladdning eller Bildlänk) -->
+                        <div style="background: #ffffff; border: 1px solid rgba(0,0,0,0.08); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 12px;">
+                          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+                            <div>
+                              <span style="font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; color: #525252; font-weight: 600; display: block;">Produktbilder (Upp till 5 bilder)</span>
+                              <span style="font-size: 0.73rem; color: #737373;">Bild 1 visas som huvudbild. Kunden kan bläddra mellan alla 5 bilder.</span>
+                            </div>
+                            <span id="adminProdImagesCountBadge" style="font-size: 0.73rem; font-weight: 600; background: #F4F2EC; color: #262626; padding: 3px 9px; border-radius: 999px; border: 1px solid rgba(0,0,0,0.08);">0 / 5 bilder</span>
+                          </div>
+
+                          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <label for="adminProdImageFileInput" class="account-secondary-btn" style="padding: 7px 12px; font-size: 0.78rem; width: fit-content; cursor: pointer;">
+                              📷 Välj bildfil(er) (max 5)...
+                            </label>
+                            <input type="file" id="adminProdImageFileInput" accept="image/*" multiple hidden />
+                            <input type="file" id="adminProdSingleSlotFileInput" accept="image/*" hidden />
+                            <button type="button" id="adminProdClearImageBtn" hidden style="background: none; border: none; color: #b91c1c; font-size: 0.75rem; font-weight: 600; cursor: pointer; padding: 4px 6px;">
+                              Rensa alla bilder
+                            </button>
+                          </div>
+
+                          <!-- 5 bildplatser (Bild 1 = Huvudbild, Bild 2-5 = Extrabilder) -->
+                          <div id="adminProdImagesSlotsGrid" class="admin-prod-images-slots-grid" aria-label="Produktens 5 bildplatser"></div>
+
+                          <!-- Inmatning av bildlänk (URL) för vald bildplats -->
+                          <div style="background: #FBFBF9; border: 1px solid rgba(0,0,0,0.06); border-radius: 10px; padding: 9px 11px;">
+                            <label for="adminProdImageUrlInput" id="adminProdImageUrlLabel" style="font-size: 0.73rem; color: #525252; font-weight: 600; display: block; margin-bottom: 5px;">Eller klistra in bildlänk (URL) för Bild 1 (Huvudbild):</label>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                              <input type="url" id="adminProdImageUrlInput" class="account-form-input" style="height: 36px; font-size: 0.82rem; flex: 1;" placeholder="https://exempel.se/bild.jpg" />
+                              <button type="button" id="adminProdApplyUrlBtn" class="account-secondary-btn" style="padding: 6px 11px; font-size: 0.76rem; white-space: nowrap;">Spara länk</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                      <div>
-                        <label for="adminProdCategorySelect" style="font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; color: #525252; font-weight: 600; display: block; margin-bottom: 5px;">Kategori *</label>
-                        <select id="adminProdCategorySelect" class="account-form-input" style="cursor: pointer;"></select>
-                      </div>
-                      <div>
-                        <label for="adminProdPriceInput" style="font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; color: #525252; font-weight: 600; display: block; margin-bottom: 5px;">Pris (kr) *</label>
-                        <input type="number" id="adminProdPriceInput" class="account-form-input" placeholder="T.ex. 349" min="0" step="1" required />
-                      </div>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: end;">
-                      <div>
-                        <label for="adminProdStockInput" style="font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; color: #525252; font-weight: 600; display: block; margin-bottom: 5px;">Lagersaldo (st) *</label>
-                        <input type="number" id="adminProdStockInput" class="account-form-input" value="1" min="0" step="1" required />
-                      </div>
-                      <label for="adminProdFeaturedCheckbox" style="display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 12px; background: #ffffff; border: 1px solid rgba(0,0,0,0.12); border-radius: 12px; font-size: 0.82rem; font-weight: 500; color: #171717; cursor: pointer; user-select: none;">
+                    <div class="admin-product-bottom-bar">
+                      <label for="adminProdFeaturedCheckbox" style="display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px; background: #ffffff; border: 1px solid rgba(0,0,0,0.12); border-radius: 12px; font-size: 0.84rem; font-weight: 500; color: #171717; cursor: pointer; user-select: none;">
                         <input type="checkbox" id="adminProdFeaturedCheckbox" style="width: 16px; height: 16px; accent-color: #2f3e3b; cursor: pointer;" />
                         <span>Utvald på startsidan</span>
                       </label>
+
+                      <button type="submit" id="adminProductSubmitBtn" class="account-submit-btn" style="width: auto; min-width: 240px; padding: 0 28px; margin-top: 0;">
+                        <span id="adminProductSubmitBtnText">Spara skapelse i butiken</span>
+                      </button>
                     </div>
-
-                    <!-- Digital PDF-produkt (Mönster) -->
-                    <div style="background: #ffffff; border: 1px solid rgba(0,0,0,0.1); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;">
-                      <label for="adminProdDigitalCheckbox" style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; user-select: none;">
-                        <input type="checkbox" id="adminProdDigitalCheckbox" style="width: 17px; height: 17px; margin-top: 2px; accent-color: #2f3e3b; cursor: pointer; flex-shrink: 0;" />
-                        <div style="display: flex; flex-direction: column; gap: 2px;">
-                          <span style="font-size: 0.84rem; font-weight: 600; color: #171717;">Digital PDF-produkt (Virkmönster)</span>
-                          <span style="font-size: 0.75rem; color: #666666; line-height: 1.4;">Ger 0 kr frakt vid rena mönsterköp. Nedladdningsknappen aktiveras för kunden så snart du godkänner Swish-betalningen.</span>
-                        </div>
-                      </label>
-
-                      <div id="adminProdDigitalPdfBox" hidden style="padding-top: 10px; border-top: 1px dashed rgba(0,0,0,0.08); display: flex; flex-direction: column; gap: 8px;">
-                        <div>
-                          <label for="adminProdPdfUrlInput" style="font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; color: #2f3e3b; font-weight: 600; display: block; margin-bottom: 4px;">Nedladdningslänk / PDF-sökväg *</label>
-                          <input
-                            type="text"
-                            id="adminProdPdfUrlInput"
-                            class="account-form-input"
-                            style="height: 38px; font-size: 0.84rem;"
-                            placeholder="T.ex. https://exempel.se/monster.pdf eller /pdf/skogskanin-monster.pdf"
-                          />
-                        </div>
-                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-                          <label for="adminProdPdfFileInput" class="account-secondary-btn" style="padding: 5px 11px; font-size: 0.75rem; cursor: pointer; width: fit-content;">
-                            📄 Eller välj lokal PDF-fil...
-                          </label>
-                          <input type="file" id="adminProdPdfFileInput" accept=".pdf,application/pdf" hidden />
-                          <span id="adminProdPdfFileStatus" style="font-size: 0.73rem; color: #525252;"></span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label for="adminProdDescInput" style="font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; color: #525252; font-weight: 600; display: block; margin-bottom: 5px;">Beskrivning &amp; material (valfritt)</label>
-                      <textarea id="adminProdDescInput" class="account-form-input" rows="3" style="height: auto; padding: 10px 14px; resize: vertical; line-height: 1.5;" placeholder="Beskriv garn, storlek, tvättråd och detaljer..."></textarea>
-                    </div>
-
-                    <!-- Bildhantering: Upp till 5 produktbilder (Uppladdning eller Bildlänk) -->
-                    <div style="background: #ffffff; border: 1px solid rgba(0,0,0,0.08); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 12px;">
-                      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
-                        <div>
-                          <span style="font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; color: #525252; font-weight: 600; display: block;">Produktbilder (Upp till 5 bilder)</span>
-                          <span style="font-size: 0.73rem; color: #737373;">Bild 1 visas som huvudbild. Kunden kan bläddra mellan alla 5 bilder.</span>
-                        </div>
-                        <span id="adminProdImagesCountBadge" style="font-size: 0.73rem; font-weight: 600; background: #F4F2EC; color: #262626; padding: 3px 9px; border-radius: 999px; border: 1px solid rgba(0,0,0,0.08);">0 / 5 bilder</span>
-                      </div>
-
-                      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                        <label for="adminProdImageFileInput" class="account-secondary-btn" style="padding: 7px 12px; font-size: 0.78rem; width: fit-content; cursor: pointer;">
-                          📷 Välj bildfil(er) (max 5)...
-                        </label>
-                        <input type="file" id="adminProdImageFileInput" accept="image/*" multiple hidden />
-                        <input type="file" id="adminProdSingleSlotFileInput" accept="image/*" hidden />
-                        <button type="button" id="adminProdClearImageBtn" hidden style="background: none; border: none; color: #b91c1c; font-size: 0.75rem; font-weight: 600; cursor: pointer; padding: 4px 6px;">
-                          Rensa alla bilder
-                        </button>
-                      </div>
-
-                      <!-- 5 bildplatser (Bild 1 = Huvudbild, Bild 2-5 = Extrabilder) -->
-                      <div id="adminProdImagesSlotsGrid" class="admin-prod-images-slots-grid" aria-label="Produktens 5 bildplatser"></div>
-
-                      <!-- Inmatning av bildlänk (URL) för vald bildplats -->
-                      <div style="background: #FBFBF9; border: 1px solid rgba(0,0,0,0.06); border-radius: 10px; padding: 9px 11px;">
-                        <label for="adminProdImageUrlInput" id="adminProdImageUrlLabel" style="font-size: 0.73rem; color: #525252; font-weight: 600; display: block; margin-bottom: 5px;">Eller klistra in bildlänk (URL) för Bild 1 (Huvudbild):</label>
-                        <div style="display: flex; gap: 6px; align-items: center;">
-                          <input type="url" id="adminProdImageUrlInput" class="account-form-input" style="height: 36px; font-size: 0.82rem; flex: 1;" placeholder="https://exempel.se/bild.jpg" />
-                          <button type="button" id="adminProdApplyUrlBtn" class="account-secondary-btn" style="padding: 6px 11px; font-size: 0.76rem; white-space: nowrap;">Spara länk</button>
-                        </div>
-                      </div>
-                    </div>
-
-                    <button type="submit" id="adminProductSubmitBtn" class="account-submit-btn" style="width: 100%; margin-top: 4px;">
-                      <span id="adminProductSubmitBtnText">Spara skapelse i butiken</span>
-                    </button>
                   </form>
                 </div>
 
@@ -19155,27 +17826,9 @@
       }
 
       // =========================================================================
-      // Adminpanel & PIN-kodslås (Produkter, Kategorier, Ordrar & Kundmeddelanden)
+      // Adminpanel & Autentisering (Produkter, Kategorier, Ordrar & Kundmeddelanden)
       // =========================================================================
-      const ADMIN_PIN_STORAGE_KEY = 'sagomaskan_admin_pin_v1';
       const ADMIN_UNLOCKED_SESSION_KEY = 'sagomaskan_admin_unlocked_v1';
-      const DEFAULT_ADMIN_PIN = '1234';
-
-      function getAdminPin() {
-        try {
-          const saved = localStorage.getItem(ADMIN_PIN_STORAGE_KEY);
-          if (saved && String(saved).trim().length >= 4) {
-            return String(saved).trim();
-          }
-        } catch (_) {}
-        return DEFAULT_ADMIN_PIN;
-      }
-
-      function setAdminPin(newPin) {
-        const cleaned = String(newPin || '').trim();
-        if (cleaned.length < 4) return false;
-        return safeSetItem(ADMIN_PIN_STORAGE_KEY, cleaned);
-      }
 
       function isAdminUnlocked() {
         if (window.SagomaskanFirebase && typeof window.SagomaskanFirebase.isCurrentUserAdmin === 'function') {
@@ -19325,11 +17978,7 @@
       const adminTabDiscountsBadge = document.getElementById('adminTabDiscountsBadge');
       const adminTabMessagesBadge = document.getElementById('adminTabMessagesBadge');
 
-      const adminToggleChangePinBtn = document.getElementById('adminToggleChangePinBtn');
       const adminLockBtn = document.getElementById('adminLockBtn');
-      const adminChangePinForm = document.getElementById('adminChangePinForm');
-      const adminCancelChangePinBtn = document.getElementById('adminCancelChangePinBtn');
-      const adminNewPinInput = document.getElementById('adminNewPinInput');
 
       const adminSectionProducts = document.getElementById('adminSectionProducts');
       const adminSectionOrders = document.getElementById('adminSectionOrders');
@@ -19448,46 +18097,15 @@
       }
 
       if (adminLockBtn) {
-        adminLockBtn.addEventListener('click', () => {
+        adminLockBtn.addEventListener('click', async () => {
+          try {
+            if (window.SagomaskanFirebase && typeof window.SagomaskanFirebase.signOutAdmin === 'function') {
+              await window.SagomaskanFirebase.signOutAdmin();
+            }
+          } catch (_) {}
           setAdminUnlocked(false);
-          if (adminChangePinForm) adminChangePinForm.hidden = true;
           showHomeView();
           showToast('Adminpanelen har låsts.', 'info');
-        });
-      }
-
-      if (adminToggleChangePinBtn && adminChangePinForm) {
-        adminToggleChangePinBtn.addEventListener('click', () => {
-          const willOpen = adminChangePinForm.hidden;
-          adminChangePinForm.hidden = !willOpen;
-          if (willOpen && adminNewPinInput) {
-            adminNewPinInput.value = '';
-            adminNewPinInput.focus();
-          }
-        });
-      }
-
-      if (adminCancelChangePinBtn && adminChangePinForm) {
-        adminCancelChangePinBtn.addEventListener('click', () => {
-          adminChangePinForm.hidden = true;
-          if (adminNewPinInput) adminNewPinInput.value = '';
-        });
-      }
-
-      if (adminChangePinForm) {
-        adminChangePinForm.addEventListener('submit', (e) => {
-          e.preventDefault();
-          const newPin = (adminNewPinInput?.value || '').trim();
-          if (newPin.length < 4) {
-            showToast('PIN-koden måste innehålla minst 4 tecken.', 'warning');
-            if (adminNewPinInput) adminNewPinInput.focus();
-            return;
-          }
-          if (setAdminPin(newPin)) {
-            adminChangePinForm.hidden = true;
-            if (adminNewPinInput) adminNewPinInput.value = '';
-            showToast('Din nya PIN-kod för Admin har sparats!', 'success');
-          }
         });
       }
 
@@ -20215,36 +18833,36 @@
                   <article class="admin-prod-item-card">
                     <div class="admin-prod-thumb">${thumbHtml}</div>
                     <div class="admin-prod-meta">
-                      <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span class="admin-prod-title">${escapeHtml(prod.name)}</span>
                         <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: #737373; font-weight: 600;">${escapeHtml(catName)}</span>
-                        <span style="font-size: 0.68rem; font-weight: 600; background: #F4F2EC; color: #404040; padding: 1px 7px; border-radius: 999px;">📷 ${prodImgs.length}/5 bilder</span>
+                        <span style="font-size: 0.68rem; font-weight: 600; background: #F4F2EC; color: #404040; padding: 2px 8px; border-radius: 999px;">📷 ${prodImgs.length}/5 bilder</span>
                         ${
                           prod.featured
-                            ? `<span style="font-size: 0.68rem; font-weight: 600; background: #fef9c3; color: #854d0e; padding: 1px 7px; border-radius: 999px;">★ Utvald</span>`
+                            ? `<span style="font-size: 0.68rem; font-weight: 600; background: #fef9c3; color: #854d0e; padding: 2px 8px; border-radius: 999px;">★ Utvald</span>`
                             : ''
                         }
                         ${
                           prod.isDigitalPdf
-                            ? `<span style="font-size: 0.68rem; font-weight: 600; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 1px 7px; border-radius: 999px;">📄 Digital PDF-produkt</span>`
+                            ? `<span style="font-size: 0.68rem; font-weight: 600; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 2px 8px; border-radius: 999px;">📄 Digital PDF-produkt</span>`
                             : ''
                         }
                       </div>
-                      <span class="admin-prod-title">${escapeHtml(prod.name)}</span>
-                      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 0.84rem;">
-                        <strong style="color: #171717;">${escapeHtml(prod.price)} kr</strong>
+                      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 0.85rem;">
+                        <strong style="color: #171717;">Pris: ${escapeHtml(prod.price)} kr</strong>
                         <span style="color: #d4d4d4;">|</span>
-                        <span style="font-size: 0.78rem; font-weight: 600; color: ${isSoldOut ? '#b91c1c' : '#166534'};">
+                        <span style="font-size: 0.8rem; font-weight: 600; color: ${isSoldOut ? '#b91c1c' : '#166534'};">
                           ${isSoldOut ? 'Slutsåld (0 st)' : `Lager: ${stock} st`}
                         </span>
                       </div>
                       ${
                         prod.isDigitalPdf && (prod.pdfDisplayPath || prod.pdfUrl)
-                          ? `<span style="font-size: 0.72rem; color: #065f46; display: block; margin-top: 2px;">PDF-länk: ${escapeHtml(prod.pdfDisplayPath || (prod.pdfUrl.startsWith('data:') ? 'Uppladdad PDF-fil' : prod.pdfUrl))}</span>`
+                          ? `<span style="font-size: 0.75rem; color: #065f46; display: block; word-break: break-all;">PDF-länk: ${escapeHtml(prod.pdfDisplayPath || (prod.pdfUrl.startsWith('data:') ? 'Uppladdad PDF-fil' : prod.pdfUrl))}</span>`
                           : ''
                       }
                       ${
                         prod.description
-                          ? `<p style="font-size: 0.78rem; color: #666666; margin: 2px 0 0 0; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">${escapeHtml(prod.description)}</p>`
+                          ? `<p style="font-size: 0.8rem; color: #525252; margin: 2px 0 0 0; line-height: 1.45; white-space: pre-line; word-break: break-word;">${escapeHtml(prod.description)}</p>`
                           : ''
                       }
                     </div>

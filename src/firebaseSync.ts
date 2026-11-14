@@ -20,7 +20,6 @@ import {
   getAuth,
   signInWithPopup,
   GoogleAuthProvider,
-  signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
   User
@@ -145,10 +144,8 @@ declare global {
       getGiftBoxPrices: () => Promise<any>;
       saveGiftBoxPrices: (settings: any) => Promise<void>;
       signInAdminWithGoogle: () => Promise<User>;
-      signInAdminWithEmail: (email: string, pass: string) => Promise<User>;
       signOutAdmin: () => Promise<void>;
       isCurrentUserAdmin: () => boolean;
-      onAdminAuthStateChanged: (cb: (isAdmin: boolean, user: User | null) => void) => () => void;
       isReady: boolean;
     };
   }
@@ -180,31 +177,9 @@ const SagomaskanFirebase = {
     return user;
   },
 
-  async signInAdminWithEmail(email: string, pass: string): Promise<User> {
-    const cleanEmail = (email || '').trim().toLowerCase();
-    if (cleanEmail !== ADMIN_EMAIL.toLowerCase()) {
-      throw new Error(`Endast ${ADMIN_EMAIL} är godkänd för admininloggning.`);
-    }
-    const result = await signInWithEmailAndPassword(auth, cleanEmail, pass);
-    const user = result.user;
-    if (!user.email || user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-      await signOut(auth);
-      throw new Error(`Åtkomst nekad. Endast ${ADMIN_EMAIL} har administratörsbehörighet.`);
-    }
-    console.log('✅ Admin inloggad med e-post:', user.email);
-    return user;
-  },
-
   async signOutAdmin(): Promise<void> {
     await signOut(auth);
     console.log('Admin utloggad');
-  },
-
-  onAdminAuthStateChanged(callback: (isAdmin: boolean, user: User | null) => void) {
-    return onAuthStateChanged(auth, (user) => {
-      const isAdm = Boolean(user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
-      callback(isAdm, user);
-    });
   },
 
   async uploadProductImage(file: File | Blob, originalName?: string): Promise<string> {
