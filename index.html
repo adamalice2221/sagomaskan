@@ -9390,7 +9390,7 @@
                     <label class="giftbox-radio-label" data-giftbox-radio-card="luxury">
                       <div class="giftbox-radio-top">
                         <input type="radio" name="checkoutGiftBoxOption" value="luxury" />
-                        <span class="giftbox-radio-name">Lyxig</span>
+                        <span class="giftbox-radio-name">Exklusiv</span>
                       </div>
                       <span class="giftbox-radio-price" data-giftbox-price-display="luxury">+95 kr</span>
                     </label>
@@ -9669,7 +9669,7 @@
                   <label class="giftbox-radio-label" data-cart-giftbox-card="luxury">
                     <div class="giftbox-radio-top">
                       <input type="radio" name="cartGiftBoxOption" value="luxury" />
-                      <span class="giftbox-radio-name">Lyxig</span>
+                      <span class="giftbox-radio-name">Exklusiv</span>
                     </div>
                     <span class="giftbox-radio-price" data-giftbox-price-display="luxury">+95 kr</span>
                   </label>
@@ -12933,14 +12933,6 @@
         }
 
         const discountedSubtotal = Math.max(0, subtotalPrice - discountAmount);
-        const FREE_SHIPPING_THRESHOLD = 500;
-        const STANDARD_SHIPPING_FEE = 49;
-        // För rena mönsterbeställningar (endast digitala PDF-produkter) är fraktkostnaden alltid 0 kr
-        const shippingFee = isDigitalOnly
-          ? 0
-          : subtotalPrice > 0 && subtotalPrice < FREE_SHIPPING_THRESHOLD
-          ? STANDARD_SHIPPING_FEE
-          : 0;
 
         // Presentask beräknas för fysiska beställningar när varukorgen inte är tom
         const giftBoxMeta = !isDigitalOnly && subtotalPrice > 0
@@ -12951,6 +12943,17 @@
         const giftBoxLabel = giftBoxMeta.label;
         const giftBoxGreeting = giftBoxType !== 'none' ? (currentGiftBoxSelection.greeting || '').trim() : '';
 
+        const FREE_SHIPPING_THRESHOLD = 500;
+        const STANDARD_SHIPPING_FEE = 49;
+        // Alla tillägg (t.ex. presentask) inkluderas i beloppet för fri frakt
+        const freeShippingQualifyingTotal = subtotalPrice > 0 ? subtotalPrice + giftBoxPrice : 0;
+        // För rena mönsterbeställningar (endast digitala PDF-produkter) är fraktkostnaden alltid 0 kr
+        const shippingFee = isDigitalOnly
+          ? 0
+          : subtotalPrice > 0 && freeShippingQualifyingTotal < FREE_SHIPPING_THRESHOLD
+          ? STANDARD_SHIPPING_FEE
+          : 0;
+
         const totalPrice = subtotalPrice > 0 ? discountedSubtotal + shippingFee + giftBoxPrice : 0;
 
         return {
@@ -12959,6 +12962,7 @@
           discountObj,
           discountAmount,
           discountedSubtotal,
+          freeShippingQualifyingTotal,
           shippingFee,
           giftBoxType,
           giftBoxPrice,
@@ -13248,6 +13252,7 @@
         const {
           totalQuantity,
           subtotalPrice,
+          freeShippingQualifyingTotal,
           shippingFee,
           totalPrice,
           FREE_SHIPPING_THRESHOLD,
@@ -13275,12 +13280,12 @@
             cartFreeShippingBarEl.style.width = '100%';
             cartFreeShippingTextEl.innerHTML = `<strong style="color:#166534;">✓ Digital PDF-leverans – Frakt 0 kr!</strong>`;
           } else {
-            const pct = Math.min(100, Math.round((subtotalPrice / FREE_SHIPPING_THRESHOLD) * 100));
+            const pct = Math.min(100, Math.round((freeShippingQualifyingTotal / FREE_SHIPPING_THRESHOLD) * 100));
             cartFreeShippingBarEl.style.width = `${pct}%`;
-            if (subtotalPrice >= FREE_SHIPPING_THRESHOLD) {
+            if (freeShippingQualifyingTotal >= FREE_SHIPPING_THRESHOLD) {
               cartFreeShippingTextEl.innerHTML = `<strong style="color:#166534;">✓ Du har uppnått fri frakt!</strong>`;
             } else {
-              const diff = Math.max(0, Math.ceil(FREE_SHIPPING_THRESHOLD - subtotalPrice));
+              const diff = Math.max(0, Math.ceil(FREE_SHIPPING_THRESHOLD - freeShippingQualifyingTotal));
               cartFreeShippingTextEl.innerHTML = `Handla för <strong>${formatPriceKr(diff)}</strong> till för fri frakt!`;
             }
           }
