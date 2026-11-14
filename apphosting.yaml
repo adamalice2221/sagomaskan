@@ -1,0 +1,3 @@
+scripts:
+  buildCommand: npm run build
+  runCommand: node server.js
