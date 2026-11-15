@@ -2282,11 +2282,12 @@
       }
 
       .categories-section .category-item {
-        background-color: #ffffff;
-        border: 1px solid rgba(47, 62, 59, 0.14);
-        border-radius: 16px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 4px 10px -4px rgba(0, 0, 0, 0.04);
+        background-color: #f3ece5;
+        border: 1px solid rgba(47, 62, 59, 0.08);
+        border-radius: 20px;
+        box-shadow: 0 10px 26px -6px rgba(0, 0, 0, 0.08), 0 4px 10px -4px rgba(0, 0, 0, 0.04);
         overflow: hidden;
+        aspect-ratio: 1686 / 2528;
         transition:
           transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
           box-shadow 0.38s cubic-bezier(0.22, 1, 0.36, 1),
@@ -2294,9 +2295,9 @@
       }
 
       .categories-section .category-item:hover {
-        border-color: rgba(47, 62, 59, 0.32);
+        border-color: rgba(47, 62, 59, 0.24);
         box-shadow:
-          0 20px 38px -8px rgba(0, 0, 0, 0.13),
+          0 20px 38px -8px rgba(0, 0, 0, 0.14),
           0 6px 14px -4px rgba(0, 0, 0, 0.06);
         transform: translateY(-6px);
       }
@@ -2331,6 +2332,125 @@
         border: none;
         border-radius: 0;
         box-shadow: none;
+        padding: 0;
+        min-height: 0;
+        height: 100%;
+        aspect-ratio: 1686 / 2528;
+        background-color: #f3ece5;
+      }
+
+      .categories-section .category-card-img--framed {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center center;
+        transform: scale(1.015);
+        transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .categories-section .category-item:hover .category-card-img--framed {
+        transform: scale(1.035);
+      }
+
+      .categories-section .category-card-shell {
+        width: 100%;
+        height: 100%;
+        background-color: #f3ece5;
+        padding: 6.2%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .categories-section .category-shell-inner {
+        width: 100%;
+        height: 100%;
+        background-color: #ffffff;
+        border-radius: 14px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.035);
+      }
+
+      .categories-section .category-shell-media {
+        flex: 1;
+        min-height: 0;
+        background-color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .categories-section .category-shell-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center center;
+        display: block;
+        transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .categories-section .category-item:hover .category-shell-img {
+        transform: scale(1.04);
+      }
+
+      .categories-section .category-shell-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        color: #b5ada4;
+        padding: 16px;
+        text-align: center;
+        transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1), color 0.3s ease;
+      }
+
+      .categories-section .category-shell-empty svg {
+        width: 28px;
+        height: 28px;
+        opacity: 0.72;
+      }
+
+      .categories-section .category-shell-empty span {
+        font-size: 0.68rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        font-weight: 500;
+      }
+
+      .categories-section .category-item:hover .category-shell-empty {
+        transform: scale(1.04);
+        color: #8f867d;
+      }
+
+      .categories-section .category-shell-footer {
+        height: 19.5%;
+        flex-shrink: 0;
+        background-color: #f1e9e1;
+        border-top: 1px solid rgba(0, 0, 0, 0.035);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px 10px;
+        transition: background-color 0.3s ease;
+      }
+
+      .categories-section .category-item:hover .category-shell-footer {
+        background-color: #eae0d5;
+      }
+
+      .categories-section .category-shell-title {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: clamp(0.76rem, 1.05vw, 0.96rem);
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #131524;
+        text-align: center;
+        line-height: 1.2;
       }
 
       /* Subtil ljusglöd i kortet vid hover */
@@ -2467,8 +2587,17 @@
           gap: 20px;
         }
 
-        .category-card {
-          min-height: 200px;
+        .categories-section .category-item {
+          border-radius: 16px;
+        }
+
+        .categories-section .category-shell-inner {
+          border-radius: 12px;
+        }
+
+        .categories-section .category-shell-title {
+          font-size: 0.78rem;
+          letter-spacing: 0.14em;
         }
 
         .categories-section .category-title {
@@ -7332,10 +7461,23 @@
           gap: 14px;
         }
 
-        .category-card {
-          min-height: 165px;
-          padding: 10px;
+        .categories-section .category-item {
           border-radius: 14px;
+        }
+
+        .categories-section .category-card {
+          min-height: 0;
+          padding: 0;
+          border-radius: 0;
+        }
+
+        .categories-section .category-shell-inner {
+          border-radius: 10px;
+        }
+
+        .categories-section .category-shell-title {
+          font-size: 0.74rem;
+          letter-spacing: 0.12em;
         }
 
         .category-title {
@@ -11245,32 +11387,89 @@
 
       // --- KATEGORIER & LOCALSTORAGE HANTERING (BILDUPPLADDNING) ---
       const STORAGE_KEY = 'sagomaskan_categories_v1';
+      const CATEGORIES_FRAMED_MIGRATION_KEY = 'sagomaskan_categories_framed_v1';
+
+      const FRAMED_CATEGORY_CARD_ASSETS = [
+        '/assets/aistudio/Gosedjur_0726e716.jpg',
+        '/assets/aistudio/Bitringar_e268b5eb.jpg',
+        '/assets/aistudio/Skallror_79992ece.jpg',
+        '/assets/aistudio/Mo_ssor_454e2a4d.jpg',
+        '/assets/aistudio/Pannband_ef880f64.jpg'
+      ];
+
+      function isPreFramedCategoryImage(imgSrc) {
+        const src = String(imgSrc || '').trim();
+        if (!src) return false;
+        return FRAMED_CATEGORY_CARD_ASSETS.some((asset) => src.includes(asset));
+      }
 
       const DEFAULT_CATEGORIES = [
-        { name: 'Kategori 1', image: '' },
-        { name: 'Kategori 2', image: '' },
-        { name: 'Kategori 3', image: '' },
-        { name: 'Kategori 4', image: '' },
-        { name: 'Kategori 5', image: '' },
-        { name: 'Kategori 6', image: '' }
+        { name: 'Gosedjur', image: '/assets/aistudio/Gosedjur_0726e716.jpg' },
+        { name: 'Bitring', image: '/assets/aistudio/Bitringar_e268b5eb.jpg' },
+        { name: 'Skallror', image: '/assets/aistudio/Skallror_79992ece.jpg' },
+        { name: 'Mössor', image: '/assets/aistudio/Mo_ssor_454e2a4d.jpg' },
+        { name: 'Pannband', image: '/assets/aistudio/Pannband_ef880f64.jpg' },
+        { name: 'Mönster', image: '' }
       ];
+
+      function applyFramedCategoryMigration(list) {
+        const mapped = (Array.isArray(list) && list.length === 6 ? list : DEFAULT_CATEGORIES).map((item, idx) => {
+          const rawName = String(item?.name || '').trim();
+          const isGeneric = !rawName || /^Kategori\s+\d+$/i.test(rawName);
+          const name = isGeneric ? DEFAULT_CATEGORIES[idx].name : rawName;
+          const lower = name.toLowerCase();
+
+          let image = String(item?.image || '');
+          if (lower.includes('gosedjur')) {
+            image = FRAMED_CATEGORY_CARD_ASSETS[0];
+          } else if (lower.includes('bitring')) {
+            image = FRAMED_CATEGORY_CARD_ASSETS[1];
+          } else if (lower.includes('skallr')) {
+            image = FRAMED_CATEGORY_CARD_ASSETS[2];
+          } else if (lower.includes('möss') || lower.includes('moss')) {
+            image = FRAMED_CATEGORY_CARD_ASSETS[3];
+          } else if (lower.includes('pannband')) {
+            image = FRAMED_CATEGORY_CARD_ASSETS[4];
+          } else if (lower.includes('mönster') || lower.includes('monster')) {
+            image = '';
+          } else if (idx < 5) {
+            image = FRAMED_CATEGORY_CARD_ASSETS[idx];
+          } else {
+            image = '';
+          }
+
+          return { name, image };
+        });
+        return mapped;
+      }
 
       function loadCategories() {
         try {
           const saved = localStorage.getItem(STORAGE_KEY);
+          const alreadyMigrated = localStorage.getItem(CATEGORIES_FRAMED_MIGRATION_KEY) === '1';
           if (saved) {
             const parsed = JSON.parse(saved);
             if (Array.isArray(parsed) && parsed.length === 6) {
-              return parsed.map((item, idx) => ({
-                name: item.name || `Kategori ${idx + 1}`,
+              const normalized = parsed.map((item, idx) => ({
+                name: item.name || DEFAULT_CATEGORIES[idx].name,
                 image: item.image || ''
               }));
+              if (!alreadyMigrated) {
+                const migrated = applyFramedCategoryMigration(normalized);
+                safeSetItem(STORAGE_KEY, JSON.stringify(migrated));
+                safeSetItem(CATEGORIES_FRAMED_MIGRATION_KEY, '1');
+                return migrated;
+              }
+              return normalized;
             }
           }
         } catch (err) {
           console.error('Kunde inte läsa kategorier från localStorage:', err);
         }
-        return DEFAULT_CATEGORIES.map((item) => ({ ...item }));
+        const defaults = DEFAULT_CATEGORIES.map((item) => ({ ...item }));
+        safeSetItem(STORAGE_KEY, JSON.stringify(defaults));
+        safeSetItem(CATEGORIES_FRAMED_MIGRATION_KEY, '1');
+        return defaults;
       }
 
       function saveCategories(categories) {
@@ -12591,16 +12790,32 @@
         // 1. Renderar de 6 kategorikorten på startsidan
         categoriesGrid.innerHTML = currentCategories
           .map((cat, idx) => {
-            const innerCard = cat.image
-              ? `<img src="${cat.image}" alt="${escapeHtml(cat.name)}" class="category-card-img" />`
-              : `<div class="category-card-placeholder">${PLACEHOLDER_ICON_SVG}<span>Bildplats</span></div>`;
+            if (isPreFramedCategoryImage(cat.image)) {
+              return `
+                <a href="#mina-skapelser" class="category-item category-item--framed" data-cat-idx="${idx}" aria-label="${escapeHtml(cat.name)}">
+                  <div class="category-card category-card--framed">
+                    <img src="${cat.image}" alt="${escapeHtml(cat.name)}" class="category-card-img category-card-img--framed" />
+                  </div>
+                </a>
+              `;
+            }
+
+            const shellMediaHtml = cat.image
+              ? `<img src="${cat.image}" alt="${escapeHtml(cat.name)}" class="category-shell-img" />`
+              : `<div class="category-shell-empty" aria-hidden="true">${PLACEHOLDER_ICON_SVG}<span>Bildplats</span></div>`;
 
             return `
-              <a href="#mina-skapelser" class="category-item" data-cat-idx="${idx}">
-                <div class="category-card">
-                  ${innerCard}
+              <a href="#mina-skapelser" class="category-item category-item--shell" data-cat-idx="${idx}" aria-label="${escapeHtml(cat.name)}">
+                <div class="category-card category-card-shell">
+                  <div class="category-shell-inner">
+                    <div class="category-shell-media">
+                      ${shellMediaHtml}
+                    </div>
+                    <div class="category-shell-footer">
+                      <span class="category-shell-title">${escapeHtml(cat.name)}</span>
+                    </div>
+                  </div>
                 </div>
-                <span class="category-title">${escapeHtml(cat.name)}</span>
               </a>
             `;
           })
