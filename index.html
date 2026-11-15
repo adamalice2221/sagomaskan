@@ -2818,10 +2818,10 @@
 
       .admin-kpi-row {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 14px;
+        grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+        gap: 12px;
         width: 100%;
-        max-width: 880px;
+        max-width: 980px;
         justify-content: center;
       }
 
@@ -3053,8 +3053,8 @@
           border-radius: 20px;
         }
         .admin-kpi-row {
-          grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: 6px;
+          grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+          gap: 8px;
         }
         .admin-kpi-box {
           padding: 10px 6px;
@@ -9908,6 +9908,10 @@
                 <span id="adminKpiDiscountsCount" class="admin-kpi-val">0</span>
                 <span class="admin-kpi-label">Aktiva rabattkoder</span>
               </div>
+              <div class="admin-kpi-box">
+                <span id="adminKpiCustomersCount" class="admin-kpi-val">0</span>
+                <span class="admin-kpi-label">Registrerade kunder</span>
+              </div>
             </div>
 
             <!-- Kontrollknapp för Lås & lämna admin -->
@@ -9944,6 +9948,10 @@
                 <button type="button" class="admin-tab-btn" data-admin-tab="messages" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 9999px; font-size: 0.86rem; font-weight: 500; border: 1.5px solid rgba(0,0,0,0.08); background-color: #FBFBF9; color: #262626; cursor: pointer; transition: all 0.2s ease;">
                   <span>Kundmeddelanden</span>
                   <span id="adminTabMessagesBadge" style="font-size: 0.75rem; opacity: 0.85;">(0)</span>
+                </button>
+                <button type="button" class="admin-tab-btn" data-admin-tab="customers" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 9999px; font-size: 0.86rem; font-weight: 500; border: 1.5px solid rgba(0,0,0,0.08); background-color: #FBFBF9; color: #262626; cursor: pointer; transition: all 0.2s ease;">
+                  <span>Kunder</span>
+                  <span id="adminTabCustomersBadge" style="font-size: 0.75rem; opacity: 0.85;">(0)</span>
                 </button>
               </div>
             </div>
@@ -10591,6 +10599,44 @@
               </div>
 
               <div id="adminMessagesListContainer" style="display: flex; flex-direction: column; gap: 16px;"></div>
+            </section>
+
+            <!-- SEKTION 4: Registrerade kunder (Firebase) -->
+            <section id="adminSectionCustomers" class="admin-card-box" aria-labelledby="adminCustomersHeading">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px; margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid rgba(0, 0, 0, 0.06);">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                  <div style="width: 48px; height: 48px; border-radius: 14px; background-color: #F4F2EC; display: flex; align-items: center; justify-content: center; color: #2f3e3b; flex-shrink: 0;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                      <circle cx="9" cy="7" r="4" />
+                      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 id="adminCustomersHeading" style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.45rem; font-weight: 500; color: #171717; margin: 0 0 4px 0;">Registrerade kunder</h2>
+                    <p style="font-size: 0.88rem; color: #666666; margin: 0;">Alla kundkonton som skapats i webbshoppen, sparade och synkade i realtid med Firebase.</p>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="adminCustomerFilterGroup">
+                  <button type="button" class="account-secondary-btn" data-admin-cust-filter="all" style="padding: 6px 12px; font-size: 0.78rem; background: #171717; color: #fff; border-color: #171717;">Alla</button>
+                  <button type="button" class="account-secondary-btn" data-admin-cust-filter="newsletter" style="padding: 6px 12px; font-size: 0.78rem;">Nyhetsbrev</button>
+                  <button type="button" class="account-secondary-btn" data-admin-cust-filter="ordered" style="padding: 6px 12px; font-size: 0.78rem;">Har beställt</button>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 16px;">
+                <input
+                  type="search"
+                  id="adminCustomerSearchInput"
+                  class="account-form-input"
+                  placeholder="Sök kund på namn, e-post, telefon eller ort..."
+                  aria-label="Sök bland registrerade kunder"
+                  style="height: 40px; font-size: 0.88rem;"
+                />
+              </div>
+
+              <div id="adminCustomersListContainer" style="display: flex; flex-direction: column; gap: 14px;"></div>
             </section>
           </div>
         </section>
@@ -16801,6 +16847,21 @@
       }
 
       let currentCustomers = loadCustomers();
+      let cloudAdminCustomers = null;
+
+      function getAdminCustomersList() {
+        return Array.isArray(cloudAdminCustomers) ? cloudAdminCustomers : loadCustomers();
+      }
+
+      function syncCustomerToCloud(customerObj) {
+        if (!customerObj || !customerObj.id) return Promise.resolve();
+        if (window.SagomaskanFirebase && typeof window.SagomaskanFirebase.saveCustomer === 'function') {
+          return window.SagomaskanFirebase.saveCustomer(customerObj).catch((err) => {
+            console.warn('Kunde inte synka kundkonto till Firebase:', err);
+          });
+        }
+        return Promise.resolve();
+      }
 
       // Säker lösenordshashning (SHA-256 via Web Crypto API med deterministisk fallback)
       async function hashPassword(password, emailSalt = '') {
@@ -16891,6 +16952,7 @@
             currentCustomers[idx].favorites = unique;
             currentCustomers[idx].updatedAt = new Date().toISOString();
             saveCustomers(currentCustomers);
+            syncCustomerToCloud(currentCustomers[idx]);
           }
         }
       }
@@ -16950,6 +17012,7 @@
               currentCustomers[idx].favorites = merged;
               saveCustomers(currentCustomers);
               saveGlobalFavorites(merged);
+              syncCustomerToCloud(currentCustomers[idx]);
             }
             safeSetItem(ACTIVE_CUSTOMER_STORAGE_KEY, customer.id);
           } else {
@@ -17036,6 +17099,7 @@
         if (details.city) target.city = details.city;
         target.updatedAt = new Date().toISOString();
         saveCustomers(currentCustomers);
+        syncCustomerToCloud(target);
         if (accountView && !accountView.hidden) {
           renderAccountView();
         }
@@ -17919,6 +17983,7 @@
           );
           saveCustomers(currentCustomers);
           syncEmailWithNewsletterList(currentCustomers[idx].email, isSubscribed);
+          syncCustomerToCloud(currentCustomers[idx]);
 
           renderCustomerNewsletterPreferences(currentCustomers[idx]);
           renderCustomerActivityHistory(currentCustomers[idx]);
@@ -17972,6 +18037,7 @@
           }
           if (mutated) {
             saveCustomers(currentCustomers);
+            syncCustomerToCloud(currentCustomers[cIdx]);
           }
           activeCustomer = currentCustomers[cIdx];
         }
@@ -18137,6 +18203,7 @@
           currentCustomers[custIdx].lastLoginAt = nowIso;
           appendCustomerActivityEntry(currentCustomers[custIdx], 'Inloggning genomförd', nowIso);
           saveCustomers(currentCustomers);
+          syncCustomerToCloud(currentCustomers[custIdx]);
 
           setActiveCustomer(currentCustomers[custIdx]);
           modalLoginForm.reset();
@@ -18204,7 +18271,11 @@
 
           currentCustomers.push(newCustomer);
           saveCustomers(currentCustomers);
+          await syncCustomerToCloud(newCustomer);
           setActiveCustomer(newCustomer);
+          if (adminView && !adminView.hidden && typeof renderAdminCustomersSection === 'function') {
+            renderAdminCustomersSection();
+          }
           modalRegisterForm.reset();
           closeAccountAuthModal();
           showAccountView();
@@ -18386,6 +18457,7 @@
           }
 
           saveCustomers(currentCustomers);
+          syncCustomerToCloud(currentCustomers[idx]);
           if (accountProfileDisplay) accountProfileDisplay.hidden = false;
           if (accountProfileEditForm) accountProfileEditForm.hidden = true;
           if (accountEditProfileBtn) accountEditProfileBtn.hidden = false;
@@ -18472,6 +18544,7 @@
           currentCustomers[idx].updatedAt = nowIso;
           appendCustomerActivityEntry(currentCustomers[idx], 'Lösenord uppdaterat', nowIso);
           saveCustomers(currentCustomers);
+          syncCustomerToCloud(currentCustomers[idx]);
           renderCustomerActivityHistory(currentCustomers[idx]);
 
           accountPasswordForm.reset();
@@ -18632,10 +18705,12 @@
       const adminKpiOrdersCount = document.getElementById('adminKpiOrdersCount');
       const adminKpiUnreadMessagesCount = document.getElementById('adminKpiUnreadMessagesCount');
       const adminKpiDiscountsCount = document.getElementById('adminKpiDiscountsCount');
+      const adminKpiCustomersCount = document.getElementById('adminKpiCustomersCount');
       const adminTabProductsBadge = document.getElementById('adminTabProductsBadge');
       const adminTabOrdersBadge = document.getElementById('adminTabOrdersBadge');
       const adminTabDiscountsBadge = document.getElementById('adminTabDiscountsBadge');
       const adminTabMessagesBadge = document.getElementById('adminTabMessagesBadge');
+      const adminTabCustomersBadge = document.getElementById('adminTabCustomersBadge');
 
       const adminLockBtn = document.getElementById('adminLockBtn');
 
@@ -18643,6 +18718,7 @@
       const adminSectionOrders = document.getElementById('adminSectionOrders');
       const adminSectionDiscounts = document.getElementById('adminSectionDiscounts');
       const adminSectionMessages = document.getElementById('adminSectionMessages');
+      const adminSectionCustomers = document.getElementById('adminSectionCustomers');
 
       // Rabattkoder i Admin
       const adminDiscountsCountBadge = document.getElementById('adminDiscountsCountBadge');
@@ -18728,6 +18804,7 @@
 
         expandedAdminOrderIds.clear();
         expandedAdminMessageIds.clear();
+        expandedAdminCustomerIds.clear();
         activeAdminTrackingOrderId = null;
         renderAdminDashboard();
 
@@ -18794,6 +18871,7 @@
             if (adminSectionOrders) adminSectionOrders.hidden = target !== 'all' && target !== 'orders';
             if (adminSectionDiscounts) adminSectionDiscounts.hidden = target !== 'all' && target !== 'discounts';
             if (adminSectionMessages) adminSectionMessages.hidden = target !== 'all' && target !== 'messages';
+            if (adminSectionCustomers) adminSectionCustomers.hidden = target !== 'all' && target !== 'customers';
 
             if (target === 'all' || target === 'banners') {
               if (typeof renderAdminBannersSection === 'function') {
@@ -18809,6 +18887,10 @@
               expandedAdminMessageIds.clear();
               renderAdminMessagesSection();
             }
+            if (target === 'all' || target === 'customers') {
+              expandedAdminCustomerIds.clear();
+              renderAdminCustomersSection();
+            }
           });
         });
       })();
@@ -18818,22 +18900,26 @@
         currentOrders = loadOrders();
         currentMessages = loadMessages();
         currentDiscountCodes = loadDiscountCodes();
+        const customersList = getAdminCustomersList();
 
         const prodCount = currentProducts.length;
         const orderCount = currentOrders.length;
         const unreadMsgCount = currentMessages.filter((m) => m.status !== 'read').length;
         const totalDiscountCount = currentDiscountCodes.length;
         const activeDiscountCount = currentDiscountCodes.filter((d) => d.active !== false).length;
+        const customerCount = customersList.length;
 
         if (adminKpiProductsCount) adminKpiProductsCount.textContent = String(prodCount);
         if (adminKpiOrdersCount) adminKpiOrdersCount.textContent = String(orderCount);
         if (adminKpiUnreadMessagesCount) adminKpiUnreadMessagesCount.textContent = String(unreadMsgCount);
         if (adminKpiDiscountsCount) adminKpiDiscountsCount.textContent = String(activeDiscountCount);
+        if (adminKpiCustomersCount) adminKpiCustomersCount.textContent = String(customerCount);
 
         if (adminTabProductsBadge) adminTabProductsBadge.textContent = `(${prodCount})`;
         if (adminTabOrdersBadge) adminTabOrdersBadge.textContent = `(${orderCount})`;
         if (adminTabDiscountsBadge) adminTabDiscountsBadge.textContent = `(${activeDiscountCount})`;
         if (adminTabMessagesBadge) adminTabMessagesBadge.textContent = `(${unreadMsgCount} olästa)`;
+        if (adminTabCustomersBadge) adminTabCustomersBadge.textContent = `(${customerCount})`;
         if (adminProductsCountLabel) {
           adminProductsCountLabel.textContent = `${prodCount} ${prodCount === 1 ? 'skapelse' : 'skapelser'}`;
         }
@@ -20875,6 +20961,316 @@
         });
       }
 
+      // --- 4. REGISTRERADE KUNDER I ADMIN (FIREBASE) ---
+      const adminCustomerFilterGroup = document.getElementById('adminCustomerFilterGroup');
+      const adminCustomerSearchInput = document.getElementById('adminCustomerSearchInput');
+      const adminCustomersListContainer = document.getElementById('adminCustomersListContainer');
+      const expandedAdminCustomerIds = new Set();
+      let activeAdminCustomerFilter = 'all';
+      let adminCustomerSearchQuery = '';
+
+      if (adminCustomerFilterGroup) {
+        adminCustomerFilterGroup.querySelectorAll('[data-admin-cust-filter]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            activeAdminCustomerFilter = btn.getAttribute('data-admin-cust-filter') || 'all';
+            adminCustomerFilterGroup.querySelectorAll('[data-admin-cust-filter]').forEach((b) => {
+              const isAct = b === btn;
+              b.style.background = isAct ? '#171717' : '';
+              b.style.color = isAct ? '#ffffff' : '';
+              b.style.borderColor = isAct ? '#171717' : '';
+            });
+            expandedAdminCustomerIds.clear();
+            renderAdminCustomersSection();
+          });
+        });
+      }
+
+      if (adminCustomerSearchInput) {
+        adminCustomerSearchInput.addEventListener('input', () => {
+          adminCustomerSearchQuery = (adminCustomerSearchInput.value || '').trim().toLowerCase();
+          renderAdminCustomersSection();
+        });
+      }
+
+      function getOrdersForAdminCustomer(cust) {
+        if (!cust) return [];
+        const cid = String(cust.id || '').trim();
+        const cemail = String(cust.email || '').trim().toLowerCase();
+        return (currentOrders || []).filter((ord) => {
+          const matchId = cid && ord.customerId && String(ord.customerId) === cid;
+          const ordEmail = String(ord.customer?.email || ord.customerEmail || '').trim().toLowerCase();
+          const matchEmail = cemail && ordEmail && ordEmail === cemail;
+          return matchId || matchEmail;
+        });
+      }
+
+      function renderAdminCustomersSection() {
+        if (!adminCustomersListContainer) return;
+        const allCustomers = [...getAdminCustomersList()].sort(
+          (a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+        );
+        updateAdminKpisAndBadges();
+
+        const filteredCustomers = allCustomers.filter((cust) => {
+          if (activeAdminCustomerFilter === 'newsletter' && !cust.newsletterSubscribed) return false;
+          if (activeAdminCustomerFilter === 'ordered' && getOrdersForAdminCustomer(cust).length === 0) return false;
+          if (adminCustomerSearchQuery) {
+            const haystack = [
+              cust.name,
+              cust.email,
+              cust.phone,
+              cust.address,
+              cust.zip,
+              cust.city,
+              cust.id
+            ]
+              .filter(Boolean)
+              .join(' ')
+              .toLowerCase();
+            if (!haystack.includes(adminCustomerSearchQuery)) return false;
+          }
+          return true;
+        });
+
+        if (filteredCustomers.length === 0) {
+          adminCustomersListContainer.innerHTML = `
+            <div class="account-orders-empty" style="background: #FBFBF9;">
+              <div class="account-orders-empty-icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+              </div>
+              <h4 style="font-size: 1rem; font-weight: 500; color: #171717; margin: 0;">Inga kunder att visa</h4>
+              <p style="font-size: 0.86rem; color: #666666; max-width: 380px; line-height: 1.55; margin: 0;">
+                ${
+                  allCustomers.length === 0
+                    ? 'Så snart en kund skapar ett konto under Mitt konto sparas kunduppgifterna i Firebase och visas automatiskt här.'
+                    : 'Inga kunder matchar din sökning eller det valda filtret.'
+                }
+              </p>
+            </div>
+          `;
+          return;
+        }
+
+        adminCustomersListContainer.innerHTML = filteredCustomers
+          .map((cust) => {
+            const isCollapsed = !expandedAdminCustomerIds.has(String(cust.id));
+            const createdStr = formatOrderDateSv(cust.createdAt);
+            const lastLoginStr = cust.lastLoginAt ? formatOrderDateSv(cust.lastLoginAt) : '—';
+            const custOrders = getOrdersForAdminCustomer(cust);
+            const totalSpent = custOrders.reduce((sum, o) => sum + (Number(o.totalPrice) || 0), 0);
+            const favCount = Number.isFinite(Number(cust.favoritesCount))
+              ? Number(cust.favoritesCount)
+              : Array.isArray(cust.favorites)
+              ? cust.favorites.length
+              : 0;
+            const fullAddr = [cust.address, [cust.zip, cust.city].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+            const activityRows = Array.isArray(cust.activityLog) ? cust.activityLog.slice(0, 5) : [];
+            const mailtoHref = `mailto:${encodeURIComponent(cust.email || '')}?subject=${encodeURIComponent('Hälsning från Sagomaskan')}`;
+
+            return `
+              <article class="account-order-card ${isCollapsed ? 'is-collapsed' : ''}" style="background: #ffffff; border-radius: 18px;" data-admin-cust-card="${escapeHtml(cust.id)}">
+                <button
+                  type="button"
+                  class="account-order-top"
+                  data-admin-cust-toggle="${escapeHtml(cust.id)}"
+                  aria-expanded="${!isCollapsed}"
+                  title="${isCollapsed ? 'Visa kunddetaljer' : 'Minimera kunddetaljer'}"
+                >
+                  <div class="account-order-id-group">
+                    <div class="account-order-title-row" style="gap: 8px; flex-wrap: wrap;">
+                      <strong class="account-order-number" style="font-size: 0.98rem; color: #171717;">${escapeHtml(cust.name || 'Namnlös kund')}</strong>
+                      ${
+                        cust.newsletterSubscribed
+                          ? '<span style="font-size: 0.72rem; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;">Nyhetsbrev</span>'
+                          : ''
+                      }
+                      ${
+                        custOrders.length > 0
+                          ? `<span style="font-size: 0.72rem; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe;">${custOrders.length} ${custOrders.length === 1 ? 'order' : 'ordrar'} · ${formatPriceKr(totalSpent)}</span>`
+                          : '<span style="font-size: 0.72rem; font-weight: 500; padding: 3px 9px; border-radius: 999px; background: #F4F2EC; color: #525252;">0 ordrar</span>'
+                      }
+                    </div>
+                    <span class="account-order-date" style="margin-top: 2px;">
+                      ${escapeHtml(cust.email || 'Ingen e-post')}${createdStr ? ` · Skapad ${escapeHtml(createdStr)}` : ''}
+                    </span>
+                  </div>
+                  <div class="account-order-top-right">
+                    <span class="account-order-toggle-icon" aria-hidden="true">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </span>
+                  </div>
+                </button>
+
+                <div class="account-order-body">
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; background: #FBFBF9; border: 1px solid rgba(0,0,0,0.06); border-radius: 12px; padding: 12px 14px; font-size: 0.84rem;">
+                    <div>
+                      <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: #737373; font-weight: 600;">E-post</div>
+                      <div style="color: #171717; font-weight: 500; word-break: break-word;">${escapeHtml(cust.email || '—')}</div>
+                    </div>
+                    <div>
+                      <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: #737373; font-weight: 600;">Telefon</div>
+                      <div style="color: #171717; font-weight: 500;">${escapeHtml(cust.phone || 'Ej angivet')}</div>
+                    </div>
+                    <div>
+                      <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: #737373; font-weight: 600;">Leveransadress</div>
+                      <div style="color: #171717; font-weight: 500;">${escapeHtml(fullAddr || 'Ej angivet')}</div>
+                    </div>
+                    <div>
+                      <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: #737373; font-weight: 600;">Senaste inloggning</div>
+                      <div style="color: #171717; font-weight: 500;">${escapeHtml(lastLoginStr)}</div>
+                    </div>
+                    <div>
+                      <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: #737373; font-weight: 600;">Favoriter &amp; Nyhetsbrev</div>
+                      <div style="color: #171717; font-weight: 500;">${favCount} sparade · ${cust.newsletterSubscribed ? 'Prenumererar' : 'Ej anmäld'}</div>
+                    </div>
+                    <div>
+                      <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: #737373; font-weight: 600;">Konto-ID</div>
+                      <div style="color: #525252; font-family: monospace; font-size: 0.76rem; word-break: break-all;">${escapeHtml(cust.id || '')}</div>
+                    </div>
+                  </div>
+
+                  ${
+                    custOrders.length > 0
+                      ? `
+                        <div style="background: #ffffff; border: 1px solid rgba(0,0,0,0.06); border-radius: 12px; padding: 10px 14px;">
+                          <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: #737373; font-weight: 600; margin-bottom: 6px;">Kundens beställningar</div>
+                          <div style="display: flex; flex-direction: column; gap: 6px;">
+                            ${custOrders
+                              .slice(0, 5)
+                              .map((ord) => {
+                                const meta = getOrderStatusMeta(ord.status, ord);
+                                return `
+                                  <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 0.82rem; padding-bottom: 4px; border-bottom: 1px dashed rgba(0,0,0,0.06);">
+                                    <span><strong>${escapeHtml(ord.orderNumber || ord.id)}</strong> · ${escapeHtml(formatOrderDateSv(ord.createdAt))}</span>
+                                    <span style="display: inline-flex; align-items: center; gap: 8px;">
+                                      <span style="font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #F4F2EC; color: #2f3e3b;">${escapeHtml(meta.label)}</span>
+                                      <strong>${formatPriceKr(ord.totalPrice)}</strong>
+                                    </span>
+                                  </div>
+                                `;
+                              })
+                              .join('')}
+                          </div>
+                        </div>
+                      `
+                      : ''
+                  }
+
+                  ${
+                    activityRows.length > 0
+                      ? `
+                        <div style="font-size: 0.76rem; color: #666666; padding: 2px 2px 0;">
+                          <strong style="color: #404040;">Senaste aktivitet:</strong>
+                          ${activityRows.map((a) => `${escapeHtml(a.label || '')} (${escapeHtml(formatOrderDateSv(a.timestamp))})`).join(' · ')}
+                        </div>
+                      `
+                      : ''
+                  }
+
+                  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding-top: 6px;">
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                      ${
+                        cust.email
+                          ? `
+                            <a href="${mailtoHref}" class="account-secondary-btn" style="padding: 6px 12px; font-size: 0.76rem; text-decoration: none;">
+                              Skicka e-post
+                            </a>
+                            <button type="button" class="account-secondary-btn" data-admin-copy-cust-email="${escapeHtml(cust.email)}" style="padding: 6px 12px; font-size: 0.76rem;">
+                              Kopiera e-post
+                            </button>
+                          `
+                          : ''
+                      }
+                    </div>
+                    <button type="button" class="account-secondary-btn" data-admin-del-cust="${escapeHtml(cust.id)}" style="padding: 6px 12px; font-size: 0.76rem; color: #b91c1c; border-color: rgba(185, 28, 28, 0.2);">
+                      Ta bort kund
+                    </button>
+                  </div>
+                </div>
+              </article>
+            `;
+          })
+          .join('');
+
+        adminCustomersListContainer.querySelectorAll('[data-admin-cust-toggle]').forEach((toggleBtn) => {
+          toggleBtn.addEventListener('click', () => {
+            const cid = toggleBtn.getAttribute('data-admin-cust-toggle');
+            const card = toggleBtn.closest('[data-admin-cust-card]');
+            if (!card) return;
+            const nowCollapsed = card.classList.toggle('is-collapsed');
+            if (cid) {
+              if (nowCollapsed) {
+                expandedAdminCustomerIds.delete(String(cid));
+              } else {
+                expandedAdminCustomerIds.add(String(cid));
+              }
+            }
+            toggleBtn.setAttribute('aria-expanded', String(!nowCollapsed));
+            toggleBtn.setAttribute('title', nowCollapsed ? 'Visa kunddetaljer' : 'Minimera kunddetaljer');
+          });
+        });
+
+        adminCustomersListContainer.querySelectorAll('[data-admin-copy-cust-email]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const email = btn.getAttribute('data-admin-copy-cust-email') || '';
+            if (!email) return;
+            const ok = await copyTextToClipboard(email);
+            if (ok) {
+              showToast(`E-postadressen (${email}) har kopierats!`, 'success');
+            }
+          });
+        });
+
+        adminCustomersListContainer.querySelectorAll('[data-admin-del-cust]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const cid = btn.getAttribute('data-admin-del-cust');
+            if (!cid) return;
+            if (btn.getAttribute('data-confirming') !== 'true') {
+              btn.setAttribute('data-confirming', 'true');
+              btn.textContent = 'Bekräfta ta bort?';
+              btn.style.backgroundColor = '#fef2f2';
+              setTimeout(() => {
+                if (btn.isConnected) {
+                  btn.removeAttribute('data-confirming');
+                  btn.textContent = 'Ta bort kund';
+                  btn.style.backgroundColor = '';
+                }
+              }, 3500);
+              return;
+            }
+
+            if (Array.isArray(cloudAdminCustomers)) {
+              cloudAdminCustomers = cloudAdminCustomers.filter((c) => String(c.id) !== String(cid));
+            }
+            currentCustomers = loadCustomers().filter((c) => String(c.id) !== String(cid));
+            saveCustomers(currentCustomers);
+            try {
+              const activeId = localStorage.getItem(ACTIVE_CUSTOMER_STORAGE_KEY);
+              if (activeId && String(activeId) === String(cid)) {
+                localStorage.removeItem(ACTIVE_CUSTOMER_STORAGE_KEY);
+                updateAccountHeaderIndicators();
+              }
+            } catch (_) {}
+
+            if (window.SagomaskanFirebase && typeof window.SagomaskanFirebase.deleteCustomer === 'function') {
+              await window.SagomaskanFirebase.deleteCustomer(cid).catch((err) => {
+                console.warn('Kunde inte radera kund i Firestore:', err);
+              });
+            }
+            renderAdminCustomersSection();
+            updateAdminKpisAndBadges();
+            showToast('Kundkontot har tagits bort.', 'info');
+          });
+        });
+      }
+
       // --- 1B. BANNER & STARTSIDA I ADMIN ---
       const adminShortcutToBannersBtn = document.getElementById('adminShortcutToBannersBtn');
       const adminTopBannerForm = document.getElementById('adminTopBannerForm');
@@ -21282,6 +21678,7 @@
         renderAdminOrdersSection();
         renderAdminDiscountsSection();
         renderAdminMessagesSection();
+        renderAdminCustomersSection();
       }
 
       const adminPaymentEmailSettingsForm = document.getElementById('adminPaymentEmailSettingsForm');
@@ -21536,6 +21933,7 @@
             currentCustomers[cIdx].newsletterSubscribed = true;
             currentCustomers[cIdx].newsletterUpdatedAt = nowIso;
             saveCustomers(currentCustomers);
+            syncCustomerToCloud(currentCustomers[cIdx]);
           }
 
           if (newsletterFeedback) {
@@ -21626,6 +22024,10 @@
           renderFeaturedProducts();
           if (accountView && !accountView.hidden) {
             renderAccountView();
+          }
+          if (adminView && !adminView.hidden) {
+            renderAdminCustomersSection();
+            updateAdminKpisAndBadges();
           }
         } else if (e.key === TOP_BANNER_STORAGE_KEY) {
           currentTopBanner = loadTopBanner();
@@ -21823,6 +22225,17 @@
         safeSetItem(MESSAGES_STORAGE_KEY, JSON.stringify(currentMessages));
         if (typeof renderAdminMessagesSection === 'function') {
           renderAdminMessagesSection();
+        }
+        if (typeof updateAdminKpisAndBadges === 'function') {
+          updateAdminKpisAndBadges();
+        }
+      };
+
+      window.applyCloudCustomers = function(cloudCusts) {
+        if (!Array.isArray(cloudCusts)) return;
+        cloudAdminCustomers = cloudCusts;
+        if (typeof renderAdminCustomersSection === 'function') {
+          renderAdminCustomersSection();
         }
         if (typeof updateAdminKpisAndBadges === 'function') {
           updateAdminKpisAndBadges();

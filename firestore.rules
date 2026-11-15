@@ -25,6 +25,7 @@ service cloud.firestore {
     function isAdmin() {
       return isSignedIn()
         && request.auth.token.email != null
+        && request.auth.token.email_verified == true
         && request.auth.token.email.lower() == 'sagomaskan@outlook.com';
     }
 
@@ -54,6 +55,33 @@ service cloud.firestore {
       return data.code is string && data.code.size() >= 2 && data.code.size() <= 50
         && data.type is string && data.type in ['percent', 'fixed']
         && data.value is number && data.value >= 0;
+    }
+
+    function isValidCustomer(data, customerId) {
+      return data.keys().hasAll(['id', 'name', 'email', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly([
+          'id', 'name', 'email', 'phone', 'address', 'zip', 'city',
+          'favorites', 'favoritesCount', 'newsletterSubscribed',
+          'newsletterUpdatedAt', 'createdAt', 'lastLoginAt',
+          'previousLoginAt', 'updatedAt', 'activityLog'
+        ])
+        && data.id is string && data.id == customerId && isValidId(data.id)
+        && data.name is string && data.name.size() >= 2 && data.name.size() <= 120
+        && data.email is string && data.email.size() >= 5 && data.email.size() <= 160
+        && data.email.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$')
+        && data.createdAt is string && data.createdAt.size() > 0 && data.createdAt.size() <= 64
+        && data.updatedAt is string && data.updatedAt.size() > 0 && data.updatedAt.size() <= 64
+        && (!('phone' in data) || (data.phone is string && data.phone.size() <= 40))
+        && (!('address' in data) || (data.address is string && data.address.size() <= 200))
+        && (!('zip' in data) || (data.zip is string && data.zip.size() <= 20))
+        && (!('city' in data) || (data.city is string && data.city.size() <= 100))
+        && (!('favorites' in data) || (data.favorites is list && data.favorites.size() <= 200))
+        && (!('favoritesCount' in data) || (data.favoritesCount is number && data.favoritesCount >= 0 && data.favoritesCount <= 200))
+        && (!('newsletterSubscribed' in data) || (data.newsletterSubscribed is bool))
+        && (!('newsletterUpdatedAt' in data) || (data.newsletterUpdatedAt is string && data.newsletterUpdatedAt.size() <= 64))
+        && (!('lastLoginAt' in data) || (data.lastLoginAt is string && data.lastLoginAt.size() <= 64))
+        && (!('previousLoginAt' in data) || (data.previousLoginAt is string && data.previousLoginAt.size() <= 64))
+        && (!('activityLog' in data) || (data.activityLog is list && data.activityLog.size() <= 25));
     }
 
     match /products/{productId} {
@@ -96,6 +124,26 @@ service cloud.firestore {
       allow read: if isAdmin();
       allow create: if isValidId(messageId) && isValidMessage(incoming());
       allow update, delete: if isValidId(messageId) && isAdmin();
+    }
+
+    match /customers/{customerId} {
+      allow get: if isValidId(customerId) && isAdmin();
+      allow list: if isAdmin();
+      allow create: if isValidId(customerId) && isValidCustomer(incoming(), customerId);
+      allow update: if isValidId(customerId) && isValidCustomer(incoming(), customerId) && (
+        isAdmin() ||
+        (
+          incoming().id == existing().id
+          && incoming().createdAt == existing().createdAt
+          && incoming().diff(existing()).affectedKeys().hasOnly([
+            'name', 'email', 'phone', 'address', 'zip', 'city',
+            'favorites', 'favoritesCount', 'newsletterSubscribed',
+            'newsletterUpdatedAt', 'lastLoginAt', 'previousLoginAt',
+            'updatedAt', 'activityLog'
+          ])
+        )
+      );
+      allow delete: if isValidId(customerId) && isAdmin();
     }
 
     match /discounts/{discountId} {

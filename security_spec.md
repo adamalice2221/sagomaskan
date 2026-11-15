@@ -5,8 +5,9 @@
 2. Categories (`/categories/{categoryId}`) are publicly viewable, but can only be managed by administrators.
 3. Orders (`/orders/{orderId}`) can be created by any customer checking out, but must contain valid contact information, positive total amount, and initial status 'Mottagen'. Once placed, existing orders cannot be modified or deleted by unauthenticated users.
 4. Messages (`/messages/{messageId}`) can be submitted by visitors through the contact form with valid name, email and message text, but cannot be read or deleted by public visitors.
-5. All document IDs must conform to `^[a-zA-Z0-9_\-]+$` and have a length <= 128 chars.
-6. User input strings are size-constrained to prevent wallet-draining denial-of-service attacks.
+5. Customers (`/customers/{customerId}`) can be created upon account registration with valid required profile fields and size-bounded fields, cannot contain shadow/RBAC fields (`role`, `isAdmin`, etc.), and can only be read (`get`/`list`) or deleted by verified administrators.
+6. All document IDs must conform to `^[a-zA-Z0-9_\-]+$` and have a length <= 128 chars.
+7. User input strings are size-constrained to prevent wallet-draining denial-of-service attacks.
 
 ---
 
@@ -21,6 +22,6 @@
 7. **Order Status Tampering at Checkout**: Attempting to create an order directly with `status: 'Skickad'` instead of 'Mottagen'.
 8. **Public Snooping on Orders**: Unauthenticated user trying to read `/orders/{orderId}` list.
 9. **Tampering with Placed Order**: Customer trying to modify another person's order document to change `shippingAddress` or `totalAmount`.
-10. **Public Reading of Customer Messages**: Unauthenticated guest trying to list `/messages`.
-11. **Malicious Oversized Message**: A spam bot submitting a 500KB string payload into `/messages`.
+10. **Public Reading of Customer Messages or Accounts**: Unauthenticated guest trying to list or get `/messages` or `/customers`.
+11. **Shadow Field Injection on Customer Registration**: Submitting a `/customers/{customerId}` payload containing extra fields like `isAdmin: true` or `role: "admin"`, or oversized strings (>120 chars name).
 12. **System Root Document Write**: Attempting to create a document at `/databases/{database}/documents/system/override`.

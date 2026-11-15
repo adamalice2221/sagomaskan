@@ -205,6 +205,93 @@
           "description": "Senaste uppdateringstidpunkt"
         }
       }
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Registrerat kundkonto skapat via webbshoppen",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unikt kund-ID",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Kundens namn",
+          "minLength": 2,
+          "maxLength": 120
+        },
+        "email": {
+          "type": "string",
+          "description": "Kundens e-postadress",
+          "minLength": 5,
+          "maxLength": 160
+        },
+        "phone": {
+          "type": "string",
+          "description": "Telefonnummer",
+          "maxLength": 40
+        },
+        "address": {
+          "type": "string",
+          "description": "Gatuadress",
+          "maxLength": 200
+        },
+        "zip": {
+          "type": "string",
+          "description": "Postnummer",
+          "maxLength": 20
+        },
+        "city": {
+          "type": "string",
+          "description": "Postort",
+          "maxLength": 100
+        },
+        "favorites": {
+          "type": "array",
+          "description": "Lista med kundens favoritprodukter"
+        },
+        "favoritesCount": {
+          "type": "number",
+          "description": "Antal sparade favoriter"
+        },
+        "newsletterSubscribed": {
+          "type": "boolean",
+          "description": "Om kunden prenumererar på nyhetsbrevet"
+        },
+        "newsletterUpdatedAt": {
+          "type": "string",
+          "description": "Tidpunkt för ändring av nyhetsbrev",
+          "maxLength": 64
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Tidpunkt då kontot skapades",
+          "maxLength": 64
+        },
+        "lastLoginAt": {
+          "type": "string",
+          "description": "Tidpunkt för senaste inloggning",
+          "maxLength": 64
+        },
+        "previousLoginAt": {
+          "type": "string",
+          "description": "Tidpunkt för näst senaste inloggning",
+          "maxLength": 64
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Senaste uppdateringstidpunkt",
+          "maxLength": 64
+        },
+        "activityLog": {
+          "type": "array",
+          "description": "Senaste aktivitetshistoriken för kontot"
+        }
+      },
+      "required": ["id", "name", "email", "createdAt", "updatedAt"]
     }
   },
   "firestore": {
@@ -223,6 +310,10 @@
     "/messages/{messageId}": {
       "schema": "Message",
       "description": "Inkomna förfrågningar och kundmeddelanden"
+    },
+    "/customers/{customerId}": {
+      "schema": "Customer",
+      "description": "Registrerade kundkonton (endast läsbara av administratör)"
     },
     "/settings/{settingId}": {
       "schema": "StoreSettings",

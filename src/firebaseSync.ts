@@ -138,6 +138,8 @@ declare global {
       saveMessage: (message: any) => Promise<void>;
       updateMessageStatus: (messageId: string, status: string) => Promise<void>;
       deleteMessage: (messageId: string) => Promise<void>;
+      saveCustomer: (customer: any) => Promise<void>;
+      deleteCustomer: (customerId: string) => Promise<void>;
       saveDiscount: (discount: any) => Promise<void>;
       deleteDiscount: (discountCode: string) => Promise<void>;
       saveStoreSettings: (settings: any) => Promise<void>;
@@ -522,6 +524,72 @@ const SagomaskanFirebase = {
     }
   },
 
+  async saveCustomer(customer: any) {
+    if (!customer || !customer.id) return;
+    const cleanId = String(customer.id).trim().replace(/[^a-zA-Z0-9_\-]/g, '').substring(0, 128);
+    if (!cleanId) return;
+    const cleanName = String(customer.name || '').trim().substring(0, 120);
+    const cleanEmail = String(customer.email || '').trim().toLowerCase().substring(0, 160);
+    if (cleanName.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(cleanEmail)) return;
+
+    const path = `customers/${cleanId}`;
+    try {
+      const nowIso = new Date().toISOString();
+      const rawFavs = Array.isArray(customer.favorites)
+        ? customer.favorites.map((id: any) => String(id).substring(0, 128)).filter(Boolean).slice(0, 200)
+        : [];
+      const rawActivity = Array.isArray(customer.activityLog)
+        ? customer.activityLog
+            .filter((entry: any) => entry && typeof entry === 'object')
+            .slice(0, 25)
+            .map((entry: any) => ({
+              label: String(entry.label || '').substring(0, 160),
+              timestamp: String(entry.timestamp || nowIso).substring(0, 64)
+            }))
+        : [];
+
+      const cleanCustomer: Record<string, any> = {
+        id: cleanId,
+        name: cleanName,
+        email: cleanEmail,
+        phone: String(customer.phone || '').trim().substring(0, 40),
+        address: String(customer.address || '').trim().substring(0, 200),
+        zip: String(customer.zip || '').trim().substring(0, 20),
+        city: String(customer.city || '').trim().substring(0, 100),
+        favorites: rawFavs,
+        favoritesCount: rawFavs.length,
+        newsletterSubscribed: Boolean(customer.newsletterSubscribed),
+        createdAt: String(customer.createdAt || nowIso).substring(0, 64),
+        lastLoginAt: String(customer.lastLoginAt || customer.updatedAt || nowIso).substring(0, 64),
+        updatedAt: String(customer.updatedAt || nowIso).substring(0, 64),
+        activityLog: rawActivity
+      };
+      if (customer.newsletterUpdatedAt) {
+        cleanCustomer.newsletterUpdatedAt = String(customer.newsletterUpdatedAt).substring(0, 64);
+      }
+      if (customer.previousLoginAt) {
+        cleanCustomer.previousLoginAt = String(customer.previousLoginAt).substring(0, 64);
+      }
+
+      await setDoc(doc(db, 'customers', cleanId), cleanCustomer);
+      console.log('✅ Kundkonto sparat i Firestore:', cleanId);
+    } catch (err) {
+      handleFirestoreError(err, OperationType.WRITE, path);
+    }
+  },
+
+  async deleteCustomer(customerId: string) {
+    const cleanId = String(customerId || '').trim().replace(/[^a-zA-Z0-9_\-]/g, '').substring(0, 128);
+    if (!cleanId) return;
+    const path = `customers/${cleanId}`;
+    try {
+      await deleteDoc(doc(db, 'customers', cleanId));
+      console.log('Kundkonto borttaget ur Firestore:', cleanId);
+    } catch (err) {
+      handleFirestoreError(err, OperationType.DELETE, path);
+    }
+  },
+
   async saveDiscount(discount: any) {
     if (!discount || !discount.code) return;
     const cleanCode = String(discount.code).trim().toUpperCase().replace(/[^A-Z0-9_\-]/g, '').substring(0, 50);
@@ -628,9 +696,10 @@ const SagomaskanFirebase = {
 
 window.SagomaskanFirebase = SagomaskanFirebase;
 
-// Prenumerationshanterare för skyddade admin-lyssnare (Ordrar & Meddelanden)
+// Prenumerationshanterare för skyddade admin-lyssnare (Ordrar, Meddelanden & Kunder)
 let unsubscribeOrders: (() => void) | null = null;
 let unsubscribeMessages: (() => void) | null = null;
+let unsubscribeCustomers: (() => void) | null = null;
 
 function startAdminListeners() {
   const win = window as any;
@@ -676,6 +745,27 @@ function startAdminListeners() {
       console.warn('Fel vid meddelandelyssnare:', err);
     }
   }
+
+  // 3. Synka Registrerade Kunder i realtid (endast för inloggad admin)
+  if (!unsubscribeCustomers) {
+    try {
+      unsubscribeCustomers = onSnapshot(collection(db, 'customers'), (snapshot) => {
+        const firestoreCustomers: any[] = [];
+        snapshot.forEach((d) => {
+          firestoreCustomers.push(d.data());
+        });
+        firestoreCustomers.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+        if (win.applyCloudCustomers && typeof win.applyCloudCustomers === 'function') {
+          win.applyCloudCustomers(firestoreCustomers);
+        }
+      }, (error) => {
+        handleFirestoreError(error, OperationType.GET, 'customers');
+      });
+      console.log('✅ Admin kund-lyssnare aktiverad');
+    } catch (err) {
+      console.warn('Fel vid kundlyssnare:', err);
+    }
+  }
 }
 
 function stopAdminListeners() {
@@ -688,6 +778,11 @@ function stopAdminListeners() {
     unsubscribeMessages();
     unsubscribeMessages = null;
     console.log('Admin meddelande-lyssnare stoppad');
+  }
+  if (unsubscribeCustomers) {
+    unsubscribeCustomers();
+    unsubscribeCustomers = null;
+    console.log('Admin kund-lyssnare stoppad');
   }
 }
 
