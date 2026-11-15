@@ -112,12 +112,23 @@ function decodeFirestoreValue(val) {
   return undefined;
 }
 
+function cleanEnvValue(val) {
+  let s = String(val ?? '').trim();
+  if (
+    s.length >= 2 &&
+    ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'")))
+  ) {
+    s = s.slice(1, -1).trim();
+  }
+  return s;
+}
+
 export async function fetchStorePaymentSettings() {
   const envDefaults = {
-    swishNumber: String(process.env.SWISH_NUMBER || '').trim(),
-    swishRecipient: String(process.env.SWISH_RECIPIENT_NAME || 'Sagomaskan').trim() || 'Sagomaskan',
-    replyToEmail: String(process.env.STORE_OWNER_EMAIL || ADMIN_EMAIL).trim() || ADMIN_EMAIL,
-    fromEmail: String(process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL).trim() || DEFAULT_FROM_EMAIL,
+    swishNumber: cleanEnvValue(process.env.SWISH_NUMBER),
+    swishRecipient: cleanEnvValue(process.env.SWISH_RECIPIENT_NAME) || 'Sagomaskan',
+    replyToEmail: cleanEnvValue(process.env.STORE_OWNER_EMAIL) || ADMIN_EMAIL,
+    fromEmail: cleanEnvValue(process.env.RESEND_FROM_EMAIL) || DEFAULT_FROM_EMAIL,
     sendOwnerOrderCopy: false
   };
 
@@ -138,7 +149,7 @@ export async function fetchStorePaymentSettings() {
       swishNumber: String(ps.swishNumber || envDefaults.swishNumber || '').trim(),
       swishRecipient: String(ps.swishRecipient || envDefaults.swishRecipient || 'Sagomaskan').trim() || 'Sagomaskan',
       replyToEmail: isValidEmail(ps.replyToEmail) ? String(ps.replyToEmail).trim() : envDefaults.replyToEmail,
-      fromEmail: String(process.env.RESEND_FROM_EMAIL || ps.fromEmail || DEFAULT_FROM_EMAIL).trim() || DEFAULT_FROM_EMAIL,
+      fromEmail: cleanEnvValue(process.env.RESEND_FROM_EMAIL) || String(ps.fromEmail || '').trim() || DEFAULT_FROM_EMAIL,
       sendOwnerOrderCopy: Boolean(ps.sendOwnerOrderCopy)
     };
   } catch (err) {
@@ -626,7 +637,7 @@ Sagomaskan`;
 }
 
 export async function sendResendEmail({ to, subject, html, text, from, replyTo }) {
-  const apiKey = String(process.env.RESEND_API_KEY || '').trim();
+  const apiKey = cleanEnvValue(process.env.RESEND_API_KEY);
   if (!apiKey) {
     return {
       ok: false,

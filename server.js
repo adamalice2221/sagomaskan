@@ -45,10 +45,15 @@ function isRateLimited(ip) {
 app.get('/api/email/status', async (_req, res) => {
   try {
     const settings = await fetchStorePaymentSettings();
+    const rawKey = String(process.env.RESEND_API_KEY || '').trim().replace(/^["']|["']$/g, '');
+    const rawFrom = String(process.env.RESEND_FROM_EMAIL || '').trim().replace(/^["']|["']$/g, '');
     res.json({
-      configured: Boolean(String(process.env.RESEND_API_KEY || '').trim()),
-      hasCustomFrom: Boolean(String(process.env.RESEND_FROM_EMAIL || '').trim() || (settings.fromEmail && !settings.fromEmail.includes('onboarding@resend.dev'))),
-      swishConfigured: Boolean(settings.swishNumber)
+      configured: Boolean(rawKey),
+      hasCustomFrom: Boolean(rawFrom || (settings.fromEmail && !settings.fromEmail.includes('onboarding@resend.dev'))),
+      swishConfigured: Boolean(settings.swishNumber),
+      swishNumber: settings.swishNumber || '',
+      swishRecipient: settings.swishRecipient || 'Sagomaskan',
+      replyToEmail: settings.replyToEmail || 'sagomaskan@outlook.com'
     });
   } catch (err) {
     res.status(500).json({ configured: false, message: err?.message || 'Statusfel' });

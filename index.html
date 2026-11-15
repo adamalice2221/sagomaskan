@@ -16536,6 +16536,40 @@
         }
       }
 
+      async function hydratePaymentSettingsFromServer() {
+        try {
+          const res = await fetch('/api/email/status');
+          if (!res.ok) return;
+          const data = await res.json().catch(() => null);
+          if (!data || typeof data !== 'object') return;
+          const next = { ...currentStorePaymentSettings };
+          let changed = false;
+          if (!String(next.swishNumber || '').trim() && data.swishNumber) {
+            next.swishNumber = String(data.swishNumber).trim();
+            changed = true;
+          }
+          if ((!String(next.swishRecipient || '').trim() || next.swishRecipient === 'Sagomaskan') && data.swishRecipient) {
+            next.swishRecipient = String(data.swishRecipient).trim();
+            changed = true;
+          }
+          if (!String(next.replyToEmail || '').trim() && data.replyToEmail) {
+            next.replyToEmail = String(data.replyToEmail).trim();
+            changed = true;
+          }
+          if (changed) {
+            saveStorePaymentSettings(next);
+            populateAdminPaymentSettingsForm();
+            if (typeof lastConfirmedOrderId !== 'undefined' && lastConfirmedOrderId) {
+              const ord = currentOrders.find((o) => String(o.id) === String(lastConfirmedOrderId));
+              if (ord && typeof renderOrderConfirmationSummary === 'function') {
+                renderOrderConfirmationSummary(ord);
+              }
+            }
+          }
+        } catch (_) {}
+      }
+      hydratePaymentSettingsFromServer();
+
       async function sendOrderConfirmationEmail(order) {
         if (!order || !order.customer?.email) return { ok: false };
         try {
@@ -16643,8 +16677,17 @@
       window.applyCloudStoreSettings = function(cloudSettings) {
         if (!cloudSettings || typeof cloudSettings !== 'object') return;
         if (cloudSettings.paymentSettings && typeof cloudSettings.paymentSettings === 'object') {
-          saveStorePaymentSettings(cloudSettings.paymentSettings);
+          const mergedPayment = {
+            ...cloudSettings.paymentSettings,
+            swishNumber: String(cloudSettings.paymentSettings.swishNumber || currentStorePaymentSettings.swishNumber || '').trim(),
+            swishRecipient: String(cloudSettings.paymentSettings.swishRecipient || currentStorePaymentSettings.swishRecipient || 'Sagomaskan').trim() || 'Sagomaskan',
+            replyToEmail: String(cloudSettings.paymentSettings.replyToEmail || currentStorePaymentSettings.replyToEmail || 'sagomaskan@outlook.com').trim()
+          };
+          saveStorePaymentSettings(mergedPayment);
           populateAdminPaymentSettingsForm();
+          if (!mergedPayment.swishNumber) {
+            hydratePaymentSettingsFromServer();
+          }
           if (lastConfirmedOrderId) {
             const ord = currentOrders.find((o) => String(o.id) === String(lastConfirmedOrderId));
             if (ord && typeof renderOrderConfirmationSummary === 'function') {
