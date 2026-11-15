@@ -7,7 +7,7 @@
     "node": "20"
   },
   "scripts": {
-    "dev": "vite --port=3000 --host=0.0.0.0",
+    "dev": "node server.js --dev",
     "build": "vite build",
     "start": "node server.js",
     "preview": "vite preview",
@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "express": "^4.21.2",
-    "firebase": "^13.2.0"
+    "firebase": "^13.2.0",
+    "resend": "^6.38.1"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

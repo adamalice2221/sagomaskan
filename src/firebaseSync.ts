@@ -146,6 +146,7 @@ declare global {
       signInAdminWithGoogle: () => Promise<User>;
       signOutAdmin: () => Promise<void>;
       isCurrentUserAdmin: () => boolean;
+      getAdminIdToken: () => Promise<string | null>;
       isReady: boolean;
     };
   }
@@ -162,6 +163,16 @@ const SagomaskanFirebase = {
   isCurrentUserAdmin(): boolean {
     const cur = auth.currentUser;
     return Boolean(cur && cur.email && cur.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+  },
+
+  async getAdminIdToken(): Promise<string | null> {
+    const cur = auth.currentUser;
+    if (!cur) return null;
+    try {
+      return await cur.getIdToken();
+    } catch {
+      return null;
+    }
   },
 
   async signInAdminWithGoogle(): Promise<User> {

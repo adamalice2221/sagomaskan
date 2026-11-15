@@ -9701,6 +9701,7 @@
                   <p id="successSwishStepText" class="cart-swish-text">
                     Din beställning granskas och förbereds för att packas. Swish-instruktioner skickas till din e-post, och paketet skickas så snart betalningen är genomförd.
                   </p>
+                  <div id="successSwishPaymentBox" hidden style="margin-top: 12px; background: #ffffff; border: 1px solid #b9d3c3; border-radius: 12px; padding: 14px;"></div>
                 </div>
 
                 <div id="successOrderSummaryBox" class="cart-success-details">
@@ -10416,6 +10417,65 @@
                   <button type="button" class="account-secondary-btn" data-admin-order-filter="completed" style="padding: 6px 12px; font-size: 0.78rem;">Levererade</button>
                 </div>
               </div>
+
+              <!-- Swish & Resend E-postinställningar -->
+              <details id="adminSwishEmailSettingsDetails" style="margin-bottom: 20px; background: #FBFBF9; border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 16px; padding: 14px 18px;">
+                <summary style="cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-weight: 600; font-size: 0.92rem; color: #171717;">
+                  <span style="display: inline-flex; align-items: center; gap: 8px;">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2f3e3b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect width="20" height="16" x="2" y="4" rx="2" />
+                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                    </svg>
+                    <span>Swish-nummer &amp; Ordermail (Resend)</span>
+                  </span>
+                  <span id="adminSwishEmailSummaryBadge" style="font-size: 0.75rem; font-weight: 500; color: #525252;">Konfigurera Swish-uppgifter &amp; e-postutskick ▾</span>
+                </summary>
+
+                <form id="adminPaymentEmailSettingsForm" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(0, 0, 0, 0.06); display: flex; flex-direction: column; gap: 14px;" novalidate>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+                    <div>
+                      <label for="adminSwishNumberInput" style="font-size: 0.74rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #555555; display: block; margin-bottom: 4px;">Ditt Swish-nummer (visas för kund)</label>
+                      <input type="text" id="adminSwishNumberInput" class="account-form-input" style="height: 38px; font-size: 0.88rem;" placeholder="T.ex. 070-123 45 67 eller 123 456 78 90" maxlength="40" />
+                    </div>
+                    <div>
+                      <label for="adminSwishRecipientInput" style="font-size: 0.74rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #555555; display: block; margin-bottom: 4px;">Swish-mottagarens namn</label>
+                      <input type="text" id="adminSwishRecipientInput" class="account-form-input" style="height: 38px; font-size: 0.88rem;" placeholder="Sagomaskan" maxlength="80" />
+                    </div>
+                    <div>
+                      <label for="adminReplyToEmailInput" style="font-size: 0.74rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #555555; display: block; margin-bottom: 4px;">Svar-till e-post (Reply-To)</label>
+                      <input type="email" id="adminReplyToEmailInput" class="account-form-input" style="height: 38px; font-size: 0.88rem;" placeholder="sagomaskan@outlook.com" maxlength="120" />
+                    </div>
+                    <div>
+                      <label for="adminFromEmailInput" style="font-size: 0.74rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #555555; display: block; margin-bottom: 4px;">Avsändaradress i Resend (valfritt)</label>
+                      <input type="text" id="adminFromEmailInput" class="account-form-input" style="height: 38px; font-size: 0.88rem;" placeholder="Sagomaskan <order@dindoman.se>" maxlength="160" />
+                    </div>
+                  </div>
+
+                  <div style="display: flex; flex-direction: column; gap: 8px; background: #ffffff; border: 1px solid rgba(0,0,0,0.06); border-radius: 12px; padding: 12px 14px;">
+                    <label style="display: flex; align-items: center; gap: 10px; font-size: 0.84rem; color: #171717; cursor: pointer;">
+                      <input type="checkbox" id="adminAutoStatusEmailsCheckbox" checked style="width: 16px; height: 16px; accent-color: #2f3e3b;" />
+                      <span>Skicka automatiskt mail till kunden via Resend när orderstatus uppdateras (Mottagen, Tillverkas/Packas, Skickad + spårningslänk, Levererad)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 10px; font-size: 0.84rem; color: #171717; cursor: pointer;">
+                      <input type="checkbox" id="adminSendOwnerCopyCheckbox" checked style="width: 16px; height: 16px; accent-color: #2f3e3b;" />
+                      <span>Skicka en orderkopia till svar-till-adressen när en ny beställning läggs</span>
+                    </label>
+                  </div>
+
+                  <p style="font-size: 0.76rem; color: #666666; margin: 0; line-height: 1.5;">
+                    Tips: Lägg in din Resend API-nyckel som miljövariabel/Secret (<code>RESEND_API_KEY</code>). För att kunna skicka mail till alla kunders e-postadresser behöver du ha en verifierad domän i Resend och ange den som avsändaradress ovan (eller via <code>RESEND_FROM_EMAIL</code>).
+                  </p>
+
+                  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <button type="button" id="adminSendTestEmailBtn" class="account-secondary-btn" style="padding: 9px 16px; font-size: 0.8rem;">
+                      Skicka testmail till mig
+                    </button>
+                    <button type="submit" class="account-submit-btn" style="padding: 10px 22px; font-size: 0.82rem; height: auto; margin-top: 0;">
+                      <span>Spara Swish &amp; e-postinställningar</span>
+                    </button>
+                  </div>
+                </form>
+              </details>
 
               <div id="adminOrdersListContainer" style="display: flex; flex-direction: column; gap: 16px;"></div>
             </section>
@@ -14097,17 +14157,73 @@
         const shippingFee = order.shippingFee || 0;
 
         const successSwishStepText = document.getElementById('successSwishStepText');
+        const successSwishPaymentBox = document.getElementById('successSwishPaymentBox');
+        const swishNum = (currentStorePaymentSettings.swishNumber || '').trim();
+        const swishRecip = (currentStorePaymentSettings.swishRecipient || 'Sagomaskan').trim() || 'Sagomaskan';
+
         if (successSwishStepText) {
           if (isDigitalOnly) {
             successSwishStepText.textContent = isUnlocked
               ? 'Din Swish-betalning är godkänd! Ditt digitala PDF-mönster är nu upplåst för nedladdning nedan samt under "Mina sidor".'
-              : 'Swish-instruktioner har skickats till din e-post. Ordern avvaktar manuell Swish-verifiering – så snart betalningen godkänts kan du ladda ner ditt PDF-mönster här och under "Mina sidor".';
+              : 'Orderbekräftelse och Swish-instruktioner har skickats till din e-post. Så snart betalningen godkänts kan du ladda ner ditt PDF-mönster här och under "Mina sidor".';
           } else if (hasDigital) {
             successSwishStepText.textContent =
-              'Swish-instruktioner har skickats till din e-post. Så snart betalningen verifierats låses dina digitala PDF-mönster upp under "Mina sidor" och dina fysiska alster packas.';
+              'Orderbekräftelse och Swish-instruktioner har skickats till din e-post. Så snart betalningen verifierats låses dina digitala PDF-mönster upp under "Mina sidor" och dina fysiska alster packas.';
           } else {
-            successSwishStepText.textContent =
-              'Din beställning granskas och förbereds för att packas. Swish-instruktioner skickas till din e-post, och paketet skickas så snart betalningen är genomförd.';
+            successSwishStepText.textContent = swishNum
+              ? 'Använd Swish-uppgifterna nedan för att betala din order direkt. Samma uppgifter och orderbekräftelse har skickats till din e-post.'
+              : 'Din beställning granskas och förbereds för att packas. Swish-instruktioner skickas till din e-post, och paketet skickas så snart betalningen är genomförd.';
+          }
+        }
+
+        if (successSwishPaymentBox) {
+          if (swishNum && !isUnlocked) {
+            const cleanDigits = swishNum.replace(/[^\d+]/g, '');
+            const swishAppData = encodeURIComponent(
+              JSON.stringify({
+                version: 1,
+                payee: { value: cleanDigits },
+                amount: { value: Math.round(Number(order.totalPrice) || 0) },
+                message: { value: String(order.orderNumber || '#SM'), editable: true }
+              })
+            );
+            successSwishPaymentBox.innerHTML = `
+              <div style="display:flex; flex-direction:column; gap:8px; font-size:0.84rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                  <span style="color:#525252;">Swish-nummer</span>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <strong style="font-size:0.95rem; color:#171717; letter-spacing:0.03em;">${escapeHtml(swishNum)}</strong>
+                    <button type="button" id="copySuccessSwishNumBtn" class="account-secondary-btn" style="padding:3px 10px; font-size:0.72rem; height:auto;">Kopiera</button>
+                  </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; gap:8px;">
+                  <span style="color:#525252;">Mottagare</span>
+                  <strong style="color:#171717;">${escapeHtml(swishRecip)}</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; gap:8px;">
+                  <span style="color:#525252;">Belopp</span>
+                  <strong style="color:#2f3e3b; font-size:0.95rem;">${formatPriceKr(order.totalPrice)}</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; gap:8px;">
+                  <span style="color:#525252;">Meddelande</span>
+                  <strong style="color:#171717;">${escapeHtml(order.orderNumber || '#SM')}</strong>
+                </div>
+                <a href="swish://payment?data=${swishAppData}" style="margin-top:4px; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:10px 14px; border-radius:999px; background:#2f3e3b; color:#ffffff; text-decoration:none; font-size:0.82rem; font-weight:600;">
+                  Öppna Swish-appen (mobil)
+                </a>
+              </div>
+            `;
+            successSwishPaymentBox.hidden = false;
+            const copySwishBtn = document.getElementById('copySuccessSwishNumBtn');
+            if (copySwishBtn) {
+              copySwishBtn.addEventListener('click', async () => {
+                const ok = await copyTextToClipboard(swishNum);
+                if (ok) showToast(`Swish-nummer (${swishNum}) kopierat!`, 'success');
+              });
+            }
+          } else {
+            successSwishPaymentBox.hidden = true;
+            successSwishPaymentBox.innerHTML = '';
           }
         }
 
@@ -14602,6 +14718,7 @@
 
           cartCheckoutForm.reset();
           showToast(`Beställning ${orderNumber} har skapats!`, 'success');
+          sendOrderConfirmationEmail(newOrder);
         });
       }
 
@@ -16361,18 +16478,180 @@
         safeSetItem(HOME_BOXES_STORAGE_KEY, JSON.stringify(boxes));
       }
 
+      const PAYMENT_SETTINGS_STORAGE_KEY = 'sagomaskan_payment_settings_v1';
+      const DEFAULT_STORE_PAYMENT_SETTINGS = {
+        swishNumber: '',
+        swishRecipient: 'Sagomaskan',
+        replyToEmail: 'sagomaskan@outlook.com',
+        fromEmail: '',
+        autoSendStatusEmails: true,
+        sendOwnerOrderCopy: true
+      };
+
+      function loadStorePaymentSettings() {
+        try {
+          const raw = localStorage.getItem(PAYMENT_SETTINGS_STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') {
+              return {
+                ...DEFAULT_STORE_PAYMENT_SETTINGS,
+                ...parsed
+              };
+            }
+          }
+        } catch (_) {}
+        return { ...DEFAULT_STORE_PAYMENT_SETTINGS };
+      }
+
+      let currentStorePaymentSettings = loadStorePaymentSettings();
+
+      function saveStorePaymentSettings(settings) {
+        currentStorePaymentSettings = {
+          ...DEFAULT_STORE_PAYMENT_SETTINGS,
+          ...settings
+        };
+        safeSetItem(PAYMENT_SETTINGS_STORAGE_KEY, JSON.stringify(currentStorePaymentSettings));
+      }
+
+      function populateAdminPaymentSettingsForm() {
+        const swishNumEl = document.getElementById('adminSwishNumberInput');
+        const swishRecEl = document.getElementById('adminSwishRecipientInput');
+        const replyEl = document.getElementById('adminReplyToEmailInput');
+        const fromEl = document.getElementById('adminFromEmailInput');
+        const autoEl = document.getElementById('adminAutoStatusEmailsCheckbox');
+        const copyEl = document.getElementById('adminSendOwnerCopyCheckbox');
+        const badgeEl = document.getElementById('adminSwishEmailSummaryBadge');
+
+        if (swishNumEl) swishNumEl.value = currentStorePaymentSettings.swishNumber || '';
+        if (swishRecEl) swishRecEl.value = currentStorePaymentSettings.swishRecipient || 'Sagomaskan';
+        if (replyEl) replyEl.value = currentStorePaymentSettings.replyToEmail || 'sagomaskan@outlook.com';
+        if (fromEl) fromEl.value = currentStorePaymentSettings.fromEmail || '';
+        if (autoEl) autoEl.checked = currentStorePaymentSettings.autoSendStatusEmails !== false;
+        if (copyEl) copyEl.checked = currentStorePaymentSettings.sendOwnerOrderCopy !== false;
+        if (badgeEl) {
+          badgeEl.textContent = currentStorePaymentSettings.swishNumber
+            ? `Swish: ${currentStorePaymentSettings.swishNumber} · Klicka för att ändra ▾`
+            : 'Ange Swish-nummer & e-postinställningar ▾';
+        }
+      }
+
+      async function sendOrderConfirmationEmail(order) {
+        if (!order || !order.customer?.email) return { ok: false };
+        try {
+          const res = await fetch('/api/orders/confirmation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order })
+          });
+          const data = await res.json().catch(() => ({}));
+          if (res.ok && data.ok) {
+            const idx = currentOrders.findIndex((o) => String(o.id) === String(order.id));
+            if (idx !== -1) {
+              currentOrders[idx].confirmationEmailSentAt = new Date().toISOString();
+              saveOrders(currentOrders);
+              if (typeof renderAdminOrdersSection === 'function' && adminView && !adminView.hidden) {
+                renderAdminOrdersSection();
+              }
+            }
+            showToast(`Orderbekräftelse med Swish-uppgifter skickades till ${order.customer.email}!`, 'success');
+            return { ok: true };
+          }
+          if (data?.code === 'MISSING_RESEND_API_KEY') {
+            console.info('Resend API-nyckel är inte konfigurerad ännu – hoppar över automatisk bekräftelsemail.');
+          } else if (data?.message) {
+            console.warn('Kunde inte skicka orderbekräftelse via Resend:', data.message);
+          }
+          return { ok: false, message: data?.message || '' };
+        } catch (err) {
+          console.warn('Nätverksfel vid utskick av orderbekräftelse:', err);
+          return { ok: false };
+        }
+      }
+
+      async function sendOrderStatusEmail(order, status, options = {}) {
+        if (!order || !order.customer?.email) {
+          if (!options.silent) {
+            showToast('Kundens e-postadress saknas på ordern – inget mail skickades.', 'warning');
+          }
+          return { ok: false };
+        }
+        try {
+          const token =
+            window.SagomaskanFirebase && typeof window.SagomaskanFirebase.getAdminIdToken === 'function'
+              ? await window.SagomaskanFirebase.getAdminIdToken()
+              : null;
+
+          if (!token) {
+            if (!options.silent) {
+              showToast('Du måste vara inloggad som admin (Google) för att skicka statusmail.', 'warning');
+            }
+            return { ok: false };
+          }
+
+          const res = await fetch('/api/orders/status-email', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ order, status })
+          });
+          const data = await res.json().catch(() => ({}));
+          if (res.ok && data.ok) {
+            currentOrders = loadOrders();
+            const idx = currentOrders.findIndex((o) => String(o.id) === String(order.id));
+            if (idx !== -1) {
+              currentOrders[idx].lastEmailedStatus = status;
+              currentOrders[idx].lastEmailedAt = new Date().toISOString();
+              currentOrders[idx].lastEmailedTracking = order.trackingUrl || '';
+              saveOrders(currentOrders);
+              if (typeof renderAdminOrdersSection === 'function') {
+                renderAdminOrdersSection();
+              }
+            }
+            if (!options.silentToast) {
+              const label = typeof getOrderStatusMeta === 'function' ? getOrderStatusMeta(status, order).label : status;
+              showToast(`Statusmail ("${label}") skickat till ${order.customer.email}!`, 'success');
+            }
+            return { ok: true };
+          }
+          if (!options.silent) {
+            showToast(`Status sparad, men mail kunde inte skickas: ${data?.message || 'Kontrollera Resend-konfigurationen.'}`, 'warning');
+          }
+          return { ok: false, message: data?.message || '' };
+        } catch (err) {
+          console.warn('Nätverksfel vid statusmail:', err);
+          if (!options.silent) {
+            showToast('Status sparad, men nätverksfel uppstod vid mailutskick.', 'warning');
+          }
+          return { ok: false };
+        }
+      }
+
       function syncStoreSettingsToCloud() {
         if (window.SagomaskanFirebase && typeof window.SagomaskanFirebase.saveStoreSettings === 'function') {
           window.SagomaskanFirebase.saveStoreSettings({
             topBanner: currentTopBanner,
             hero: currentHeroContent,
-            homeBoxes: currentHomeBoxes
+            homeBoxes: currentHomeBoxes,
+            paymentSettings: currentStorePaymentSettings
           });
         }
       }
 
       window.applyCloudStoreSettings = function(cloudSettings) {
         if (!cloudSettings || typeof cloudSettings !== 'object') return;
+        if (cloudSettings.paymentSettings && typeof cloudSettings.paymentSettings === 'object') {
+          saveStorePaymentSettings(cloudSettings.paymentSettings);
+          populateAdminPaymentSettingsForm();
+          if (lastConfirmedOrderId) {
+            const ord = currentOrders.find((o) => String(o.id) === String(lastConfirmedOrderId));
+            if (ord && typeof renderOrderConfirmationSummary === 'function') {
+              renderOrderConfirmationSummary(ord);
+            }
+          }
+        }
         if (cloudSettings.topBanner) {
           currentTopBanner = {
             ...DEFAULT_TOP_BANNER,
@@ -17243,7 +17522,11 @@
                           <span>Avvaktar manuell Swish-verifiering</span>
                         </div>
                         <div class="account-order-tracking-sub" style="color: #92400e;">
-                          Swish-instruktioner har skickats till din e-post (${escapeHtml(ord.customer?.email || '')}). Direkt när skaparen har verifierat och godkänt din Swish-betalning låses knappen <strong>"Ladda ner PDF-mönster"</strong> upp här på din order.
+                          Swish-instruktioner har skickats till din e-post (${escapeHtml(ord.customer?.email || '')}).${
+                            currentStorePaymentSettings.swishNumber
+                              ? ` Swisha <strong>${formatPriceKr(ord.totalPrice)}</strong> till <strong>${escapeHtml(currentStorePaymentSettings.swishNumber)}</strong> (${escapeHtml(currentStorePaymentSettings.swishRecipient || 'Sagomaskan')}) med meddelande <strong>${escapeHtml(ord.orderNumber || '')}</strong>.`
+                              : ''
+                          } Direkt när skaparen har verifierat och godkänt din Swish-betalning låses knappen <strong>"Ladda ner PDF-mönster"</strong> upp här på din order.
                         </div>
                       </div>
                     </div>
@@ -19412,6 +19695,16 @@
           renderCustomerOrders(activeCust);
         }
 
+        const shouldSendTrackingMail =
+          Boolean(cleaned) &&
+          !options.skipEmail &&
+          (options.forceSendEmail || (currentStorePaymentSettings.autoSendStatusEmails !== false && (order.status === 'shipped' || order.status === 'completed')));
+
+        if (shouldSendTrackingMail) {
+          sendOrderStatusEmail(order, order.status === 'completed' ? 'completed' : 'shipped', { silentToast: false });
+          return;
+        }
+
         if (!options.silentToast) {
           if (cleaned) {
             showToast(`Spårningslänk sparad för order ${order.orderNumber || ''}.`, 'success');
@@ -19455,6 +19748,9 @@
             `Swish-betalning godkänd för ${order.orderNumber || ''}! PDF-mönster är nu upplåst för kunden.`,
             'success'
           );
+          if (currentStorePaymentSettings.autoSendStatusEmails !== false) {
+            sendOrderStatusEmail(order, 'completed', { silentToast: true });
+          }
         } else {
           showToast(
             `Swish-godkännandet har återkallats för ${order.orderNumber || ''}.`,
@@ -19473,6 +19769,7 @@
         const order = currentOrders[idx];
         const prevStatus = order.status || 'new';
         const hasDigital = orderHasDigitalItems(order);
+        const isDigitalOnly = orderIsDigitalOnly(order);
 
         // Om admin klickar på "3. Skickad" (även om den redan är Skickad) -> öppna och fokusera spårningsfältet
         if (newStatus === 'shipped') {
@@ -19536,6 +19833,8 @@
           renderOrderConfirmationSummary(order);
         }
 
+        const autoEmailEnabled = currentStorePaymentSettings.autoSendStatusEmails !== false;
+
         if (newStatus === 'shipped') {
           requestAnimationFrame(() => {
             const trackingInp = document.getElementById(`adminTrackingInput_${orderId}`);
@@ -19544,13 +19843,22 @@
               trackingInp.select();
             }
           });
-          if (!order.trackingUrl) {
+          if (!order.trackingUrl && !isDigitalOnly) {
             showToast(
-              `Order ${order.orderNumber || ''} markerad som "Skickad" – fyll i spårningslänk nedan.`,
+              `Order ${order.orderNumber || ''} markerad som "Skickad" – fyll i spårningslänk nedan för att skicka spårningsmail till kunden.`,
               'success'
             );
             return;
           }
+          if (autoEmailEnabled) {
+            sendOrderStatusEmail(order, 'shipped');
+            return;
+          }
+        }
+
+        if (autoEmailEnabled) {
+          sendOrderStatusEmail(order, newStatus);
+          return;
         }
 
         if (hasDigital && newStatus === 'completed') {
@@ -19752,8 +20060,23 @@
                       class="admin-tracking-save-btn"
                       data-admin-save-tracking="${escapeHtml(ord.id)}"
                     >
-                      Spara spårningslänk
+                      ${currentStatus === 'shipped' ? 'Spara &amp; skicka spårningsmail' : 'Spara spårningslänk'}
                     </button>
+                    ${
+                      currentStatus === 'shipped' && !trackingMeta.hasValue
+                        ? `
+                          <button
+                            type="button"
+                            class="account-secondary-btn"
+                            data-admin-resend-status-mail="${escapeHtml(ord.id)}"
+                            style="padding: 9px 12px; font-size: 0.76rem; color: #334155;"
+                            title="Skicka Skickad-mail utan spårningslänk"
+                          >
+                            Skicka utan spårning
+                          </button>
+                        `
+                        : ''
+                    }
                     ${
                       trackingMeta.hasValue
                         ? `
@@ -19921,6 +20244,15 @@
                           `
                           : ''
                       }
+                      <button
+                        type="button"
+                        class="account-secondary-btn"
+                        data-admin-resend-status-mail="${escapeHtml(ord.id)}"
+                        style="padding: 5px 10px; font-size: 0.74rem; color: #2f3e3b; border-color: rgba(47, 62, 59, 0.25);"
+                        title="Skicka mail till kund för nuvarande orderstatus"
+                      >
+                        ✉ Skicka statusmail
+                      </button>
                       <button type="button" class="account-secondary-btn" data-admin-del-order="${escapeHtml(ord.id)}" style="padding: 5px 10px; font-size: 0.74rem; color: #b91c1c; margin-left: 4px;" title="Ta bort order">
                         Ta bort order
                       </button>
@@ -20019,6 +20351,19 @@
             const oid = btn.getAttribute('data-admin-clear-tracking');
             if (!oid) return;
             saveOrderTrackingFromAdmin(oid, '');
+          });
+        });
+
+        adminOrdersListContainer.querySelectorAll('[data-admin-resend-status-mail]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const oid = btn.getAttribute('data-admin-resend-status-mail');
+            if (!oid) return;
+            currentOrders = loadOrders();
+            syncUnsavedAdminTrackingInputs(currentOrders);
+            const ord = currentOrders.find((o) => String(o.id) === String(oid));
+            if (ord) {
+              sendOrderStatusEmail(ord, ord.status || 'new');
+            }
           });
         });
 
@@ -20888,11 +21233,78 @@
 
       function renderAdminDashboard() {
         updateAdminKpisAndBadges();
+        populateAdminPaymentSettingsForm();
         renderAdminProductsSection();
         renderAdminBannersSection();
         renderAdminOrdersSection();
         renderAdminDiscountsSection();
         renderAdminMessagesSection();
+      }
+
+      const adminPaymentEmailSettingsForm = document.getElementById('adminPaymentEmailSettingsForm');
+      if (adminPaymentEmailSettingsForm) {
+        adminPaymentEmailSettingsForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const swishNumber = (document.getElementById('adminSwishNumberInput')?.value || '').trim();
+          const swishRecipient = (document.getElementById('adminSwishRecipientInput')?.value || '').trim() || 'Sagomaskan';
+          const replyToEmail = (document.getElementById('adminReplyToEmailInput')?.value || '').trim() || 'sagomaskan@outlook.com';
+          const fromEmail = (document.getElementById('adminFromEmailInput')?.value || '').trim();
+          const autoSendStatusEmails = Boolean(document.getElementById('adminAutoStatusEmailsCheckbox')?.checked);
+          const sendOwnerOrderCopy = Boolean(document.getElementById('adminSendOwnerCopyCheckbox')?.checked);
+
+          saveStorePaymentSettings({
+            swishNumber,
+            swishRecipient,
+            replyToEmail,
+            fromEmail,
+            autoSendStatusEmails,
+            sendOwnerOrderCopy
+          });
+          syncStoreSettingsToCloud();
+          populateAdminPaymentSettingsForm();
+          showToast('Swish- och e-postinställningar sparade!', 'success');
+        });
+      }
+
+      const adminSendTestEmailBtn = document.getElementById('adminSendTestEmailBtn');
+      if (adminSendTestEmailBtn) {
+        adminSendTestEmailBtn.addEventListener('click', async () => {
+          const replyToVal = (document.getElementById('adminReplyToEmailInput')?.value || '').trim() || 'sagomaskan@outlook.com';
+          const token =
+            window.SagomaskanFirebase && typeof window.SagomaskanFirebase.getAdminIdToken === 'function'
+              ? await window.SagomaskanFirebase.getAdminIdToken()
+              : null;
+
+          if (!token) {
+            showToast('Logga in som admin (Google) för att skicka testmail.', 'warning');
+            return;
+          }
+
+          adminSendTestEmailBtn.disabled = true;
+          const prevLabel = adminSendTestEmailBtn.textContent;
+          adminSendTestEmailBtn.textContent = 'Skickar...';
+          try {
+            const res = await fetch('/api/orders/test-email', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+              },
+              body: JSON.stringify({ to: replyToVal })
+            });
+            const data = await res.json().catch(() => ({}));
+            if (res.ok && data.ok) {
+              showToast(`Testmail skickat via Resend till ${replyToVal}!`, 'success');
+            } else {
+              showToast(`Kunde inte skicka testmail: ${data?.message || 'Kontrollera RESEND_API_KEY.'}`, 'warning');
+            }
+          } catch (_) {
+            showToast('Nätverksfel vid utskick av testmail.', 'error');
+          } finally {
+            adminSendTestEmailBtn.disabled = false;
+            adminSendTestEmailBtn.textContent = prevLabel;
+          }
+        });
       }
 
       // Kolla om en specifik rutt efterfrågas via URL (?produkt=id, #kundservice, #konto, #admin eller #varukorg)
