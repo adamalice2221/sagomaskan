@@ -8716,11 +8716,6 @@
             <!-- Genereras dynamiskt utifrån de 6 kategorierna -->
           </div>
 
-          <!-- De 6 kategorierna på butikssidan -->
-          <div id="shopCategoriesGrid" class="categories-grid">
-            <!-- Renderas dynamiskt från samma 6 kategorier -->
-          </div>
-
           <!-- Produktyta (inga förgenererade produkter) -->
           <div id="shopProductsArea" class="shop-products-area">
             <div class="shop-products-header-bar">
@@ -11336,7 +11331,6 @@
       }
 
       const categoriesGrid = document.getElementById('categoriesGrid');
-      const shopCategoriesGrid = document.getElementById('shopCategoriesGrid');
       const shopFilterBar = document.getElementById('shopFilterBar');
       const shopSelectedCategoryTitle = document.getElementById('shopSelectedCategoryTitle');
       const menuSubcategories = document.getElementById('menuSubcategories');
@@ -12670,34 +12664,6 @@
         shopFilterBar.querySelectorAll('.shop-filter-btn').forEach((btn) => {
           btn.addEventListener('click', () => {
             activeShopCategoryIndex = Number(btn.getAttribute('data-filter-idx'));
-            renderShopPage();
-          });
-        });
-
-        // De 6 kategorikorten på butikssidan Mina skapelser
-        shopCategoriesGrid.innerHTML = currentCategories
-          .map((cat, idx) => {
-            const innerCard = cat.image
-              ? `<img src="${cat.image}" alt="${escapeHtml(cat.name)}" class="category-card-img" />`
-              : `<div class="category-card-placeholder">${PLACEHOLDER_ICON_SVG}<span>Bildplats</span></div>`;
-
-            const isSelected = activeShopCategoryIndex === idx ? 'is-selected' : '';
-
-            return `
-              <a href="#mina-skapelser" class="category-item ${isSelected}" data-shop-cat-idx="${idx}" aria-label="${escapeHtml(cat.name)}">
-                <div class="category-card">
-                  ${innerCard}
-                </div>
-              </a>
-            `;
-          })
-          .join('');
-
-        shopCategoriesGrid.querySelectorAll('.category-item').forEach((el) => {
-          el.addEventListener('click', (e) => {
-            e.preventDefault();
-            const idx = Number(el.getAttribute('data-shop-cat-idx'));
-            activeShopCategoryIndex = activeShopCategoryIndex === idx ? -1 : idx;
             renderShopPage();
           });
         });
