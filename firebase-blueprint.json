@@ -91,6 +91,12 @@
           "description": "Ordernummer t.ex. SM-1001",
           "maxLength": 64
         },
+        "customerId": {
+          "type": "string",
+          "description": "Firebase Auth UID för inloggad kund (null för gästköp)",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
         "customerName": {
           "type": "string",
           "description": "Kundens fullständiga namn",
@@ -289,9 +295,135 @@
         "activityLog": {
           "type": "array",
           "description": "Senaste aktivitetshistoriken för kontot"
+        },
+        "watchedProducts": {
+          "type": "array",
+          "description": "Produkt-ID:n som kunden bevakar när de är slut i lager"
+        },
+        "cart": {
+          "type": "array",
+          "description": "Kundens synkade varukorg (produkt-ID och antal)"
+        },
+        "giftBoxSelection": {
+          "type": "object",
+          "description": "Vald presentask och hälsningstext i kassan"
+        },
+        "appliedDiscountCode": {
+          "type": "string",
+          "description": "Tillämpad rabattkod i kassan",
+          "maxLength": 50
         }
       },
       "required": ["id", "name", "email", "createdAt", "updatedAt"]
+    },
+    "OrderCounter": {
+      "title": "OrderCounter",
+      "description": "Global räknare för unika löpande ordernummer (#SM-XXXX)",
+      "type": "object",
+      "properties": {
+        "nextNumber": {
+          "type": "number",
+          "description": "Nästa unika ordernummer"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Senaste uppdateringstidpunkt",
+          "maxLength": 64
+        }
+      },
+      "required": ["nextNumber", "updatedAt"]
+    },
+    "NewsletterSubscriber": {
+      "title": "NewsletterSubscriber",
+      "description": "Prenumerant på nyhetsbrev registrerad via sidfot eller konto",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unikt prenumerant-ID",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "email": {
+          "type": "string",
+          "description": "Prenumerantens e-postadress",
+          "maxLength": 160
+        },
+        "source": {
+          "type": "string",
+          "description": "Källa t.ex. footer eller account",
+          "maxLength": 40
+        },
+        "subscribed": {
+          "type": "boolean",
+          "description": "Om prenumerationen är aktiv"
+        },
+        "subscribedAt": {
+          "type": "string",
+          "description": "Tidpunkt då prenumerationen startade",
+          "maxLength": 64
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Senaste uppdateringstidpunkt",
+          "maxLength": 64
+        }
+      },
+      "required": ["id", "email", "subscribed", "subscribedAt", "updatedAt"]
+    },
+    "StockWatch": {
+      "title": "StockWatch",
+      "description": "Bevakning av slutsåld produkt",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unikt bevaknings-ID",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "productId": {
+          "type": "string",
+          "description": "Produkt-ID som bevakas",
+          "maxLength": 128
+        },
+        "productName": {
+          "type": "string",
+          "description": "Produktens namn",
+          "maxLength": 150
+        },
+        "customerId": {
+          "type": "string",
+          "description": "Firebase Auth UID för inloggad kund (null för gäst)",
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "description": "Kundens namn",
+          "maxLength": 100
+        },
+        "email": {
+          "type": "string",
+          "description": "E-postadress för avisering",
+          "maxLength": 160
+        },
+        "status": {
+          "type": "string",
+          "description": "Bevakningsstatus (active eller notified)",
+          "enum": ["active", "notified"]
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Tidpunkt då bevakningen skapades",
+          "maxLength": 64
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Senaste uppdateringstidpunkt",
+          "maxLength": 64
+        }
+      },
+      "required": ["id", "productId", "productName", "email", "status", "createdAt", "updatedAt"]
     }
   },
   "firestore": {
@@ -313,7 +445,19 @@
     },
     "/customers/{customerId}": {
       "schema": "Customer",
-      "description": "Registrerade kundkonton (endast läsbara av administratör)"
+      "description": "Registrerade kundkonton (ägare via Firebase Auth UID samt administratör)"
+    },
+    "/counters/{counterId}": {
+      "schema": "OrderCounter",
+      "description": "Global räknare för unika ordernummer"
+    },
+    "/newsletterSubscribers/{subscriberId}": {
+      "schema": "NewsletterSubscriber",
+      "description": "Nyhetsbrevsprenumeranter (läsbara endast av administratör)"
+    },
+    "/stockWatches/{watchId}": {
+      "schema": "StockWatch",
+      "description": "Produktbevakningar för slutsålda varor"
     },
     "/settings/{settingId}": {
       "schema": "StoreSettings",

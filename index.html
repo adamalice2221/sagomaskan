@@ -10775,6 +10775,33 @@
               </div>
 
               <div id="adminCustomersListContainer" style="display: flex; flex-direction: column; gap: 14px;"></div>
+
+              <!-- Produktbevakningar ("Bevaka") från Firebase -->
+              <div id="adminStockWatchesBlock" style="margin-top: 28px; padding-top: 24px; border-top: 1px solid rgba(0, 0, 0, 0.08);">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+                  <div>
+                    <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.2rem; font-weight: 500; color: #171717; margin: 0 0 2px 0;">Produktbevakningar ("Bevaka")</h3>
+                    <p style="font-size: 0.84rem; color: #666666; margin: 0;">Kunder och besökare som vill få besked när slutsålda alster åter finns i lager.</p>
+                  </div>
+                  <span id="adminStockWatchesCountBadge" style="font-size: 0.78rem; font-weight: 600; padding: 4px 11px; border-radius: 999px; background: #F4F2EC; color: #2f3e3b;">0 aktiva</span>
+                </div>
+                <div id="adminStockWatchesListContainer" style="display: flex; flex-direction: column; gap: 10px;"></div>
+              </div>
+
+              <!-- Nyhetsbrevsprenumeranter (Sidfot & Konto) från Firebase -->
+              <div id="adminNewsletterSubscribersBlock" style="margin-top: 28px; padding-top: 24px; border-top: 1px solid rgba(0, 0, 0, 0.08);">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+                  <div>
+                    <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.2rem; font-weight: 500; color: #171717; margin: 0 0 2px 0;">Nyhetsbrevsprenumeranter</h3>
+                    <p style="font-size: 0.84rem; color: #666666; margin: 0;">Alla e-postadresser som anmält sig via sidfoten eller sitt kundkonto.</p>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <span id="adminNewsletterCountBadge" style="font-size: 0.78rem; font-weight: 600; padding: 4px 11px; border-radius: 999px; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;">0 prenumeranter</span>
+                    <button type="button" id="adminCopyAllNewsletterEmailsBtn" class="account-secondary-btn" style="padding: 6px 12px; font-size: 0.78rem;">Kopiera alla e-postadresser</button>
+                  </div>
+                </div>
+                <div id="adminNewsletterListContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
+              </div>
             </section>
           </div>
         </section>
@@ -11029,6 +11056,7 @@
         </div>
 
         <div id="modalAuthError" class="account-auth-error-banner" hidden></div>
+        <div id="modalAuthSuccess" class="account-feedback-banner is-success" style="margin-bottom: 14px;" hidden></div>
 
         <!-- Inloggningsformulär i modalen -->
         <form id="modalLoginForm" class="account-modal-form">
@@ -11037,13 +11065,16 @@
             <input type="email" id="modalLoginEmailInput" class="account-form-input" placeholder="din.epost@exempel.se" required autocomplete="email" />
           </div>
           <div class="account-form-field">
-            <label class="account-form-label" for="modalLoginPasswordInput">Lösenord *</label>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+              <label class="account-form-label" for="modalLoginPasswordInput">Lösenord *</label>
+              <button type="button" id="modalForgotPasswordBtn" class="account-modal-switch-btn" style="font-size: 0.76rem; font-weight: 500;">Glömt lösenord?</button>
+            </div>
             <div class="account-input-pw-wrap">
               <input type="password" id="modalLoginPasswordInput" class="account-form-input" placeholder="••••••••" required autocomplete="current-password" />
               <button type="button" class="account-pw-toggle-btn" data-toggle-pw="modalLoginPasswordInput">Visa</button>
             </div>
           </div>
-          <button type="submit" class="account-submit-btn">
+          <button type="submit" id="modalLoginSubmitBtn" class="account-submit-btn">
             <span>Logga in</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </button>
@@ -12599,12 +12630,15 @@
         return watchedProductIds.includes(String(productId));
       }
 
-      function markProductWatched(productId) {
+      function markProductWatched(productId, skipCloudSync = false) {
         const pid = String(productId || '');
         if (!pid) return;
         if (!watchedProductIds.includes(pid)) {
           watchedProductIds.push(pid);
           safeSetItem(WATCHED_PRODUCTS_STORAGE_KEY, JSON.stringify(watchedProductIds));
+          if (!skipCloudSync && typeof scheduleCustomerShoppingStateSync === 'function') {
+            scheduleCustomerShoppingStateSync();
+          }
         }
       }
 
@@ -12685,14 +12719,14 @@
       });
 
       if (watchProductForm) {
-        watchProductForm.addEventListener('submit', (e) => {
+        watchProductForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           const pid = watchModalProductId ? watchModalProductId.value : '';
           const prod = currentProducts.find((p) => String(p.id) === String(pid));
           const emailVal = watchModalEmailInput ? watchModalEmailInput.value.trim() : '';
           const nameVal = watchModalNameInput ? watchModalNameInput.value.trim() : '';
 
-          if (!emailVal || !emailVal.includes('@')) {
+          if (!emailVal || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailVal)) {
             showToast('Vänligen ange en giltig e-postadress.', 'warning');
             return;
           }
@@ -12713,8 +12747,27 @@
           saveMessages(currentMessages, newWatchMsg);
           markProductWatched(pid);
 
+          if (window.SagomaskanFirebase && typeof window.SagomaskanFirebase.saveStockWatch === 'function') {
+            try {
+              const savedWatch = await window.SagomaskanFirebase.saveStockWatch({
+                productId: pid,
+                productName: prodName,
+                name: nameVal || 'Kund',
+                email: emailVal
+              });
+              if (savedWatch && Array.isArray(cloudStockWatches)) {
+                cloudStockWatches.unshift(savedWatch);
+              }
+            } catch (err) {
+              console.warn('Kunde inte spara produktbevakning i Firestore:', err);
+            }
+          }
+
           if (typeof renderAdminMessagesSection === 'function') {
             renderAdminMessagesSection();
+          }
+          if (typeof renderAdminStockWatchesSection === 'function') {
+            renderAdminStockWatchesSection();
           }
           if (typeof updateAdminKpisAndBadges === 'function') {
             updateAdminKpisAndBadges();
@@ -12982,8 +13035,46 @@
         return [];
       }
 
-      function saveCart(cartItems) {
+      let hasLoadedCloudProducts = false;
+      let hasLoadedCloudDiscounts = false;
+      let shoppingStateSyncTimer = null;
+
+      function scheduleCustomerShoppingStateSync(immediate = false) {
+        const fb = window.SagomaskanFirebase;
+        if (!fb || typeof fb.syncCustomerShoppingState !== 'function' || typeof fb.getCurrentCustomerUid !== 'function') {
+          return;
+        }
+        if (!fb.getCurrentCustomerUid()) return;
+
+        const runSync = () => {
+          shoppingStateSyncTimer = null;
+          if (!fb.getCurrentCustomerUid()) return;
+          fb.syncCustomerShoppingState({
+            cart: currentCart,
+            giftBoxSelection: currentGiftBoxSelection,
+            appliedDiscountCode: getAppliedDiscountCode(),
+            watchedProducts: watchedProductIds
+          }).catch((err) => {
+            console.warn('Kunde inte synka varukorg/val till Firebase:', err);
+          });
+        };
+
+        if (shoppingStateSyncTimer) {
+          clearTimeout(shoppingStateSyncTimer);
+          shoppingStateSyncTimer = null;
+        }
+        if (immediate) {
+          runSync();
+        } else {
+          shoppingStateSyncTimer = setTimeout(runSync, 250);
+        }
+      }
+
+      function saveCart(cartItems, skipCloudSync = false) {
         safeSetItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
+        if (!skipCloudSync) {
+          scheduleCustomerShoppingStateSync();
+        }
       }
 
       let currentCart = loadCart();
@@ -13139,6 +13230,7 @@
 
       window.applyCloudDiscounts = function(cloudDiscounts) {
         if (!Array.isArray(cloudDiscounts)) return;
+        hasLoadedCloudDiscounts = true;
         currentDiscountCodes = cloudDiscounts;
         safeSetItem(DISCOUNT_CODES_STORAGE_KEY, JSON.stringify(currentDiscountCodes));
         renderCart();
@@ -13160,13 +13252,16 @@
         }
       }
 
-      function setAppliedDiscountCode(codeStr) {
+      function setAppliedDiscountCode(codeStr, skipCloudSync = false) {
         try {
           const clean = normalizeDiscountCode(codeStr);
           if (clean) {
             safeSetItem(APPLIED_DISCOUNT_STORAGE_KEY, clean);
           } else {
             localStorage.removeItem(APPLIED_DISCOUNT_STORAGE_KEY);
+          }
+          if (!skipCloudSync) {
+            scheduleCustomerShoppingStateSync();
           }
         } catch (_) {}
       }
@@ -13253,8 +13348,11 @@
         return { type: 'none', greeting: '' };
       }
 
-      function saveGiftBoxSelection(selection) {
+      function saveGiftBoxSelection(selection, skipCloudSync = false) {
         safeSetItem(GIFT_BOX_SELECTION_STORAGE_KEY, JSON.stringify(selection));
+        if (!skipCloudSync) {
+          scheduleCustomerShoppingStateSync();
+        }
       }
 
       let currentGiftBoxSelection = loadGiftBoxSelection();
@@ -13434,7 +13532,7 @@
           type: cleanType,
           greeting: cleanGreeting
         };
-        saveGiftBoxSelection(currentGiftBoxSelection);
+        saveGiftBoxSelection(currentGiftBoxSelection, Boolean(options.skipCloudSync));
         updateAllGiftBoxUI();
         if (!options.skipCartRender && typeof renderCart === 'function') {
           renderCart();
@@ -13496,8 +13594,10 @@
         if (appliedCode) {
           discountObj = findActiveDiscountByCode(appliedCode);
           if (!discountObj) {
-            // Koden har tagits bort eller inaktiverats i admin
-            setAppliedDiscountCode('');
+            // Rensa bara koden när rabattkoder har laddats från molnet (undviker för tidig rensning vid sidstart)
+            if (hasLoadedCloudDiscounts || currentDiscountCodes.length > 0) {
+              setAppliedDiscountCode('', true);
+            }
           } else if (subtotalPrice > 0) {
             if (discountObj.type === 'percent') {
               const pct = Math.min(100, Math.max(1, Number(discountObj.value) || 0));
@@ -13813,7 +13913,7 @@
           }
         });
 
-        if (pruned) {
+        if (pruned && hasLoadedCloudProducts) {
           currentCart = validCart.map((v) => ({
             productId: v.productId,
             quantity: v.quantity
@@ -14695,7 +14795,7 @@
       }
 
       if (cartCheckoutForm) {
-        cartCheckoutForm.addEventListener('submit', (e) => {
+        cartCheckoutForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           clearCheckoutValidationErrors();
 
@@ -14798,18 +14898,36 @@
             }
           }
 
-          // Permanent löpande ordernummerräknare som aldrig krockar
-          let orderCounter = parseInt(localStorage.getItem(ORDER_COUNTER_KEY) || '1000', 10);
-          currentOrders.forEach((o) => {
-            const match = String(o.orderNumber || '').match(/\d+/);
-            if (match) {
-              const num = parseInt(match[0], 10);
-              if (num > orderCounter) orderCounter = num;
+          const confirmSubmitBtn = document.getElementById('checkoutConfirmBtn');
+          if (confirmSubmitBtn) {
+            if (confirmSubmitBtn.disabled) return;
+            confirmSubmitBtn.disabled = true;
+          }
+
+          let orderNumber = '';
+          try {
+            // Permanent löpande ordernummerräknare (synkad atomärt i Firebase med lokal fallback)
+            let orderCounter = parseInt(localStorage.getItem(ORDER_COUNTER_KEY) || '1000', 10);
+            currentOrders.forEach((o) => {
+              const match = String(o.orderNumber || '').match(/\d+/);
+              if (match) {
+                const num = parseInt(match[0], 10);
+                if (num > orderCounter) orderCounter = num;
+              }
+            });
+
+            if (window.SagomaskanFirebase && typeof window.SagomaskanFirebase.allocateNextOrderNumber === 'function') {
+              try {
+                orderCounter = await window.SagomaskanFirebase.allocateNextOrderNumber(orderCounter);
+              } catch (counterErr) {
+                console.warn('Kunde inte hämta globalt ordernummer från Firebase, använder lokal räknare:', counterErr);
+                orderCounter += 1;
+              }
+            } else {
+              orderCounter += 1;
             }
-          });
-          orderCounter += 1;
-          safeSetItem(ORDER_COUNTER_KEY, String(orderCounter));
-          const orderNumber = `#SM-${orderCounter}`;
+            safeSetItem(ORDER_COUNTER_KEY, String(orderCounter));
+            orderNumber = `#SM-${orderCounter}`;
 
           const loggedInCust = typeof getActiveCustomer === 'function' ? getActiveCustomer() : null;
           const formattedZip = /^\d{5}$/.test(zipCleaned)
@@ -14926,9 +15044,10 @@
 
           // Töm varukorgen, nollställ tillämpad rabattkod och presentaskval inför nästa köp
           currentCart = [];
-          saveCart(currentCart);
-          setAppliedDiscountCode('');
-          setGiftBoxSelection('none', '', { skipCartRender: true });
+          saveCart(currentCart, true);
+          setAppliedDiscountCode('', true);
+          setGiftBoxSelection('none', '', { skipCartRender: true, skipCloudSync: true });
+          scheduleCustomerShoppingStateSync(true);
           renderCart();
 
           // Visa bekräftelse i varukorgens drawer
@@ -14947,6 +15066,11 @@
           cartCheckoutForm.reset();
           showToast(`Beställning ${orderNumber} har skapats!`, 'success');
           sendOrderConfirmationEmail(newOrder);
+          } finally {
+            if (confirmSubmitBtn) {
+              confirmSubmitBtn.disabled = false;
+            }
+          }
         });
       }
 
@@ -17191,10 +17315,13 @@
                 ? currentCustomers[idx].favorites.map(String)
                 : [];
               const merged = Array.from(new Set([...custFavs, ...globalFavs]));
+              const favsChanged = merged.length !== custFavs.length || merged.some((id, i) => id !== custFavs[i]);
               currentCustomers[idx].favorites = merged;
               saveCustomers(currentCustomers);
               saveGlobalFavorites(merged);
-              syncCustomerToCloud(currentCustomers[idx]);
+              if (favsChanged) {
+                syncCustomerToCloud(currentCustomers[idx]);
+              }
             }
             safeSetItem(ACTIVE_CUSTOMER_STORAGE_KEY, customer.id);
           } else {
@@ -18166,6 +18293,11 @@
           saveCustomers(currentCustomers);
           syncEmailWithNewsletterList(currentCustomers[idx].email, isSubscribed);
           syncCustomerToCloud(currentCustomers[idx]);
+          if (window.SagomaskanFirebase && typeof window.SagomaskanFirebase.saveNewsletterSubscriber === 'function') {
+            window.SagomaskanFirebase.saveNewsletterSubscriber(currentCustomers[idx].email, 'account', isSubscribed).catch((err) => {
+              console.warn('Kunde inte synka nyhetsbrevsstatus till Firebase:', err);
+            });
+          }
 
           renderCustomerNewsletterPreferences(currentCustomers[idx]);
           renderCustomerActivityHistory(currentCustomers[idx]);
@@ -18302,9 +18434,13 @@
         resetPasswordVisibilityToggles(accountAuthModal);
       }
 
+      const modalAuthSuccess = document.getElementById('modalAuthSuccess');
+      const modalForgotPasswordBtn = document.getElementById('modalForgotPasswordBtn');
+
       function switchModalAuthTab(mode) {
         const isLogin = mode !== 'register';
         showModalAuthError('');
+        showModalAuthSuccess('');
         resetPasswordVisibilityToggles(accountAuthModal);
         if (modalTabLoginBtn && modalTabRegisterBtn) {
           modalTabLoginBtn.classList.toggle('is-active', isLogin);
@@ -18322,8 +18458,21 @@
           modalAuthError.hidden = true;
           modalAuthError.textContent = '';
         } else {
+          if (modalAuthSuccess) modalAuthSuccess.hidden = true;
           modalAuthError.textContent = msg;
           modalAuthError.hidden = false;
+        }
+      }
+
+      function showModalAuthSuccess(msg) {
+        if (!modalAuthSuccess) return;
+        if (!msg) {
+          modalAuthSuccess.hidden = true;
+          modalAuthSuccess.textContent = '';
+        } else {
+          if (modalAuthError) modalAuthError.hidden = true;
+          modalAuthSuccess.textContent = msg;
+          modalAuthSuccess.hidden = false;
         }
       }
 
@@ -18335,6 +18484,33 @@
       if (accountAuthModal) {
         accountAuthModal.addEventListener('click', (e) => {
           if (e.target === accountAuthModal) closeAccountAuthModal();
+        });
+      }
+
+      if (modalForgotPasswordBtn) {
+        modalForgotPasswordBtn.addEventListener('click', async () => {
+          showModalAuthError('');
+          showModalAuthSuccess('');
+          const emailInput = document.getElementById('modalLoginEmailInput');
+          const email = (emailInput?.value || '').trim().toLowerCase();
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+            showModalAuthError('Fyll i din e-postadress ovan först så skickar vi en återställningslänk.');
+            if (emailInput) emailInput.focus();
+            return;
+          }
+          if (!window.SagomaskanFirebase || typeof window.SagomaskanFirebase.sendCustomerPasswordReset !== 'function') {
+            showModalAuthError('Firebase-tjänsten laddas fortfarande. Försök igen om ett ögonblick.');
+            return;
+          }
+          modalForgotPasswordBtn.disabled = true;
+          try {
+            await window.SagomaskanFirebase.sendCustomerPasswordReset(email);
+            showModalAuthSuccess(`En länk för att återställa lösenordet har skickats till ${email}. Kontrollera även skräpposten.`);
+          } catch (err) {
+            showModalAuthError(err?.message || 'Kunde inte skicka återställningslänk.');
+          } finally {
+            modalForgotPasswordBtn.disabled = false;
+          }
         });
       }
 
@@ -18351,11 +18527,29 @@
         });
       }
 
-      // Inloggning via pop-up modal
+      function upsertLocalCustomerProfile(profileObj) {
+        if (!profileObj || !profileObj.id) return profileObj;
+        const cleanEmail = String(profileObj.email || '').trim().toLowerCase();
+        currentCustomers = loadCustomers().filter((c) => {
+          if (!c) return false;
+          if (c.id === profileObj.id) return false;
+          // Rensa bort eventuell äldre lokal dubblett med samma e-postadress
+          if (cleanEmail && String(c.email || '').trim().toLowerCase() === cleanEmail && String(c.id).startsWith('cust_')) {
+            return false;
+          }
+          return true;
+        });
+        currentCustomers.push(profileObj);
+        saveCustomers(currentCustomers);
+        return profileObj;
+      }
+
+      // Inloggning via pop-up modal (Firebase Auth + Firestore)
       if (modalLoginForm) {
         modalLoginForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           showModalAuthError('');
+          showModalAuthSuccess('');
 
           const email = (document.getElementById('modalLoginEmailInput')?.value || '').trim().toLowerCase();
           const password = document.getElementById('modalLoginPasswordInput')?.value || '';
@@ -18365,42 +18559,81 @@
             return;
           }
 
-          currentCustomers = loadCustomers();
-          const custIdx = currentCustomers.findIndex((c) => String(c.email || '').toLowerCase() === email);
-          const customer = custIdx !== -1 ? currentCustomers[custIdx] : null;
-          if (!customer) {
-            showModalAuthError('Inget konto hittades med denna e-postadress. Kontrollera stavningen eller skapa ett nytt konto.');
+          if (!window.SagomaskanFirebase || typeof window.SagomaskanFirebase.signInCustomer !== 'function') {
+            showModalAuthError('Firebase håller på att ansluta. Försök igen om ett ögonblick.');
             return;
           }
 
-          const isValidPw = await verifyCustomerPassword(customer, password);
-          if (!isValidPw) {
-            showModalAuthError('Felaktigt lösenord. Försök igen.');
-            return;
+          const submitBtn = document.getElementById('modalLoginSubmitBtn') || modalLoginForm.querySelector('button[type="submit"]');
+          if (submitBtn) submitBtn.disabled = true;
+
+          try {
+            let result;
+            try {
+              result = await window.SagomaskanFirebase.signInCustomer(email, password, {
+                favorites: loadGlobalFavorites(),
+                watchedProducts: watchedProductIds,
+                cart: currentCart,
+                giftBoxSelection: currentGiftBoxSelection,
+                appliedDiscountCode: getAppliedDiscountCode()
+              });
+            } catch (authErr) {
+              // Om användaren har ett äldre lokalt konto i samma webbläsare, migrera det automatiskt till Firebase Auth
+              const legacyCustomers = loadCustomers();
+              const legacyCust = legacyCustomers.find(
+                (c) => String(c.email || '').toLowerCase() === email && c.passwordHash
+              );
+              const matchesLegacy = legacyCust ? await verifyCustomerPassword(legacyCust, password) : false;
+              if (matchesLegacy && typeof window.SagomaskanFirebase.registerCustomer === 'function') {
+                const mergedFavs = Array.from(new Set([...(legacyCust.favorites || []), ...loadGlobalFavorites()]));
+                const migratedCust = await window.SagomaskanFirebase.registerCustomer({
+                  name: legacyCust.name || email.split('@')[0],
+                  email,
+                  password,
+                  phone: legacyCust.phone || '',
+                  address: legacyCust.address || '',
+                  zip: legacyCust.zip || '',
+                  city: legacyCust.city || '',
+                  favorites: mergedFavs,
+                  watchedProducts: watchedProductIds,
+                  cart: currentCart,
+                  giftBoxSelection: currentGiftBoxSelection,
+                  appliedDiscountCode: getAppliedDiscountCode(),
+                  newsletterSubscribed: Boolean(legacyCust.newsletterSubscribed),
+                  createdAt: legacyCust.createdAt,
+                  activityLog: legacyCust.activityLog
+                });
+                const orders = await window.SagomaskanFirebase.syncCustomerOrdersFromCloud(currentOrders);
+                result = { customer: migratedCust, orders };
+              } else {
+                throw authErr;
+              }
+            }
+
+            const cloudCustomer = upsertLocalCustomerProfile(result.customer);
+            if (Array.isArray(result.orders) && typeof window.applyCloudCustomerOrders === 'function') {
+              window.applyCloudCustomerOrders(result.orders);
+            }
+            setActiveCustomer(cloudCustomer);
+            modalLoginForm.reset();
+            closeAccountAuthModal();
+            showAccountView();
+            const firstName = (cloudCustomer.name || '').trim().split(/\s+/)[0] || '';
+            showToast(`Välkommen tillbaka${firstName ? ', ' + firstName : ''}!`, 'success');
+          } catch (err) {
+            showModalAuthError(err?.message || 'Kunde inte logga in. Kontrollera dina uppgifter.');
+          } finally {
+            if (submitBtn) submitBtn.disabled = false;
           }
-
-          const nowIso = new Date().toISOString();
-          currentCustomers[custIdx].previousLoginAt =
-            currentCustomers[custIdx].lastLoginAt || currentCustomers[custIdx].createdAt || nowIso;
-          currentCustomers[custIdx].lastLoginAt = nowIso;
-          appendCustomerActivityEntry(currentCustomers[custIdx], 'Inloggning genomförd', nowIso);
-          saveCustomers(currentCustomers);
-          syncCustomerToCloud(currentCustomers[custIdx]);
-
-          setActiveCustomer(currentCustomers[custIdx]);
-          modalLoginForm.reset();
-          closeAccountAuthModal();
-          showAccountView();
-          const firstName = (customer.name || '').trim().split(/\s+/)[0] || '';
-          showToast(`Välkommen tillbaka${firstName ? ', ' + firstName : ''}!`, 'success');
         });
       }
 
-      // Registrering via pop-up modal
+      // Registrering via pop-up modal (Firebase Auth + Firestore)
       if (modalRegisterForm) {
         modalRegisterForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           showModalAuthError('');
+          showModalAuthSuccess('');
 
           const name = (document.getElementById('modalRegNameInput')?.value || '').trim();
           const email = (document.getElementById('modalRegEmailInput')?.value || '').trim().toLowerCase();
@@ -18420,54 +18653,60 @@
             return;
           }
 
-          currentCustomers = loadCustomers();
-          const exists = currentCustomers.some((c) => String(c.email || '').toLowerCase() === email);
-          if (exists) {
-            showModalAuthError('Det finns redan ett konto registrerat med den här e-postadressen. Logga gärna in istället.');
+          if (!window.SagomaskanFirebase || typeof window.SagomaskanFirebase.registerCustomer !== 'function') {
+            showModalAuthError('Firebase håller på att ansluta. Försök igen om ett ögonblick.');
             return;
           }
 
-          const nowIso = new Date().toISOString();
-          const passwordHash = await hashPassword(password, email);
-          const alreadySub = isEmailInNewsletterList(email);
-          const newCustomer = {
-            id: 'cust_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
-            name,
-            email,
-            phone: '',
-            address: '',
-            zip: '',
-            city: '',
-            passwordSalt: email,
-            passwordHash,
-            favorites: loadGlobalFavorites(),
-            newsletterSubscribed: alreadySub,
-            createdAt: nowIso,
-            lastLoginAt: nowIso,
-            updatedAt: nowIso,
-            activityLog: [
-              { label: 'Första inloggning genomförd', timestamp: nowIso },
-              { label: 'Konto skapat hos Sagomaskan', timestamp: nowIso }
-            ]
-          };
+          const submitBtn = modalRegisterForm.querySelector('button[type="submit"]');
+          if (submitBtn) submitBtn.disabled = true;
 
-          currentCustomers.push(newCustomer);
-          saveCustomers(currentCustomers);
-          await syncCustomerToCloud(newCustomer);
-          setActiveCustomer(newCustomer);
-          if (adminView && !adminView.hidden && typeof renderAdminCustomersSection === 'function') {
-            renderAdminCustomersSection();
+          try {
+            const alreadySub = isEmailInNewsletterList(email);
+            const newCustomer = await window.SagomaskanFirebase.registerCustomer({
+              name,
+              email,
+              password,
+              favorites: loadGlobalFavorites(),
+              watchedProducts: watchedProductIds,
+              cart: currentCart,
+              giftBoxSelection: currentGiftBoxSelection,
+              appliedDiscountCode: getAppliedDiscountCode(),
+              newsletterSubscribed: alreadySub
+            });
+
+            upsertLocalCustomerProfile(newCustomer);
+            setActiveCustomer(newCustomer);
+            if (adminView && !adminView.hidden && typeof renderAdminCustomersSection === 'function') {
+              renderAdminCustomersSection();
+            }
+            modalRegisterForm.reset();
+            closeAccountAuthModal();
+            showAccountView();
+            showToast(`Välkommen till Sagomaskan, ${name.split(/\s+/)[0]}! Ditt konto är sparat i Firebase.`, 'success');
+          } catch (err) {
+            showModalAuthError(err?.message || 'Kunde inte skapa konto just nu.');
+          } finally {
+            if (submitBtn) submitBtn.disabled = false;
           }
-          modalRegisterForm.reset();
-          closeAccountAuthModal();
-          showAccountView();
-          showToast(`Välkommen till Sagomaskan, ${name.split(/\s+/)[0]}! Ditt konto är skapat.`, 'success');
         });
       }
 
       // Hantera Utloggning
-      function handleCustomerLogout() {
+      async function handleCustomerLogout() {
+        if (window.SagomaskanFirebase && typeof window.SagomaskanFirebase.signOutCustomer === 'function') {
+          await window.SagomaskanFirebase.signOutCustomer();
+        }
         setActiveCustomer(null);
+        // Rensa sessionens synkade varukorg/val så att nästa inloggade användare på samma enhet inte ärver dem
+        currentCart = [];
+        saveCart([], true);
+        setAppliedDiscountCode('', true);
+        setGiftBoxSelection('none', '', { skipCartRender: true, skipCloudSync: true });
+        watchedProductIds = [];
+        safeSetItem(WATCHED_PRODUCTS_STORAGE_KEY, '[]');
+        saveGlobalFavorites([]);
+        renderCart();
         autofillCheckoutFormIfCustomer(true);
         autofillContactFormIfCustomer(true);
         showHomeView();
@@ -18695,13 +18934,6 @@
             return;
           }
 
-          const validCurrent = await verifyCustomerPassword(cust, currentPw);
-          if (!validCurrent) {
-            showBannerFeedback(accountPasswordFeedback, 'Det nuvarande lösenordet stämmer inte.', 'error');
-            if (secCurrentPasswordInput) secCurrentPasswordInput.focus();
-            return;
-          }
-
           if (newPw.length < 6) {
             showBannerFeedback(accountPasswordFeedback, 'Det nya lösenordet måste vara minst 6 tecken långt.', 'error');
             if (secNewPasswordInput) secNewPasswordInput.focus();
@@ -18714,28 +18946,39 @@
             return;
           }
 
-          currentCustomers = loadCustomers();
-          const idx = currentCustomers.findIndex((c) => c.id === cust.id);
-          if (idx === -1) return;
+          if (!window.SagomaskanFirebase || typeof window.SagomaskanFirebase.changeCustomerPassword !== 'function') {
+            showBannerFeedback(accountPasswordFeedback, 'Firebase håller på att ansluta. Försök igen om ett ögonblick.', 'error');
+            return;
+          }
 
-          const nowIso = new Date().toISOString();
-          const newSalt = currentCustomers[idx].email;
-          const newHash = await hashPassword(newPw, newSalt);
-          currentCustomers[idx].passwordSalt = newSalt;
-          currentCustomers[idx].passwordHash = newHash;
-          currentCustomers[idx].updatedAt = nowIso;
-          appendCustomerActivityEntry(currentCustomers[idx], 'Lösenord uppdaterat', nowIso);
-          saveCustomers(currentCustomers);
-          syncCustomerToCloud(currentCustomers[idx]);
-          renderCustomerActivityHistory(currentCustomers[idx]);
+          const submitBtn = accountPasswordForm.querySelector('button[type="submit"]');
+          if (submitBtn) submitBtn.disabled = true;
 
-          accountPasswordForm.reset();
-          resetPasswordVisibilityToggles(accountPasswordForm);
-          accountPasswordForm.hidden = true;
-          if (accountPasswordStatusDisplay) accountPasswordStatusDisplay.hidden = false;
-          if (accountTogglePasswordFormBtn) accountTogglePasswordFormBtn.hidden = false;
-          showBannerFeedback(accountPasswordFeedback, '✓ Ditt lösenord har uppdaterats säkert.', 'success');
-          showToast('Ditt lösenord har uppdaterats!', 'success');
+          try {
+            await window.SagomaskanFirebase.changeCustomerPassword(currentPw, newPw);
+
+            currentCustomers = loadCustomers();
+            const idx = currentCustomers.findIndex((c) => c.id === cust.id);
+            if (idx !== -1) {
+              const nowIso = new Date().toISOString();
+              currentCustomers[idx].updatedAt = nowIso;
+              appendCustomerActivityEntry(currentCustomers[idx], 'Lösenord uppdaterat', nowIso);
+              saveCustomers(currentCustomers);
+              renderCustomerActivityHistory(currentCustomers[idx]);
+            }
+
+            accountPasswordForm.reset();
+            resetPasswordVisibilityToggles(accountPasswordForm);
+            accountPasswordForm.hidden = true;
+            if (accountPasswordStatusDisplay) accountPasswordStatusDisplay.hidden = false;
+            if (accountTogglePasswordFormBtn) accountTogglePasswordFormBtn.hidden = false;
+            showBannerFeedback(accountPasswordFeedback, '✓ Ditt lösenord har uppdaterats säkert i Firebase.', 'success');
+            showToast('Ditt lösenord har uppdaterats!', 'success');
+          } catch (err) {
+            showBannerFeedback(accountPasswordFeedback, err?.message || 'Kunde inte uppdatera lösenordet.', 'error');
+          } finally {
+            if (submitBtn) submitBtn.disabled = false;
+          }
         });
       }
 
@@ -21451,6 +21694,173 @@
             showToast('Kundkontot har tagits bort.', 'info');
           });
         });
+
+        renderAdminStockWatchesSection();
+        renderAdminNewsletterSubscribersSection();
+      }
+
+      let cloudNewsletterSubscribers = null;
+      let cloudStockWatches = null;
+
+      const adminStockWatchesCountBadge = document.getElementById('adminStockWatchesCountBadge');
+      const adminStockWatchesListContainer = document.getElementById('adminStockWatchesListContainer');
+      const adminNewsletterCountBadge = document.getElementById('adminNewsletterCountBadge');
+      const adminNewsletterListContainer = document.getElementById('adminNewsletterListContainer');
+      const adminCopyAllNewsletterEmailsBtn = document.getElementById('adminCopyAllNewsletterEmailsBtn');
+
+      function renderAdminStockWatchesSection() {
+        if (!adminStockWatchesListContainer) return;
+        const list = Array.isArray(cloudStockWatches) ? cloudStockWatches : [];
+        const activeCount = list.filter((w) => w.status !== 'notified').length;
+        if (adminStockWatchesCountBadge) {
+          adminStockWatchesCountBadge.textContent = `${activeCount} aktiva (${list.length} totalt)`;
+        }
+
+        if (list.length === 0) {
+          adminStockWatchesListContainer.innerHTML = `
+            <div style="background: #FBFBF9; border: 1px solid rgba(0,0,0,0.06); border-radius: 14px; padding: 16px; font-size: 0.85rem; color: #666666; text-align: center;">
+              Inga aktiva produktbevakningar just nu. När en besökare klickar på "Bevaka" på en slutsåld vara sparas den i Firebase och visas här.
+            </div>
+          `;
+          return;
+        }
+
+        adminStockWatchesListContainer.innerHTML = list
+          .map((w) => {
+            const isNotified = w.status === 'notified';
+            const dateStr = formatOrderDateSv(w.createdAt);
+            const mailHref = `mailto:${encodeURIComponent(w.email || '')}?subject=${encodeURIComponent(`"${w.productName || 'Vara'}" finns nu åter i lager hos Sagomaskan`)}`;
+            return `
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; background: #FBFBF9; border: 1px solid rgba(0,0,0,0.07); border-radius: 14px; padding: 12px 14px;">
+                <div style="min-width: 220px;">
+                  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <strong style="font-size: 0.9rem; color: #171717;">${escapeHtml(w.productName || 'Produkt')}</strong>
+                    <span style="font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; ${isNotified ? 'background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0;' : 'background:#fef3c7; color:#92400e; border:1px solid #fde68a;'}">
+                      ${isNotified ? '✓ Meddelad' : 'Väntar på lager'}
+                    </span>
+                  </div>
+                  <div style="font-size: 0.8rem; color: #525252; margin-top: 3px;">
+                    ${escapeHtml(w.name || 'Kund')} · <strong>${escapeHtml(w.email || '')}</strong>${dateStr ? ` · ${escapeHtml(dateStr)}` : ''}
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                  <a href="${mailHref}" class="account-secondary-btn" style="padding: 5px 10px; font-size: 0.75rem; text-decoration: none;">Mejla kund</a>
+                  <button type="button" class="account-secondary-btn" data-admin-toggle-watch="${escapeHtml(w.id)}" data-watch-next="${isNotified ? 'active' : 'notified'}" style="padding: 5px 10px; font-size: 0.75rem;">
+                    ${isNotified ? 'Återaktivera' : 'Markera meddelad'}
+                  </button>
+                  <button type="button" class="account-secondary-btn" data-admin-del-watch="${escapeHtml(w.id)}" style="padding: 5px 10px; font-size: 0.75rem; color: #b91c1c; border-color: rgba(185,28,28,0.2);">
+                    Ta bort
+                  </button>
+                </div>
+              </div>
+            `;
+          })
+          .join('');
+
+        adminStockWatchesListContainer.querySelectorAll('[data-admin-toggle-watch]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const wid = btn.getAttribute('data-admin-toggle-watch');
+            const nextStatus = btn.getAttribute('data-watch-next') === 'notified' ? 'notified' : 'active';
+            if (!wid || !window.SagomaskanFirebase?.updateStockWatchStatus) return;
+            await window.SagomaskanFirebase.updateStockWatchStatus(wid, nextStatus);
+            showToast(nextStatus === 'notified' ? 'Bevakning markerad som meddelad.' : 'Bevakning återaktiverad.', 'info');
+          });
+        });
+
+        adminStockWatchesListContainer.querySelectorAll('[data-admin-del-watch]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const wid = btn.getAttribute('data-admin-del-watch');
+            if (!wid || !window.SagomaskanFirebase?.deleteStockWatch) return;
+            await window.SagomaskanFirebase.deleteStockWatch(wid);
+            showToast('Produktbevakningen togs bort.', 'info');
+          });
+        });
+      }
+
+      function renderAdminNewsletterSubscribersSection() {
+        if (!adminNewsletterListContainer) return;
+        const list = Array.isArray(cloudNewsletterSubscribers)
+          ? cloudNewsletterSubscribers
+          : loadNewsletterSubscribers().map((s) => ({
+              id: s.email,
+              email: s.email,
+              source: 'footer',
+              subscribed: true,
+              subscribedAt: s.subscribedAt
+            }));
+        const activeSubs = list.filter((s) => s.subscribed !== false);
+        if (adminNewsletterCountBadge) {
+          adminNewsletterCountBadge.textContent = `${activeSubs.length} aktiva`;
+        }
+
+        if (list.length === 0) {
+          adminNewsletterListContainer.innerHTML = `
+            <div style="background: #FBFBF9; border: 1px solid rgba(0,0,0,0.06); border-radius: 14px; padding: 16px; font-size: 0.85rem; color: #666666; text-align: center;">
+              Inga nyhetsbrevsprenumeranter sparade ännu. Anmälningar via sidfoten eller Mina sidor sparas automatiskt i Firebase.
+            </div>
+          `;
+          return;
+        }
+
+        adminNewsletterListContainer.innerHTML = list
+          .map((sub) => {
+            const isSub = sub.subscribed !== false;
+            const dateStr = formatOrderDateSv(sub.subscribedAt || sub.updatedAt);
+            const srcLabel = sub.source === 'account' ? 'Kundkonto' : 'Sidfot';
+            return `
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; background: #FBFBF9; border: 1px solid rgba(0,0,0,0.07); border-radius: 12px; padding: 10px 14px;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <strong style="font-size: 0.88rem; color: #171717;">${escapeHtml(sub.email || '')}</strong>
+                    <span style="font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; ${isSub ? 'background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0;' : 'background:#f5f5f5; color:#525252;'}">
+                      ${isSub ? 'Aktiv' : 'Avslutad'}
+                    </span>
+                    <span style="font-size: 0.7rem; color: #666666;">via ${escapeHtml(srcLabel)}${dateStr ? ` · ${escapeHtml(dateStr)}` : ''}</span>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                  <button type="button" class="account-secondary-btn" data-admin-copy-nl-email="${escapeHtml(sub.email || '')}" style="padding: 4px 10px; font-size: 0.74rem;">Kopiera</button>
+                  <button type="button" class="account-secondary-btn" data-admin-del-nl="${escapeHtml(sub.id || '')}" style="padding: 4px 10px; font-size: 0.74rem; color: #b91c1c; border-color: rgba(185,28,28,0.2);">Ta bort</button>
+                </div>
+              </div>
+            `;
+          })
+          .join('');
+
+        adminNewsletterListContainer.querySelectorAll('[data-admin-copy-nl-email]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const em = btn.getAttribute('data-admin-copy-nl-email') || '';
+            if (em && await copyTextToClipboard(em)) {
+              showToast(`Kopierade ${em}`, 'success');
+            }
+          });
+        });
+
+        adminNewsletterListContainer.querySelectorAll('[data-admin-del-nl]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const sid = btn.getAttribute('data-admin-del-nl');
+            if (!sid || !window.SagomaskanFirebase?.deleteNewsletterSubscriber) return;
+            await window.SagomaskanFirebase.deleteNewsletterSubscriber(sid);
+            showToast('Prenumerant borttagen från nyhetsbrevslistan.', 'info');
+          });
+        });
+      }
+
+      if (adminCopyAllNewsletterEmailsBtn) {
+        adminCopyAllNewsletterEmailsBtn.addEventListener('click', async () => {
+          const list = Array.isArray(cloudNewsletterSubscribers) ? cloudNewsletterSubscribers : loadNewsletterSubscribers();
+          const emails = list
+            .filter((s) => s.subscribed !== false && s.email)
+            .map((s) => s.email)
+            .join(', ');
+          if (!emails) {
+            showToast('Det finns inga aktiva e-postadresser att kopiera.', 'warning');
+            return;
+          }
+          if (await copyTextToClipboard(emails)) {
+            showToast('Alla aktiva nyhetsbrevsprenumeranter har kopierats!', 'success');
+          }
+        });
       }
 
       // --- 1B. BANNER & STARTSIDA I ADMIN ---
@@ -22076,10 +22486,10 @@
       }
 
       if (newsletterForm && newsletterEmailInput) {
-        newsletterForm.addEventListener('submit', (e) => {
+        newsletterForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           const email = newsletterEmailInput.value.trim().toLowerCase();
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
           if (!email || !emailRegex.test(email)) {
             showToast('Vänligen ange en giltig e-postadress.', 'warning');
@@ -22090,23 +22500,23 @@
           const subscribers = loadNewsletterSubscribers();
           const alreadySubscribed = subscribers.some((sub) => sub.email === email);
 
-          if (alreadySubscribed) {
-            if (newsletterFeedback) {
-              newsletterFeedback.className = 'newsletter-feedback is-info';
-              newsletterFeedback.textContent = 'Den här e-postadressen prenumererar redan på vårt nyhetsbrev.';
-              newsletterFeedback.hidden = false;
-            }
-            showToast('Du prenumererar redan på nyhetsbrevet!', 'info');
-            newsletterEmailInput.value = '';
-            return;
+          const nowIso = new Date().toISOString();
+          if (!alreadySubscribed) {
+            subscribers.push({
+              email,
+              subscribedAt: nowIso
+            });
+            saveNewsletterSubscribers(subscribers);
           }
 
-          const nowIso = new Date().toISOString();
-          subscribers.push({
-            email,
-            subscribedAt: nowIso
-          });
-          saveNewsletterSubscribers(subscribers);
+          // Spara globalt i Firebase Firestore (newsletterSubscribers)
+          if (window.SagomaskanFirebase && typeof window.SagomaskanFirebase.saveNewsletterSubscriber === 'function') {
+            try {
+              await window.SagomaskanFirebase.saveNewsletterSubscriber(email, 'footer', true);
+            } catch (err) {
+              console.warn('Kunde inte spara nyhetsbrevsprenumerant i Firestore:', err);
+            }
+          }
 
           // Synka även med eventuellt kundkonto som har samma e-postadress
           currentCustomers = loadCustomers();
@@ -22116,6 +22526,17 @@
             currentCustomers[cIdx].newsletterUpdatedAt = nowIso;
             saveCustomers(currentCustomers);
             syncCustomerToCloud(currentCustomers[cIdx]);
+          }
+
+          if (alreadySubscribed) {
+            if (newsletterFeedback) {
+              newsletterFeedback.className = 'newsletter-feedback is-info';
+              newsletterFeedback.textContent = 'Den här e-postadressen prenumererar redan på vårt nyhetsbrev.';
+              newsletterFeedback.hidden = false;
+            }
+            showToast('Du prenumererar redan på nyhetsbrevet!', 'info');
+            newsletterEmailInput.value = '';
+            return;
           }
 
           if (newsletterFeedback) {
@@ -22326,6 +22747,7 @@
 
       window.applyCloudProducts = function(cloudProds) {
         if (!Array.isArray(cloudProds)) return;
+        hasLoadedCloudProducts = true;
         currentProducts = cloudProds.map((p) => {
           const imgs = getProductImages(p);
           return {
@@ -22421,6 +22843,159 @@
         }
         if (typeof updateAdminKpisAndBadges === 'function') {
           updateAdminKpisAndBadges();
+        }
+      };
+
+      window.applyCloudNewsletterSubscribers = function(cloudSubs) {
+        if (!Array.isArray(cloudSubs)) return;
+        cloudNewsletterSubscribers = cloudSubs;
+        const activeLocal = cloudSubs
+          .filter((s) => s && s.subscribed !== false && s.email)
+          .map((s) => ({ email: String(s.email).toLowerCase(), subscribedAt: s.subscribedAt || s.updatedAt }));
+        saveNewsletterSubscribers(activeLocal);
+        if (typeof renderAdminNewsletterSubscribersSection === 'function') {
+          renderAdminNewsletterSubscribersSection();
+        }
+      };
+
+      window.applyCloudStockWatches = function(cloudWatches) {
+        if (!Array.isArray(cloudWatches)) return;
+        cloudStockWatches = cloudWatches;
+        if (typeof renderAdminStockWatchesSection === 'function') {
+          renderAdminStockWatchesSection();
+        }
+      };
+
+      window.applyCloudCustomerProfile = function(cloudCust) {
+        if (!cloudCust || !cloudCust.id) return;
+        const cleanEmail = String(cloudCust.email || '').trim().toLowerCase();
+        const prevList = loadCustomers();
+        const existingLocal = prevList.find((c) => c && c.id === cloudCust.id) || {};
+        const mergedProfile = { ...existingLocal, ...cloudCust };
+        currentCustomers = prevList.filter((c) => {
+          if (!c) return false;
+          if (c.id === mergedProfile.id) return false;
+          if (cleanEmail && String(c.email || '').trim().toLowerCase() === cleanEmail && String(c.id).startsWith('cust_')) {
+            return false;
+          }
+          return true;
+        });
+        currentCustomers.push(mergedProfile);
+        saveCustomers(currentCustomers);
+        safeSetItem(ACTIVE_CUSTOMER_STORAGE_KEY, mergedProfile.id);
+
+        if (Array.isArray(mergedProfile.favorites)) {
+          saveGlobalFavorites(mergedProfile.favorites.map(String));
+        }
+
+        if (Array.isArray(mergedProfile.watchedProducts)) {
+          const nextWatched = mergedProfile.watchedProducts.map(String);
+          if (JSON.stringify(nextWatched) !== JSON.stringify(watchedProductIds)) {
+            watchedProductIds = nextWatched;
+            safeSetItem(WATCHED_PRODUCTS_STORAGE_KEY, JSON.stringify(watchedProductIds));
+          }
+        }
+
+        let cartOrPrefsChanged = false;
+        if (Array.isArray(mergedProfile.cart)) {
+          const cleanCloudCart = mergedProfile.cart
+            .filter((item) => item && item.productId && Number(item.quantity) > 0)
+            .map((item) => ({ productId: String(item.productId), quantity: Math.max(1, parseInt(item.quantity, 10) || 1) }));
+          if (JSON.stringify(cleanCloudCart) !== JSON.stringify(currentCart)) {
+            currentCart = cleanCloudCart;
+            saveCart(currentCart, true);
+            cartOrPrefsChanged = true;
+          }
+        }
+
+        if (mergedProfile.giftBoxSelection && typeof mergedProfile.giftBoxSelection === 'object') {
+          const nextType = ['none', 'standard', 'luxury'].includes(mergedProfile.giftBoxSelection.type)
+            ? mergedProfile.giftBoxSelection.type
+            : 'none';
+          const nextGreeting = typeof mergedProfile.giftBoxSelection.greeting === 'string'
+            ? mergedProfile.giftBoxSelection.greeting
+            : '';
+          if (
+            nextType !== currentGiftBoxSelection.type ||
+            nextGreeting !== currentGiftBoxSelection.greeting
+          ) {
+            setGiftBoxSelection(nextType, nextGreeting, { skipCartRender: true, skipCloudSync: true });
+            cartOrPrefsChanged = true;
+          }
+        }
+
+        if (typeof mergedProfile.appliedDiscountCode === 'string') {
+          const cloudCode = normalizeDiscountCode(mergedProfile.appliedDiscountCode);
+          if (cloudCode !== getAppliedDiscountCode()) {
+            setAppliedDiscountCode(cloudCode, true);
+            cartOrPrefsChanged = true;
+          }
+        }
+
+        if (cartOrPrefsChanged && typeof renderCart === 'function') {
+          renderCart();
+        }
+
+        updateAccountHeaderIndicators();
+        autofillCheckoutFormIfCustomer();
+        autofillContactFormIfCustomer();
+        if (typeof renderFeaturedProducts === 'function') renderFeaturedProducts();
+        if (typeof renderShopProducts === 'function') renderShopProducts();
+        if (accountView && !accountView.hidden && typeof renderAccountView === 'function') {
+          renderCustomerProfileDetails(mergedProfile);
+          renderCustomerFavorites(mergedProfile);
+          renderCustomerNewsletterPreferences(mergedProfile);
+          renderCustomerActivityHistory(mergedProfile);
+          renderCustomerOrders(mergedProfile);
+        }
+      };
+
+      window.applyCloudCustomerOrders = function(cloudOrders) {
+        if (!Array.isArray(cloudOrders)) return;
+        const existingList = loadOrders();
+        const mergedMap = new Map();
+        existingList.forEach((o) => {
+          if (o && o.id) mergedMap.set(String(o.id), o);
+        });
+        cloudOrders.forEach((o) => {
+          if (o && o.id) {
+            const prev = mergedMap.get(String(o.id)) || {};
+            mergedMap.set(String(o.id), { ...prev, ...o });
+          }
+        });
+        currentOrders = Array.from(mergedMap.values()).sort(
+          (a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+        );
+        window.currentOrders = currentOrders;
+        safeSetItem(ORDERS_STORAGE_KEY, JSON.stringify(currentOrders));
+
+        if (accountView && !accountView.hidden) {
+          const activeCust = getActiveCustomer();
+          if (activeCust && typeof renderCustomerOrders === 'function') {
+            renderCustomerOrders(activeCust);
+          }
+        }
+        if (lastConfirmedOrderId) {
+          const updatedOrder = currentOrders.find((o) => String(o.id) === String(lastConfirmedOrderId));
+          if (updatedOrder && typeof renderOrderConfirmationSummary === 'function') {
+            renderOrderConfirmationSummary(updatedOrder);
+          }
+        }
+      };
+
+      window.clearCloudCustomerSession = function() {
+        try {
+          if (localStorage.getItem(ACTIVE_CUSTOMER_STORAGE_KEY)) {
+            localStorage.removeItem(ACTIVE_CUSTOMER_STORAGE_KEY);
+          }
+        } catch (_) {}
+        updateAccountHeaderIndicators();
+        autofillCheckoutFormIfCustomer(true);
+        autofillContactFormIfCustomer(true);
+        if (typeof renderFeaturedProducts === 'function') renderFeaturedProducts();
+        if (typeof renderShopProducts === 'function') renderShopProducts();
+        if (accountView && !accountView.hidden) {
+          showHomeView();
         }
       };
     </script>

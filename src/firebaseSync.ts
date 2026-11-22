@@ -4,10 +4,14 @@ import {
   collection,
   doc,
   getDoc,
+  getDocs,
   getDocFromServer,
   setDoc,
   deleteDoc,
-  onSnapshot
+  query,
+  where,
+  onSnapshot,
+  runTransaction
 } from 'firebase/firestore';
 import {
   getStorage,
@@ -22,6 +26,13 @@ import {
   GoogleAuthProvider,
   signOut,
   onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updatePassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  sendPasswordResetEmail,
+  updateProfile,
   User
 } from 'firebase/auth';
 import firebaseConfig from '../firebase-applet-config.json';
@@ -64,6 +75,139 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   throw new Error(JSON.stringify(errInfo));
 }
 
+function mapFirebaseAuthError(err: any): Error {
+  const code = String(err?.code || '');
+  switch (code) {
+    case 'auth/operation-not-allowed':
+      return new Error(
+        'E-post- och lösenordsinloggning är ännu inte aktiverad i Firebase Console (Authentication → Sign-in method → Email/Password).'
+      );
+    case 'auth/email-already-in-use':
+      return new Error('Det finns redan ett konto registrerat med den här e-postadressen. Logga gärna in istället.');
+    case 'auth/invalid-email':
+      return new Error('Vänligen ange en giltig e-postadress.');
+    case 'auth/weak-password':
+      return new Error('Lösenordet måste innehålla minst 6 tecken.');
+    case 'auth/wrong-password':
+    case 'auth/user-not-found':
+    case 'auth/invalid-credential':
+      return new Error('Felaktig e-postadress eller lösenord. Kontrollera uppgifterna eller skapa ett nytt konto.');
+    case 'auth/too-many-requests':
+      return new Error('För många försök. Vänta en stund och försök igen.');
+    case 'auth/requires-recent-login':
+      return new Error('Av säkerhetsskäl behöver du logga ut och logga in igen innan du kan byta lösenord.');
+    case 'auth/network-request-failed':
+      return new Error('Kunde inte nå Firebase just nu. Kontrollera din internetuppkoppling.');
+    default:
+      return err instanceof Error ? err : new Error(String(err || 'Autentiseringsfel'));
+  }
+}
+
+function fnv1aHex(input: string): string {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}
+
+function makeNewsletterSubscriberId(email: string): string {
+  const cleanEmail = String(email || '').trim().toLowerCase();
+  return `sub_${fnv1aHex(cleanEmail)}`;
+}
+
+function sanitizeCartItems(rawCart: any): Array<{ productId: string; quantity: number }> {
+  if (!Array.isArray(rawCart)) return [];
+  const merged = new Map<string, number>();
+  rawCart.forEach((item: any) => {
+    if (!item || typeof item !== 'object') return;
+    const pid = String(item.productId || '').trim().replace(/[^a-zA-Z0-9_\-]/g, '').substring(0, 128);
+    const qty = Math.max(1, Math.min(99, Math.floor(Number(item.quantity) || 0)));
+    if (pid && qty > 0) {
+      merged.set(pid, Math.min(99, (merged.get(pid) || 0) + qty));
+    }
+  });
+  return Array.from(merged.entries())
+    .slice(0, 100)
+    .map(([productId, quantity]) => ({ productId, quantity }));
+}
+
+function sanitizeGiftBoxSelection(rawSel: any): { type: 'none' | 'standard' | 'luxury'; greeting: string } {
+  const rawType = String(rawSel?.type || 'none');
+  const type: 'none' | 'standard' | 'luxury' =
+    rawType === 'standard' || rawType === 'luxury' ? rawType : 'none';
+  const greeting = typeof rawSel?.greeting === 'string' ? rawSel.greeting.substring(0, 500) : '';
+  return { type, greeting };
+}
+
+function sanitizeWatchedProducts(rawList: any): string[] {
+  if (!Array.isArray(rawList)) return [];
+  return Array.from(
+    new Set(
+      rawList
+        .map((id: any) => String(id || '').trim().replace(/[^a-zA-Z0-9_\-]/g, '').substring(0, 128))
+        .filter(Boolean)
+    )
+  ).slice(0, 200);
+}
+
+function buildCleanCustomerDoc(customerId: string, customer: any): Record<string, any> | null {
+  const cleanId = String(customerId || '').trim().replace(/[^a-zA-Z0-9_\-]/g, '').substring(0, 128);
+  if (!cleanId) return null;
+  const cleanName = String(customer?.name || '').trim().substring(0, 120);
+  const cleanEmail = String(customer?.email || '').trim().toLowerCase().substring(0, 160);
+  if (cleanName.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(cleanEmail)) return null;
+
+  const nowIso = new Date().toISOString();
+  const rawFavs = Array.isArray(customer?.favorites)
+    ? Array.from(new Set(customer.favorites.map((id: any) => String(id).substring(0, 128)).filter(Boolean))).slice(0, 200)
+    : [];
+  const rawActivity = Array.isArray(customer?.activityLog)
+    ? customer.activityLog
+        .filter((entry: any) => entry && typeof entry === 'object')
+        .slice(0, 25)
+        .map((entry: any) => ({
+          label: String(entry.label || '').substring(0, 160),
+          timestamp: String(entry.timestamp || nowIso).substring(0, 64)
+        }))
+    : [];
+
+  const cleanDiscountCode = String(customer?.appliedDiscountCode || '')
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9_\-]/g, '')
+    .substring(0, 50);
+
+  const cleanCustomer: Record<string, any> = {
+    id: cleanId,
+    name: cleanName,
+    email: cleanEmail,
+    phone: String(customer?.phone || '').trim().substring(0, 40),
+    address: String(customer?.address || '').trim().substring(0, 200),
+    zip: String(customer?.zip || '').trim().substring(0, 20),
+    city: String(customer?.city || '').trim().substring(0, 100),
+    favorites: rawFavs,
+    favoritesCount: rawFavs.length,
+    newsletterSubscribed: Boolean(customer?.newsletterSubscribed),
+    watchedProducts: sanitizeWatchedProducts(customer?.watchedProducts),
+    cart: sanitizeCartItems(customer?.cart),
+    giftBoxSelection: sanitizeGiftBoxSelection(customer?.giftBoxSelection),
+    appliedDiscountCode: cleanDiscountCode,
+    createdAt: String(customer?.createdAt || nowIso).substring(0, 64),
+    lastLoginAt: String(customer?.lastLoginAt || customer?.updatedAt || nowIso).substring(0, 64),
+    updatedAt: String(customer?.updatedAt || nowIso).substring(0, 64),
+    activityLog: rawActivity
+  };
+  if (customer?.newsletterUpdatedAt) {
+    cleanCustomer.newsletterUpdatedAt = String(customer.newsletterUpdatedAt).substring(0, 64);
+  }
+  if (customer?.previousLoginAt) {
+    cleanCustomer.previousLoginAt = String(customer.previousLoginAt).substring(0, 64);
+  }
+  return cleanCustomer;
+}
+
 export function normalizeCloudOrder(raw: any) {
   if (!raw || typeof raw !== 'object') return raw;
   const statusMap: Record<string, string> = {
@@ -93,7 +237,7 @@ export function normalizeCloudOrder(raw: any) {
     status: normalizedStatus,
     customer,
     customerName: customer.name || 'Kund',
-    customerEmail: customer.email || 'kund@exempel.se',
+    customerEmail: (customer.email || 'kund@exempel.se').toLowerCase(),
     customerPhone: customer.phone,
     shippingAddress: customer.address,
     totalPrice,
@@ -140,6 +284,61 @@ declare global {
       deleteMessage: (messageId: string) => Promise<void>;
       saveCustomer: (customer: any) => Promise<void>;
       deleteCustomer: (customerId: string) => Promise<void>;
+      registerCustomer: (payload: {
+        name: string;
+        email: string;
+        password: string;
+        phone?: string;
+        address?: string;
+        zip?: string;
+        city?: string;
+        favorites?: string[];
+        watchedProducts?: string[];
+        cart?: Array<{ productId: string; quantity: number }>;
+        giftBoxSelection?: { type: string; greeting: string };
+        appliedDiscountCode?: string;
+        newsletterSubscribed?: boolean;
+        activityLog?: Array<{ label: string; timestamp: string }>;
+        createdAt?: string;
+      }) => Promise<Record<string, any>>;
+      signInCustomer: (
+        email: string,
+        password: string,
+        localState?:
+          | string[]
+          | {
+              favorites?: string[];
+              watchedProducts?: string[];
+              cart?: Array<{ productId: string; quantity: number }>;
+              giftBoxSelection?: { type: string; greeting: string };
+              appliedDiscountCode?: string;
+            }
+      ) => Promise<{ customer: Record<string, any>; orders: any[] }>;
+      signOutCustomer: () => Promise<void>;
+      changeCustomerPassword: (currentPassword: string, newPassword: string) => Promise<void>;
+      sendCustomerPasswordReset: (email: string) => Promise<void>;
+      getCurrentCustomerUid: () => string | null;
+      syncCustomerShoppingState: (state: {
+        cart?: Array<{ productId: string; quantity: number }>;
+        giftBoxSelection?: { type: string; greeting: string };
+        appliedDiscountCode?: string;
+        watchedProducts?: string[];
+      }) => Promise<void>;
+      allocateNextOrderNumber: (minBaseline?: number) => Promise<number>;
+      saveNewsletterSubscriber: (
+        email: string,
+        source?: string,
+        subscribed?: boolean
+      ) => Promise<Record<string, any> | null>;
+      deleteNewsletterSubscriber: (subscriberId: string) => Promise<void>;
+      saveStockWatch: (payload: {
+        productId: string;
+        productName: string;
+        name?: string;
+        email: string;
+      }) => Promise<Record<string, any> | null>;
+      updateStockWatchStatus: (watchId: string, status: 'active' | 'notified') => Promise<void>;
+      deleteStockWatch: (watchId: string) => Promise<void>;
       saveDiscount: (discount: any) => Promise<void>;
       deleteDiscount: (discountCode: string) => Promise<void>;
       saveStoreSettings: (settings: any) => Promise<void>;
@@ -154,6 +353,40 @@ declare global {
   }
 }
 
+async function fetchCustomerOrdersFromFirestore(uid: string, email?: string | null): Promise<any[]> {
+  const resultsMap = new Map<string, any>();
+  try {
+    const qByUid = query(collection(db, 'orders'), where('customerId', '==', uid));
+    const snapUid = await getDocs(qByUid);
+    snapUid.forEach((d) => {
+      const normalized = normalizeCloudOrder(d.data());
+      if (normalized && normalized.id) {
+        resultsMap.set(String(normalized.id), normalized);
+      }
+    });
+  } catch (err) {
+    console.warn('Kunde inte hämta kundordrar via UID:', err);
+  }
+
+  const cleanEmail = String(email || '').trim().toLowerCase();
+  if (cleanEmail && auth.currentUser?.emailVerified) {
+    try {
+      const qByEmail = query(collection(db, 'orders'), where('customerEmail', '==', cleanEmail));
+      const snapEmail = await getDocs(qByEmail);
+      snapEmail.forEach((d) => {
+        const normalized = normalizeCloudOrder(d.data());
+        if (normalized && normalized.id) {
+          resultsMap.set(String(normalized.id), normalized);
+        }
+      });
+    } catch (_) {}
+  }
+
+  return Array.from(resultsMap.values()).sort(
+    (a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+  );
+}
+
 // Skapa Firebase-hjälpare
 const SagomaskanFirebase = {
   db,
@@ -164,7 +397,14 @@ const SagomaskanFirebase = {
 
   isCurrentUserAdmin(): boolean {
     const cur = auth.currentUser;
-    return Boolean(cur && cur.email && cur.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+    return Boolean(cur && cur.email && cur.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() && cur.emailVerified !== false);
+  },
+
+  getCurrentCustomerUid(): string | null {
+    const cur = auth.currentUser;
+    if (!cur) return null;
+    if (SagomaskanFirebase.isCurrentUserAdmin()) return null;
+    return cur.uid;
   },
 
   async getAdminIdToken(): Promise<string | null> {
@@ -193,6 +433,282 @@ const SagomaskanFirebase = {
   async signOutAdmin(): Promise<void> {
     await signOut(auth);
     console.log('Admin utloggad');
+  },
+
+  async registerCustomer(payload: {
+    name: string;
+    email: string;
+    password: string;
+    phone?: string;
+    address?: string;
+    zip?: string;
+    city?: string;
+    favorites?: string[];
+    watchedProducts?: string[];
+    cart?: Array<{ productId: string; quantity: number }>;
+    giftBoxSelection?: { type: string; greeting: string };
+    appliedDiscountCode?: string;
+    newsletterSubscribed?: boolean;
+    activityLog?: Array<{ label: string; timestamp: string }>;
+    createdAt?: string;
+  }): Promise<Record<string, any>> {
+    const cleanName = String(payload?.name || '').trim().substring(0, 120);
+    const cleanEmail = String(payload?.email || '').trim().toLowerCase().substring(0, 160);
+    const password = String(payload?.password || '');
+
+    if (cleanName.length < 2) {
+      throw new Error('Vänligen ange både för- och efternamn.');
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(cleanEmail)) {
+      throw new Error('Vänligen ange en giltig e-postadress.');
+    }
+    if (password.length < 6) {
+      throw new Error('Lösenordet måste innehålla minst 6 tecken.');
+    }
+
+    authFlowInProgress = true;
+    try {
+    let userCredential;
+    try {
+      userCredential = await createUserWithEmailAndPassword(auth, cleanEmail, password);
+    } catch (err) {
+      throw mapFirebaseAuthError(err);
+    }
+
+    const user = userCredential.user;
+    try {
+      await updateProfile(user, { displayName: cleanName });
+    } catch (_) {}
+
+    const nowIso = new Date().toISOString();
+    const customerDoc = buildCleanCustomerDoc(user.uid, {
+      id: user.uid,
+      name: cleanName,
+      email: cleanEmail,
+      phone: payload.phone || '',
+      address: payload.address || '',
+      zip: payload.zip || '',
+      city: payload.city || '',
+      favorites: Array.isArray(payload.favorites) ? payload.favorites : [],
+      watchedProducts: Array.isArray(payload.watchedProducts) ? payload.watchedProducts : [],
+      cart: Array.isArray(payload.cart) ? payload.cart : [],
+      giftBoxSelection: payload.giftBoxSelection || { type: 'none', greeting: '' },
+      appliedDiscountCode: payload.appliedDiscountCode || '',
+      newsletterSubscribed: Boolean(payload.newsletterSubscribed),
+      createdAt: payload.createdAt || nowIso,
+      lastLoginAt: nowIso,
+      updatedAt: nowIso,
+      activityLog:
+        Array.isArray(payload.activityLog) && payload.activityLog.length > 0
+          ? payload.activityLog
+          : [
+              { label: 'Första inloggning genomförd', timestamp: nowIso },
+              { label: 'Konto skapat hos Sagomaskan', timestamp: nowIso }
+            ]
+    });
+
+    if (!customerDoc) {
+      throw new Error('Kunde inte skapa giltig kundprofil.');
+    }
+
+    const path = `customers/${user.uid}`;
+    try {
+      await setDoc(doc(db, 'customers', user.uid), customerDoc);
+      console.log('✅ Kundkonto skapat i Firebase Auth & Firestore:', user.uid);
+    } catch (err) {
+      handleFirestoreError(err, OperationType.CREATE, path);
+    }
+
+    startCustomerListeners(user.uid, cleanEmail);
+    return customerDoc;
+    } finally {
+      authFlowInProgress = false;
+    }
+  },
+
+  async signInCustomer(
+    email: string,
+    password: string,
+    localState:
+      | string[]
+      | {
+          favorites?: string[];
+          watchedProducts?: string[];
+          cart?: Array<{ productId: string; quantity: number }>;
+          giftBoxSelection?: { type: string; greeting: string };
+          appliedDiscountCode?: string;
+        } = []
+  ): Promise<{ customer: Record<string, any>; orders: any[] }> {
+    const cleanEmail = String(email || '').trim().toLowerCase().substring(0, 160);
+    if (!cleanEmail || !password) {
+      throw new Error('Vänligen fyll i både e-postadress och lösenord.');
+    }
+
+    authFlowInProgress = true;
+    try {
+    let userCredential;
+    try {
+      userCredential = await signInWithEmailAndPassword(auth, cleanEmail, password);
+    } catch (err) {
+      throw mapFirebaseAuthError(err);
+    }
+
+    const user = userCredential.user;
+    const path = `customers/${user.uid}`;
+    const nowIso = new Date().toISOString();
+
+    let existingProfile: Record<string, any> | null = null;
+    try {
+      let snap;
+      try {
+        snap = await getDocFromServer(doc(db, 'customers', user.uid));
+      } catch (_) {
+        snap = await getDoc(doc(db, 'customers', user.uid));
+      }
+      if (snap.exists()) {
+        existingProfile = snap.data() as Record<string, any>;
+      }
+    } catch (err) {
+      handleFirestoreError(err, OperationType.GET, path);
+    }
+
+    const stateObj = Array.isArray(localState) ? { favorites: localState } : (localState || {});
+    const localFavorites = Array.isArray(stateObj.favorites) ? stateObj.favorites : [];
+    const localWatched = Array.isArray(stateObj.watchedProducts) ? stateObj.watchedProducts : [];
+    const localCart = sanitizeCartItems(stateObj.cart);
+    const localGiftBox = sanitizeGiftBoxSelection(stateObj.giftBoxSelection);
+    const localDiscount = String(stateObj.appliedDiscountCode || '').trim().toUpperCase();
+
+    const prevFavs = Array.isArray(existingProfile?.favorites) ? existingProfile!.favorites.map(String) : [];
+    const mergedFavs = Array.from(new Set([...prevFavs, ...localFavorites.map(String)])).slice(0, 200);
+
+    const prevWatched = sanitizeWatchedProducts(existingProfile?.watchedProducts);
+    const mergedWatched = Array.from(new Set([...prevWatched, ...sanitizeWatchedProducts(localWatched)])).slice(0, 200);
+
+    const cloudCart = sanitizeCartItems(existingProfile?.cart);
+    const cartMap = new Map<string, number>();
+    cloudCart.forEach((item) => cartMap.set(item.productId, item.quantity));
+    localCart.forEach((item) => {
+      cartMap.set(item.productId, Math.max(cartMap.get(item.productId) || 0, item.quantity));
+    });
+    const mergedCart = Array.from(cartMap.entries())
+      .slice(0, 100)
+      .map(([productId, quantity]) => ({ productId, quantity }));
+
+    const cloudGiftBox = sanitizeGiftBoxSelection(existingProfile?.giftBoxSelection);
+    const mergedGiftBox = cloudGiftBox.type !== 'none' ? cloudGiftBox : localGiftBox;
+
+    const mergedDiscount =
+      String(existingProfile?.appliedDiscountCode || '').trim().toUpperCase() || localDiscount;
+
+    const prevLog = Array.isArray(existingProfile?.activityLog) ? existingProfile!.activityLog : [];
+    const updatedLog = [{ label: 'Inloggning genomförd', timestamp: nowIso }, ...prevLog].slice(0, 25);
+
+    const fallbackName =
+      existingProfile?.name ||
+      user.displayName ||
+      cleanEmail.split('@')[0] ||
+      'Kund';
+
+    const mergedCustomer = buildCleanCustomerDoc(user.uid, {
+      ...(existingProfile || {}),
+      id: user.uid,
+      name: fallbackName.length >= 2 ? fallbackName : 'Sagomaskan Kund',
+      email: (existingProfile?.email || user.email || cleanEmail).toLowerCase(),
+      favorites: mergedFavs,
+      watchedProducts: mergedWatched,
+      cart: mergedCart,
+      giftBoxSelection: mergedGiftBox,
+      appliedDiscountCode: mergedDiscount,
+      createdAt: existingProfile?.createdAt || nowIso,
+      previousLoginAt: existingProfile?.lastLoginAt || existingProfile?.createdAt || nowIso,
+      lastLoginAt: nowIso,
+      updatedAt: nowIso,
+      activityLog: updatedLog
+    });
+
+    if (!mergedCustomer) {
+      throw new Error('Kunde inte läsa kundprofilen från Firebase.');
+    }
+
+    try {
+      await setDoc(doc(db, 'customers', user.uid), mergedCustomer);
+      console.log('✅ Kund inloggad och profil synkad från Firebase:', user.uid);
+    } catch (err) {
+      handleFirestoreError(err, existingProfile ? OperationType.UPDATE : OperationType.CREATE, path);
+    }
+
+    const orders = await fetchCustomerOrdersFromFirestore(user.uid, user.email || cleanEmail);
+    startCustomerListeners(user.uid, user.email || cleanEmail);
+
+    return { customer: mergedCustomer, orders };
+    } finally {
+      authFlowInProgress = false;
+    }
+  },
+
+  async signOutCustomer(): Promise<void> {
+    stopCustomerListeners();
+    try {
+      await signOut(auth);
+      console.log('Kund utloggad från Firebase Auth');
+    } catch (err) {
+      console.warn('Utloggning från Firebase Auth misslyckades:', err);
+    }
+  },
+
+  async changeCustomerPassword(currentPassword: string, newPassword: string): Promise<void> {
+    const user = auth.currentUser;
+    if (!user || !user.email) {
+      throw new Error('Du behöver vara inloggad för att byta lösenord.');
+    }
+    if (!currentPassword || !newPassword) {
+      throw new Error('Vänligen fyll i både nuvarande och nytt lösenord.');
+    }
+    if (newPassword.length < 6) {
+      throw new Error('Det nya lösenordet måste vara minst 6 tecken långt.');
+    }
+
+    try {
+      const credential = EmailAuthProvider.credential(user.email, currentPassword);
+      await reauthenticateWithCredential(user, credential);
+      await updatePassword(user, newPassword);
+    } catch (err) {
+      throw mapFirebaseAuthError(err);
+    }
+
+    // Uppdatera aktivitetslogg i Firestore
+    const path = `customers/${user.uid}`;
+    try {
+      const snap = await getDoc(doc(db, 'customers', user.uid));
+      if (snap.exists()) {
+        const data = snap.data();
+        const nowIso = new Date().toISOString();
+        const prevLog = Array.isArray(data.activityLog) ? data.activityLog : [];
+        const nextDoc = buildCleanCustomerDoc(user.uid, {
+          ...data,
+          updatedAt: nowIso,
+          activityLog: [{ label: 'Lösenord uppdaterat', timestamp: nowIso }, ...prevLog].slice(0, 25)
+        });
+        if (nextDoc) {
+          await setDoc(doc(db, 'customers', user.uid), nextDoc);
+        }
+      }
+    } catch (err) {
+      console.warn('Lösenord uppdaterat i Auth, men kunde inte logga i Firestore:', err);
+    }
+  },
+
+  async sendCustomerPasswordReset(email: string): Promise<void> {
+    const cleanEmail = String(email || '').trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(cleanEmail)) {
+      throw new Error('Vänligen ange en giltig e-postadress.');
+    }
+    try {
+      await sendPasswordResetEmail(auth, cleanEmail);
+    } catch (err) {
+      throw mapFirebaseAuthError(err);
+    }
   },
 
   async uploadProductImage(file: File | Blob, originalName?: string): Promise<string> {
@@ -307,7 +823,6 @@ const SagomaskanFirebase = {
     if (!productId) return;
     const path = `products/${productId}`;
     try {
-      // 1. Samla in alla bild-URL:er för produkten
       let urlsToDelete: string[] = Array.isArray(imageUrls) ? [...imageUrls] : [];
       try {
         const snap = await getDocFromServer(doc(db, 'products', String(productId)));
@@ -322,13 +837,11 @@ const SagomaskanFirebase = {
         }
       } catch (_) {}
 
-      // 2. Radera bilder ur Firebase Storage
       const uniqueUrls = Array.from(new Set(urlsToDelete.filter(Boolean)));
       for (const imgUrl of uniqueUrls) {
         await SagomaskanFirebase.deleteProductImageFromStorage(imgUrl);
       }
 
-      // 3. Radera produktdokumentet ur Firestore
       await deleteDoc(doc(db, 'products', String(productId)));
       console.log('✅ Produkt och dess bilder borttagna ur Firebase:', productId);
     } catch (err) {
@@ -360,7 +873,7 @@ const SagomaskanFirebase = {
     try {
       const custObj = order.customer && typeof order.customer === 'object' ? order.customer : {};
       const customerName = String(custObj.name || order.customerName || '').trim().substring(0, 120);
-      const customerEmail = String(custObj.email || order.customerEmail || '').trim().substring(0, 160);
+      const customerEmail = String(custObj.email || order.customerEmail || '').trim().toLowerCase().substring(0, 160);
       const customerPhone = String(custObj.phone || order.customerPhone || '').trim().substring(0, 40);
       const shippingAddress = String(custObj.address || order.shippingAddress || '').trim().substring(0, 300);
       const customerMessage = String(custObj.message || order.customerMessage || '').trim().substring(0, 1000);
@@ -375,10 +888,16 @@ const SagomaskanFirebase = {
       };
       const status = statusMap[rawStatus] || rawStatus;
 
+      const curUser = auth.currentUser;
+      const isAdm = SagomaskanFirebase.isCurrentUserAdmin();
+      const resolvedCustomerId = isAdm
+        ? (order.customerId ? String(order.customerId) : null)
+        : (curUser ? curUser.uid : null);
+
       const cleanOrder: any = {
         id: String(order.id),
         orderNumber: String(order.orderNumber || order.id),
-        customerId: order.customerId ? String(order.customerId) : null,
+        customerId: resolvedCustomerId,
         customerName: customerName || 'Kund',
         customerEmail: customerEmail || 'kund@exempel.se',
         customerPhone,
@@ -450,23 +969,25 @@ const SagomaskanFirebase = {
   },
 
   async syncCustomerOrdersFromCloud(localOrders: any[]): Promise<any[]> {
-    if (!Array.isArray(localOrders) || localOrders.length === 0) return localOrders;
+    const curUser = auth.currentUser;
+    if (!curUser) return Array.isArray(localOrders) ? localOrders : [];
     try {
-      const updated = await Promise.all(
-        localOrders.map(async (ord) => {
-          if (!ord || !ord.id) return ord;
-          try {
-            const snap = await getDoc(doc(db, 'orders', String(ord.id)));
-            if (snap.exists()) {
-              return normalizeCloudOrder({ ...ord, ...snap.data() });
-            }
-          } catch (_) {}
-          return ord;
-        })
+      const cloudOrders = await fetchCustomerOrdersFromFirestore(curUser.uid, curUser.email);
+      const mergedMap = new Map<string, any>();
+      (Array.isArray(localOrders) ? localOrders : []).forEach((ord) => {
+        if (ord && ord.id) mergedMap.set(String(ord.id), ord);
+      });
+      cloudOrders.forEach((ord) => {
+        if (ord && ord.id) {
+          const prev = mergedMap.get(String(ord.id)) || {};
+          mergedMap.set(String(ord.id), normalizeCloudOrder({ ...prev, ...ord }));
+        }
+      });
+      return Array.from(mergedMap.values()).sort(
+        (a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
       );
-      return updated;
     } catch (_) {
-      return localOrders;
+      return Array.isArray(localOrders) ? localOrders : [];
     }
   },
 
@@ -526,51 +1047,18 @@ const SagomaskanFirebase = {
 
   async saveCustomer(customer: any) {
     if (!customer || !customer.id) return;
+    const curUser = auth.currentUser;
     const cleanId = String(customer.id).trim().replace(/[^a-zA-Z0-9_\-]/g, '').substring(0, 128);
     if (!cleanId) return;
-    const cleanName = String(customer.name || '').trim().substring(0, 120);
-    const cleanEmail = String(customer.email || '').trim().toLowerCase().substring(0, 160);
-    if (cleanName.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(cleanEmail)) return;
+    if (!curUser || (curUser.uid !== cleanId && !SagomaskanFirebase.isCurrentUserAdmin())) {
+      return;
+    }
+
+    const cleanCustomer = buildCleanCustomerDoc(cleanId, customer);
+    if (!cleanCustomer) return;
 
     const path = `customers/${cleanId}`;
     try {
-      const nowIso = new Date().toISOString();
-      const rawFavs = Array.isArray(customer.favorites)
-        ? customer.favorites.map((id: any) => String(id).substring(0, 128)).filter(Boolean).slice(0, 200)
-        : [];
-      const rawActivity = Array.isArray(customer.activityLog)
-        ? customer.activityLog
-            .filter((entry: any) => entry && typeof entry === 'object')
-            .slice(0, 25)
-            .map((entry: any) => ({
-              label: String(entry.label || '').substring(0, 160),
-              timestamp: String(entry.timestamp || nowIso).substring(0, 64)
-            }))
-        : [];
-
-      const cleanCustomer: Record<string, any> = {
-        id: cleanId,
-        name: cleanName,
-        email: cleanEmail,
-        phone: String(customer.phone || '').trim().substring(0, 40),
-        address: String(customer.address || '').trim().substring(0, 200),
-        zip: String(customer.zip || '').trim().substring(0, 20),
-        city: String(customer.city || '').trim().substring(0, 100),
-        favorites: rawFavs,
-        favoritesCount: rawFavs.length,
-        newsletterSubscribed: Boolean(customer.newsletterSubscribed),
-        createdAt: String(customer.createdAt || nowIso).substring(0, 64),
-        lastLoginAt: String(customer.lastLoginAt || customer.updatedAt || nowIso).substring(0, 64),
-        updatedAt: String(customer.updatedAt || nowIso).substring(0, 64),
-        activityLog: rawActivity
-      };
-      if (customer.newsletterUpdatedAt) {
-        cleanCustomer.newsletterUpdatedAt = String(customer.newsletterUpdatedAt).substring(0, 64);
-      }
-      if (customer.previousLoginAt) {
-        cleanCustomer.previousLoginAt = String(customer.previousLoginAt).substring(0, 64);
-      }
-
       await setDoc(doc(db, 'customers', cleanId), cleanCustomer);
       console.log('✅ Kundkonto sparat i Firestore:', cleanId);
     } catch (err) {
@@ -691,15 +1179,254 @@ const SagomaskanFirebase = {
     } catch (err) {
       handleFirestoreError(err, OperationType.WRITE, path);
     }
+  },
+
+  async syncCustomerShoppingState(state: {
+    cart?: Array<{ productId: string; quantity: number }>;
+    giftBoxSelection?: { type: string; greeting: string };
+    appliedDiscountCode?: string;
+    watchedProducts?: string[];
+  }): Promise<void> {
+    const uid = SagomaskanFirebase.getCurrentCustomerUid();
+    if (!uid || !state || typeof state !== 'object') return;
+    const path = `customers/${uid}`;
+    const patch: Record<string, any> = {
+      updatedAt: new Date().toISOString()
+    };
+    if (state.cart !== undefined) {
+      patch.cart = sanitizeCartItems(state.cart);
+    }
+    if (state.giftBoxSelection !== undefined) {
+      patch.giftBoxSelection = sanitizeGiftBoxSelection(state.giftBoxSelection);
+    }
+    if (state.appliedDiscountCode !== undefined) {
+      patch.appliedDiscountCode = String(state.appliedDiscountCode || '')
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9_\-]/g, '')
+        .substring(0, 50);
+    }
+    if (state.watchedProducts !== undefined) {
+      patch.watchedProducts = sanitizeWatchedProducts(state.watchedProducts);
+    }
+    try {
+      await setDoc(doc(db, 'customers', uid), patch, { merge: true });
+    } catch (err) {
+      handleFirestoreError(err, OperationType.UPDATE, path);
+    }
+  },
+
+  async allocateNextOrderNumber(minBaseline = 1000): Promise<number> {
+    const path = 'counters/orders';
+    const counterRef = doc(db, 'counters', 'orders');
+    try {
+      const nextNum = await runTransaction(db, async (tx) => {
+        const snap = await tx.get(counterRef);
+        const nowIso = new Date().toISOString();
+        if (!snap.exists()) {
+          const initialNext = Math.min(9999999, Math.max(1001, Math.floor(Number(minBaseline) || 1000) + 1));
+          tx.set(counterRef, { nextNumber: initialNext, updatedAt: nowIso });
+          return initialNext;
+        }
+        const currentVal = Math.max(1000, Math.floor(Number(snap.data()?.nextNumber) || 1000));
+        const incremented = Math.min(9999999, currentVal + 1);
+        tx.set(counterRef, { nextNumber: incremented, updatedAt: nowIso });
+        return incremented;
+      });
+      console.log('✅ Globalt ordernummer allokerat i Firebase:', nextNum);
+      return nextNum;
+    } catch (err) {
+      handleFirestoreError(err, OperationType.WRITE, path);
+      throw err;
+    }
+  },
+
+  async saveNewsletterSubscriber(
+    email: string,
+    source = 'footer',
+    subscribed = true
+  ): Promise<Record<string, any> | null> {
+    const cleanEmail = String(email || '').trim().toLowerCase().substring(0, 160);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(cleanEmail)) return null;
+    const subId = makeNewsletterSubscriberId(cleanEmail);
+    const path = `newsletterSubscribers/${subId}`;
+    const nowIso = new Date().toISOString();
+    const docData = {
+      id: subId,
+      email: cleanEmail,
+      source: String(source || 'footer').trim().substring(0, 40) || 'footer',
+      subscribed: Boolean(subscribed),
+      subscribedAt: nowIso,
+      updatedAt: nowIso
+    };
+    try {
+      await setDoc(doc(db, 'newsletterSubscribers', subId), docData);
+      console.log('✅ Nyhetsbrevsprenumerant sparad i Firestore:', subId);
+      return docData;
+    } catch (err) {
+      handleFirestoreError(err, OperationType.WRITE, path);
+      return null;
+    }
+  },
+
+  async deleteNewsletterSubscriber(subscriberId: string): Promise<void> {
+    const cleanId = String(subscriberId || '').trim().replace(/[^a-zA-Z0-9_\-]/g, '').substring(0, 128);
+    if (!cleanId) return;
+    const path = `newsletterSubscribers/${cleanId}`;
+    try {
+      await deleteDoc(doc(db, 'newsletterSubscribers', cleanId));
+      console.log('Nyhetsbrevsprenumerant borttagen ur Firestore:', cleanId);
+    } catch (err) {
+      handleFirestoreError(err, OperationType.DELETE, path);
+    }
+  },
+
+  async saveStockWatch(payload: {
+    productId: string;
+    productName: string;
+    name?: string;
+    email: string;
+  }): Promise<Record<string, any> | null> {
+    const cleanProdId = String(payload?.productId || '').trim().replace(/[^a-zA-Z0-9_\-]/g, '').substring(0, 128);
+    const cleanEmail = String(payload?.email || '').trim().toLowerCase().substring(0, 160);
+    if (!cleanProdId || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(cleanEmail)) return null;
+
+    const watchId = `watch_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const path = `stockWatches/${watchId}`;
+    const nowIso = new Date().toISOString();
+    const curUid = SagomaskanFirebase.getCurrentCustomerUid();
+    const docData = {
+      id: watchId,
+      productId: cleanProdId,
+      productName: String(payload?.productName || 'Produkt').trim().substring(0, 150) || 'Produkt',
+      customerId: curUid || null,
+      name: String(payload?.name || 'Kund').trim().substring(0, 100) || 'Kund',
+      email: cleanEmail,
+      status: 'active',
+      createdAt: nowIso,
+      updatedAt: nowIso
+    };
+    try {
+      await setDoc(doc(db, 'stockWatches', watchId), docData);
+      console.log('✅ Produktbevakning sparad i Firestore:', watchId);
+      return docData;
+    } catch (err) {
+      handleFirestoreError(err, OperationType.CREATE, path);
+      return null;
+    }
+  },
+
+  async updateStockWatchStatus(watchId: string, status: 'active' | 'notified'): Promise<void> {
+    const cleanId = String(watchId || '').trim().replace(/[^a-zA-Z0-9_\-]/g, '').substring(0, 128);
+    if (!cleanId) return;
+    const cleanStatus = status === 'notified' ? 'notified' : 'active';
+    const path = `stockWatches/${cleanId}`;
+    try {
+      await setDoc(
+        doc(db, 'stockWatches', cleanId),
+        { status: cleanStatus, updatedAt: new Date().toISOString() },
+        { merge: true }
+      );
+    } catch (err) {
+      handleFirestoreError(err, OperationType.UPDATE, path);
+    }
+  },
+
+  async deleteStockWatch(watchId: string): Promise<void> {
+    const cleanId = String(watchId || '').trim().replace(/[^a-zA-Z0-9_\-]/g, '').substring(0, 128);
+    if (!cleanId) return;
+    const path = `stockWatches/${cleanId}`;
+    try {
+      await deleteDoc(doc(db, 'stockWatches', cleanId));
+    } catch (err) {
+      handleFirestoreError(err, OperationType.DELETE, path);
+    }
   }
 };
 
 window.SagomaskanFirebase = SagomaskanFirebase;
 
-// Prenumerationshanterare för skyddade admin-lyssnare (Ordrar, Meddelanden & Kunder)
+// Prenumerationshanterare för skyddade admin-lyssnare (Ordrar, Meddelanden, Kunder, Nyhetsbrev & Produktbevakningar)
 let unsubscribeOrders: (() => void) | null = null;
 let unsubscribeMessages: (() => void) | null = null;
 let unsubscribeCustomers: (() => void) | null = null;
+let unsubscribeNewsletterSubscribers: (() => void) | null = null;
+let unsubscribeStockWatches: (() => void) | null = null;
+
+// Prenumerationshanterare för inloggad kunds egen profil & ordrar
+let unsubscribeCustomerProfile: (() => void) | null = null;
+let unsubscribeCustomerOrders: (() => void) | null = null;
+let activeCustomerListenerUid: string | null = null;
+let authFlowInProgress = false;
+
+function startCustomerListeners(uid: string, email?: string | null) {
+  if (!uid) return;
+  if (activeCustomerListenerUid === uid && unsubscribeCustomerProfile) return;
+  stopCustomerListeners();
+  activeCustomerListenerUid = uid;
+  const win = window as any;
+
+  try {
+    unsubscribeCustomerProfile = onSnapshot(
+      doc(db, 'customers', uid),
+      (snap) => {
+        if (snap.exists()) {
+          const data = snap.data();
+          if (win.applyCloudCustomerProfile && typeof win.applyCloudCustomerProfile === 'function') {
+            win.applyCloudCustomerProfile(data);
+          }
+        }
+      },
+      (error) => {
+        handleFirestoreError(error, OperationType.GET, `customers/${uid}`);
+      }
+    );
+  } catch (err) {
+    console.warn('Kunde inte starta kundprofils-lyssnare:', err);
+  }
+
+  try {
+    const qOrders = query(collection(db, 'orders'), where('customerId', '==', uid));
+    unsubscribeCustomerOrders = onSnapshot(
+      qOrders,
+      (snapshot) => {
+        const custOrders: any[] = [];
+        snapshot.forEach((d) => {
+          custOrders.push(normalizeCloudOrder(d.data()));
+        });
+        custOrders.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+        if (win.applyCloudCustomerOrders && typeof win.applyCloudCustomerOrders === 'function') {
+          win.applyCloudCustomerOrders(custOrders);
+        }
+      },
+      (error) => {
+        handleFirestoreError(error, OperationType.GET, 'orders');
+      }
+    );
+  } catch (err) {
+    console.warn('Kunde inte starta kundorder-lyssnare:', err);
+  }
+
+  if (email && auth.currentUser?.emailVerified) {
+    fetchCustomerOrdersFromFirestore(uid, email).then((allOrders) => {
+      if (win.applyCloudCustomerOrders && typeof win.applyCloudCustomerOrders === 'function') {
+        win.applyCloudCustomerOrders(allOrders);
+      }
+    }).catch(() => {});
+  }
+}
+
+function stopCustomerListeners() {
+  activeCustomerListenerUid = null;
+  if (unsubscribeCustomerProfile) {
+    unsubscribeCustomerProfile();
+    unsubscribeCustomerProfile = null;
+  }
+  if (unsubscribeCustomerOrders) {
+    unsubscribeCustomerOrders();
+    unsubscribeCustomerOrders = null;
+  }
+}
 
 function startAdminListeners() {
   const win = window as any;
@@ -766,6 +1493,47 @@ function startAdminListeners() {
       console.warn('Fel vid kundlyssnare:', err);
     }
   }
+  // 4. Synka Nyhetsbrevsprenumeranter i realtid (endast för inloggad admin)
+  if (!unsubscribeNewsletterSubscribers) {
+    try {
+      unsubscribeNewsletterSubscribers = onSnapshot(collection(db, 'newsletterSubscribers'), (snapshot) => {
+        const list: any[] = [];
+        snapshot.forEach((d) => {
+          list.push(d.data());
+        });
+        list.sort((a, b) => new Date(b.updatedAt || b.subscribedAt || 0).getTime() - new Date(a.updatedAt || a.subscribedAt || 0).getTime());
+        if (win.applyCloudNewsletterSubscribers && typeof win.applyCloudNewsletterSubscribers === 'function') {
+          win.applyCloudNewsletterSubscribers(list);
+        }
+      }, (error) => {
+        handleFirestoreError(error, OperationType.GET, 'newsletterSubscribers');
+      });
+      console.log('✅ Admin nyhetsbrevs-lyssnare aktiverad');
+    } catch (err) {
+      console.warn('Fel vid nyhetsbrevslyssnare:', err);
+    }
+  }
+
+  // 5. Synka Produktbevakningar ("Bevaka") i realtid (endast för inloggad admin)
+  if (!unsubscribeStockWatches) {
+    try {
+      unsubscribeStockWatches = onSnapshot(collection(db, 'stockWatches'), (snapshot) => {
+        const list: any[] = [];
+        snapshot.forEach((d) => {
+          list.push(d.data());
+        });
+        list.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+        if (win.applyCloudStockWatches && typeof win.applyCloudStockWatches === 'function') {
+          win.applyCloudStockWatches(list);
+        }
+      }, (error) => {
+        handleFirestoreError(error, OperationType.GET, 'stockWatches');
+      });
+      console.log('✅ Admin produktbevaknings-lyssnare aktiverad');
+    } catch (err) {
+      console.warn('Fel vid produktbevakningslyssnare:', err);
+    }
+  }
 }
 
 function stopAdminListeners() {
@@ -783,6 +1551,16 @@ function stopAdminListeners() {
     unsubscribeCustomers();
     unsubscribeCustomers = null;
     console.log('Admin kund-lyssnare stoppad');
+  }
+  if (unsubscribeNewsletterSubscribers) {
+    unsubscribeNewsletterSubscribers();
+    unsubscribeNewsletterSubscribers = null;
+    console.log('Admin nyhetsbrevs-lyssnare stoppad');
+  }
+  if (unsubscribeStockWatches) {
+    unsubscribeStockWatches();
+    unsubscribeStockWatches = null;
+    console.log('Admin produktbevaknings-lyssnare stoppad');
   }
 }
 
@@ -883,10 +1661,15 @@ function setupFirestoreListeners() {
     console.warn('Fel vid inställning av presentask-lyssnare:', err);
   }
 
-  // 5. Lyssna på Admin-autentisering (endast sagomaskan@outlook.com startar admin-lyssnare)
+  // 5. Lyssna på Admin- och Kund-autentisering
   try {
-    onAuthStateChanged(auth, (user) => {
-      const isAdm = Boolean(user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+    onAuthStateChanged(auth, async (user) => {
+      const isAdm = Boolean(
+        user &&
+          user.email &&
+          user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() &&
+          user.emailVerified !== false
+      );
       const emailDisplay = document.getElementById('adminCurrentEmailDisplay');
       if (emailDisplay) {
         emailDisplay.textContent = isAdm ? (user?.email || ADMIN_EMAIL) : ADMIN_EMAIL;
@@ -899,6 +1682,43 @@ function setupFirestoreListeners() {
         startAdminListeners();
       } else {
         stopAdminListeners();
+      }
+
+      if (user && !isAdm) {
+        if (authFlowInProgress) return;
+        try {
+          const snap = await getDoc(doc(db, 'customers', user.uid));
+          if (snap.exists()) {
+            if (win.applyCloudCustomerProfile && typeof win.applyCloudCustomerProfile === 'function') {
+              win.applyCloudCustomerProfile(snap.data());
+            }
+          } else if (user.email) {
+            const nowIso = new Date().toISOString();
+            const created = buildCleanCustomerDoc(user.uid, {
+              id: user.uid,
+              name: user.displayName && user.displayName.length >= 2 ? user.displayName : user.email.split('@')[0] || 'Kund',
+              email: user.email,
+              createdAt: nowIso,
+              lastLoginAt: nowIso,
+              updatedAt: nowIso,
+              activityLog: [{ label: 'Konto synkat från Firebase', timestamp: nowIso }]
+            });
+            if (created) {
+              await setDoc(doc(db, 'customers', user.uid), created);
+              if (win.applyCloudCustomerProfile && typeof win.applyCloudCustomerProfile === 'function') {
+                win.applyCloudCustomerProfile(created);
+              }
+            }
+          }
+          startCustomerListeners(user.uid, user.email);
+        } catch (err) {
+          console.warn('Kunde inte återställa kundsession från Firebase:', err);
+        }
+      } else if (!user) {
+        stopCustomerListeners();
+        if (win.clearCloudCustomerSession && typeof win.clearCloudCustomerSession === 'function') {
+          win.clearCloudCustomerSession();
+        }
       }
     });
   } catch (err) {

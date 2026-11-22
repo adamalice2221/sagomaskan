@@ -29,6 +29,10 @@ service cloud.firestore {
         && request.auth.token.email.lower() == 'sagomaskan@outlook.com';
     }
 
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
     function isValidProduct(data) {
       return data.name is string && data.name.size() > 0 && data.name.size() <= 150
         && data.price is number && data.price >= 0 && data.price <= 100000;
@@ -42,7 +46,8 @@ service cloud.firestore {
       return data.customerName is string && data.customerName.size() > 0 && data.customerName.size() <= 120
         && data.customerEmail is string && data.customerEmail.size() > 0 && data.customerEmail.size() <= 160
         && data.totalAmount is number && data.totalAmount >= 0 && data.totalAmount <= 500000
-        && data.status is string && data.status in ['Mottagen', 'Packas', 'Skickad', 'Avbruten', 'new', 'shipped', 'cancelled', 'completed', 'processing'];
+        && data.status is string && data.status in ['Mottagen', 'Packas', 'Skickad', 'Avbruten', 'new', 'shipped', 'cancelled', 'completed', 'processing']
+        && (!('customerId' in data) || data.customerId == null || (data.customerId is string && isValidId(data.customerId)));
     }
 
     function isValidMessage(data) {
@@ -57,13 +62,52 @@ service cloud.firestore {
         && data.value is number && data.value >= 0;
     }
 
+    function isValidOrderCounter(data) {
+      return data.keys().hasAll(['nextNumber', 'updatedAt'])
+        && data.keys().hasOnly(['nextNumber', 'updatedAt'])
+        && data.nextNumber is number
+        && data.nextNumber >= 1001
+        && data.nextNumber <= 9999999
+        && data.updatedAt is string
+        && data.updatedAt.size() > 0
+        && data.updatedAt.size() <= 64;
+    }
+
+    function isValidNewsletterSubscriber(data, subscriberId) {
+      return data.keys().hasAll(['id', 'email', 'subscribed', 'subscribedAt', 'updatedAt'])
+        && data.keys().hasOnly(['id', 'email', 'source', 'subscribed', 'subscribedAt', 'updatedAt'])
+        && data.id is string && data.id == subscriberId && isValidId(data.id)
+        && data.email is string && data.email.size() >= 5 && data.email.size() <= 160
+        && data.email.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$')
+        && data.subscribed is bool
+        && (!('source' in data) || (data.source is string && data.source.size() <= 40))
+        && data.subscribedAt is string && data.subscribedAt.size() > 0 && data.subscribedAt.size() <= 64
+        && data.updatedAt is string && data.updatedAt.size() > 0 && data.updatedAt.size() <= 64;
+    }
+
+    function isValidStockWatch(data, watchId) {
+      return data.keys().hasAll(['id', 'productId', 'productName', 'email', 'status', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['id', 'productId', 'productName', 'customerId', 'name', 'email', 'status', 'createdAt', 'updatedAt'])
+        && data.id is string && data.id == watchId && isValidId(data.id)
+        && data.productId is string && data.productId.size() > 0 && isValidId(data.productId)
+        && data.productName is string && data.productName.size() > 0 && data.productName.size() <= 150
+        && (!('customerId' in data) || data.customerId == null || (data.customerId is string && isValidId(data.customerId)))
+        && (!('name' in data) || (data.name is string && data.name.size() <= 100))
+        && data.email is string && data.email.size() >= 5 && data.email.size() <= 160
+        && data.email.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$')
+        && data.status is string && data.status in ['active', 'notified']
+        && data.createdAt is string && data.createdAt.size() > 0 && data.createdAt.size() <= 64
+        && data.updatedAt is string && data.updatedAt.size() > 0 && data.updatedAt.size() <= 64;
+    }
+
     function isValidCustomer(data, customerId) {
       return data.keys().hasAll(['id', 'name', 'email', 'createdAt', 'updatedAt'])
         && data.keys().hasOnly([
           'id', 'name', 'email', 'phone', 'address', 'zip', 'city',
           'favorites', 'favoritesCount', 'newsletterSubscribed',
           'newsletterUpdatedAt', 'createdAt', 'lastLoginAt',
-          'previousLoginAt', 'updatedAt', 'activityLog'
+          'previousLoginAt', 'updatedAt', 'activityLog',
+          'watchedProducts', 'cart', 'giftBoxSelection', 'appliedDiscountCode'
         ])
         && data.id is string && data.id == customerId && isValidId(data.id)
         && data.name is string && data.name.size() >= 2 && data.name.size() <= 120
@@ -81,7 +125,19 @@ service cloud.firestore {
         && (!('newsletterUpdatedAt' in data) || (data.newsletterUpdatedAt is string && data.newsletterUpdatedAt.size() <= 64))
         && (!('lastLoginAt' in data) || (data.lastLoginAt is string && data.lastLoginAt.size() <= 64))
         && (!('previousLoginAt' in data) || (data.previousLoginAt is string && data.previousLoginAt.size() <= 64))
-        && (!('activityLog' in data) || (data.activityLog is list && data.activityLog.size() <= 25));
+        && (!('activityLog' in data) || (data.activityLog is list && data.activityLog.size() <= 25))
+        && (!('watchedProducts' in data) || (data.watchedProducts is list && data.watchedProducts.size() <= 200))
+        && (!('cart' in data) || (data.cart is list && data.cart.size() <= 100))
+        && (!('giftBoxSelection' in data) || (
+          data.giftBoxSelection is map
+          && data.giftBoxSelection.keys().hasAll(['type', 'greeting'])
+          && data.giftBoxSelection.keys().hasOnly(['type', 'greeting'])
+          && data.giftBoxSelection.type is string
+          && data.giftBoxSelection.type in ['none', 'standard', 'luxury']
+          && data.giftBoxSelection.greeting is string
+          && data.giftBoxSelection.greeting.size() <= 500
+        ))
+        && (!('appliedDiscountCode' in data) || (data.appliedDiscountCode is string && data.appliedDiscountCode.size() <= 50));
     }
 
     match /products/{productId} {
@@ -106,14 +162,33 @@ service cloud.firestore {
     }
 
     match /orders/{orderId} {
-      allow get: if isValidId(orderId);
-      allow list: if isAdmin();
-      allow create: if isValidId(orderId) && isValidOrder(incoming());
-      allow update: if isValidId(orderId) && (
+      allow get: if isValidId(orderId) && (
+        isAdmin() ||
+        (resource != null && isSignedIn() && (
+          existing().customerId == request.auth.uid ||
+          (request.auth.token.email != null && request.auth.token.email_verified == true && existing().customerEmail == request.auth.token.email.lower())
+        ))
+      );
+      allow list: if isAdmin() || (
+        isSignedIn() && (
+          resource.data.customerId == request.auth.uid ||
+          (request.auth.token.email != null && request.auth.token.email_verified == true && resource.data.customerEmail == request.auth.token.email.lower())
+        )
+      );
+      allow create: if isValidId(orderId) && isValidOrder(incoming()) && (
+        isAdmin() ||
+        (isSignedIn() && incoming().customerId == request.auth.uid) ||
+        (!isSignedIn() && (!('customerId' in incoming()) || incoming().customerId == null))
+      );
+      allow update: if isValidId(orderId) && isValidOrder(incoming()) && (
         isAdmin() ||
         (
-          existing().status in ['new', 'Mottagen']
+          isSignedIn()
+          && existing().customerId == request.auth.uid
+          && existing().status in ['new', 'Mottagen']
           && incoming().status == 'cancelled'
+          && incoming().customerId == existing().customerId
+          && (!('createdAt' in existing()) || incoming().createdAt == existing().createdAt)
           && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'statusHistory', 'updatedAt'])
         )
       );
@@ -127,23 +202,70 @@ service cloud.firestore {
     }
 
     match /customers/{customerId} {
-      allow get: if isValidId(customerId) && isAdmin();
+      allow get: if isValidId(customerId) && (isAdmin() || isOwner(customerId));
       allow list: if isAdmin();
-      allow create: if isValidId(customerId) && isValidCustomer(incoming(), customerId);
+      allow create: if isValidId(customerId) && isOwner(customerId) && isValidCustomer(incoming(), customerId);
       allow update: if isValidId(customerId) && isValidCustomer(incoming(), customerId) && (
         isAdmin() ||
         (
-          incoming().id == existing().id
+          isOwner(customerId)
+          && incoming().id == existing().id
           && incoming().createdAt == existing().createdAt
           && incoming().diff(existing()).affectedKeys().hasOnly([
             'name', 'email', 'phone', 'address', 'zip', 'city',
             'favorites', 'favoritesCount', 'newsletterSubscribed',
             'newsletterUpdatedAt', 'lastLoginAt', 'previousLoginAt',
-            'updatedAt', 'activityLog'
+            'updatedAt', 'activityLog',
+            'watchedProducts', 'cart', 'giftBoxSelection', 'appliedDiscountCode'
           ])
         )
       );
       allow delete: if isValidId(customerId) && isAdmin();
+    }
+
+    match /counters/{counterId} {
+      allow get: if isValidId(counterId) && counterId == 'orders';
+      allow list: if false;
+      allow create: if isValidId(counterId) && counterId == 'orders' && isValidOrderCounter(incoming());
+      allow update: if isValidId(counterId) && counterId == 'orders' && isValidOrderCounter(incoming()) && (
+        isAdmin() ||
+        incoming().nextNumber == existing().nextNumber + 1
+      );
+      allow delete: if isValidId(counterId) && isAdmin();
+    }
+
+    match /newsletterSubscribers/{subscriberId} {
+      allow get, list: if isAdmin();
+      allow create, update: if isValidId(subscriberId)
+        && isValidNewsletterSubscriber(incoming(), subscriberId)
+        && (incoming().subscribed == true || isAdmin() || isSignedIn());
+      allow delete: if isValidId(subscriberId) && isAdmin();
+    }
+
+    match /stockWatches/{watchId} {
+      allow get: if isValidId(watchId) && (
+        isAdmin() ||
+        (resource != null && isSignedIn() && existing().customerId == request.auth.uid)
+      );
+      allow list: if isAdmin() || (isSignedIn() && resource.data.customerId == request.auth.uid);
+      allow create: if isValidId(watchId) && isValidStockWatch(incoming(), watchId) && (
+        isAdmin() ||
+        (isSignedIn() && incoming().customerId == request.auth.uid) ||
+        (!isSignedIn() && (!('customerId' in incoming()) || incoming().customerId == null))
+      );
+      allow update: if isValidId(watchId) && isValidStockWatch(incoming(), watchId) && (
+        isAdmin() ||
+        (
+          isSignedIn()
+          && incoming().customerId == request.auth.uid
+          && incoming().id == existing().id
+          && incoming().productId == existing().productId
+          && incoming().createdAt == existing().createdAt
+          && (!('customerId' in existing()) || existing().customerId == null || existing().customerId == request.auth.uid)
+          && incoming().diff(existing()).affectedKeys().hasOnly(['productName', 'customerId', 'name', 'email', 'status', 'updatedAt'])
+        )
+      );
+      allow delete: if isValidId(watchId) && isAdmin();
     }
 
     match /discounts/{discountId} {
